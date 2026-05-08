@@ -23,10 +23,9 @@ export function getRequestOrigin(request: NextRequest): string {
 
     let finalOrigin = nextUrlOrigin;
 
-    if (envOrigin) {
-        console.log(`[Origin Debug] Resolving to envOrigin: ${envOrigin}`);
-        finalOrigin = envOrigin;
-    } else if (forwardedHost) {
+    // In multi-tenant or proxied environments, the actual requested host must take precedence
+    // over a hardcoded env string, otherwise subdomain isolation and local proxies will break.
+    if (forwardedHost) {
         const resolved = `${forwardedProto}://${forwardedHost}`;
         console.log(`[Origin Debug] Resolving to forwardedHost: ${resolved}`);
         finalOrigin = resolved;
@@ -34,6 +33,9 @@ export function getRequestOrigin(request: NextRequest): string {
         const resolved = `${forwardedProto}://${host}`;
         console.log(`[Origin Debug] Resolving to host header: ${resolved}`);
         finalOrigin = resolved;
+    } else if (envOrigin) {
+        console.log(`[Origin Debug] Resolving to envOrigin: ${envOrigin}`);
+        finalOrigin = envOrigin;
     } else {
         console.log(`[Origin Debug] Falling back to NextUrl origin: ${nextUrlOrigin}`);
     }

@@ -17,6 +17,10 @@ const ALLOWED_REDIRECT_HOSTS = new Set([
     "worldwideview.dev",
 ]);
 
+if (process.env.ALLOWED_DEV_ORIGIN) {
+    ALLOWED_REDIRECT_HOSTS.add(process.env.ALLOWED_DEV_ORIGIN);
+}
+
 function isSafeRedirect(url: string): boolean {
     try {
         const parsed = new URL(url);
