@@ -2,13 +2,16 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  serverExternalPackages: ["@prisma/client", "prisma", "pg"],
+  serverExternalPackages: ["@prisma/client", "prisma"],
   transpilePackages: ["@worldwideview/wwv-plugin-sdk", "resium", "react-player", "satellite.js"],
   allowedDevOrigins: process.env.ALLOWED_DEV_ORIGIN ? [process.env.ALLOWED_DEV_ORIGIN] : undefined,
   experimental: {
     memoryBasedWorkersCount: true,
     cpus: 2,
     optimizePackageImports: ["lucide-react"],
+  },
+  outputFileTracingIncludes: {
+    "/*": ["./scripts/**/*"],
   },
   typescript: {
     ignoreBuildErrors: true,
@@ -53,11 +56,7 @@ const nextConfig: NextConfig = {
 
   outputFileTracingExcludes: {
     "*": [
-      "./public/cesium/**",
-      ...(process.env.NEXT_PUBLIC_WWV_EDITION === "cloud" ? [
-        "**/node_modules/better-sqlite3/**",
-        "**/node_modules/@prisma/adapter-better-sqlite3/**"
-      ] : [])
+      "./public/cesium/**"
     ],
   },
   env: {

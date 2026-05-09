@@ -26,11 +26,11 @@ Each stage is **self-contained and demo-able**. Any stage can be shipped indepen
 ---
 
 ## Stage 3: Prisma ORM & Local Database ✅
-**Demo:** "Run `pnpm run dev` on a fresh clone. SQLite auto-creates. App works with zero config."
+**Demo:** "Run `pnpm run dev` on a fresh clone with a valid DATABASE_URL. App works seamlessly."
 
 - [x] Prisma (`prisma` + `@prisma/client`)
 - [x] Schema: `InstalledPlugin`, `Setting`, `User`, `AviationHistory`, `NpmCache`
-- [x] SQLite default: `DATABASE_URL=file:./data/wwv.db`
+- [x] PostgreSQL default: `DATABASE_URL` required
 - [x] `predev` script: `prisma migrate deploy`
 - [x] DB auto-creates on first run — zero manual setup
 
@@ -142,7 +142,7 @@ Each stage is **self-contained and demo-able**. Any stage can be shipped indepen
 | **License** | EL2.0 for WorldWideView core; Open Source for marketplace |
 | **Shared types** | `@worldwideview/plugin-sdk` npm package (MIT) |
 | **Hosting** | Coolify (ThinkPad T480s). Landing page on Vercel (static export) |
-| **Database** | Supabase PostgreSQL (cloud), SQLite (local), Prisma ORM |
+| **Database** | PostgreSQL, Prisma ORM |
 | **Tenant isolation** | Row-Level Security (RLS) in shared PostgreSQL |
 | **User settings** | Runtime settings store in DB, not `.env` |
 | **Bot prevention** | Email verification + Cloudflare Turnstile + rate limiting |

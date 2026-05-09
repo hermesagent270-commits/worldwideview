@@ -19,7 +19,7 @@ Our primary design, feature-set, and operational layout goal is to mimic the str
 | State | Zustand (slice-based: globe, layers, timeline, UI, filters, data, config, favorites, geojson) |
 | Event Bus | Custom typed `DataBus` (pub/sub singleton) |
 | Styling | Vanilla CSS — **no Tailwind** |
-| Database | SQLite via Prisma (local), PostgreSQL (cloud) |
+| Database | PostgreSQL via Prisma 7 (local and cloud) |
 | Auth | NextAuth v5 beta (Credentials provider, JWT sessions) |
 | Package Manager | pnpm (monorepo with `pnpm-workspace.yaml`) |
 | Testing | Vitest + jsdom + React Testing Library |
@@ -77,7 +77,7 @@ worldwideview/
 ├── prisma/                # schema.prisma, migrations/
 ├── public/                # Static assets, Cesium workers, plugin GeoJSON data
 ├── scripts/               # Build scripts (copy-cesium, scaffold-osm-plugin, setup)
-├── data/                  # SQLite database (gitignored, Docker volume)
+├── data/                  # PostgreSQL data volume (gitignored)
 ├── Dockerfile             # Multi-stage production build
 ├── docker-compose.yml     # Main app + microservice backends
 └── .agents/               # Agent documentation, rules, skills, workflows
@@ -102,7 +102,7 @@ Visibility Toggle → DataBusSubscriber subscribes to layer via WsClient
 ```
 
 Four plugin architectures exist (All-Bundle Model):
-1. **Data Engine Seeder** — Standalone Fastify container with SQLite microservice or unified seeders (e.g., `iranwarlive-backend`).
+1. **Data Engine Seeder** — Standalone Fastify container with PostgreSQL microservice or unified seeders (e.g., `iranwarlive-backend`).
 2. **Dynamic CDN Loaded (Bundle)** — Externally developed plugins dynamically imported at runtime via ES module CDNs (e.g., `unpkg.com` version-pinned URLs).
 3. **Static Compiled (Bundle)** — Static GeoJSON data wrapped into JS bundles via `wwvStaticCompiler` during build/sync (previously `StaticDataPlugin`).
 4. **Active Proxied (Bundle)** — Next.js API routes bundled to provide frontend interactions (previously `DeclarativePlugin`).
@@ -224,7 +224,7 @@ Whenever agents generate temporary debugging scripts, test REST endpoints via `.
 
 | Variable | Required | Description |
 |---|---|---|
-| `DATABASE_URL` | Yes | SQLite: `file:./data/wwv.db` |
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `AUTH_SECRET` | Yes | JWT signing secret (generate with `openssl rand -hex 32`) |
 | `NEXT_PUBLIC_CESIUM_ION_TOKEN` | No | Cesium Ion access token |
 | `NEXT_PUBLIC_BING_MAPS_KEY` | No | Bing Maps imagery |
@@ -250,9 +250,9 @@ pnpm dev:all          # Frontend + wwv-data-engine concurrently (normal developm
 pnpm dev:backends     # Run only the data engine in dev mode
 pnpm build            # Production build
 pnpm test             # Run all Vitest tests (scoped to src/lib, src/core, src/plugins)
-pnpm db:reset         # Reset and re-migrate the frontend SQLite database (destructive)
+pnpm db:reset         # Reset and re-migrate the frontend database (destructive)
 pnpm start:backends   # Start all plugin microservice backends in parallel
-pnpm clean:backends   # Wipe all plugin SQLite databases
+pnpm clean:backends   # Wipe all plugin database records
 pnpm run scaffold-osm-plugin <name>  # Generate a new plugin from scaffold
 ```
 
@@ -267,8 +267,8 @@ Frontend runs at `http://localhost:3000`.
 - **Cesium assets**: Copied to `public/cesium/` via `scripts/copy-cesium.mjs` at build time, excluded from output tracing.
 - **Prisma Configuration**: `prisma.config.ts` must export a native javascript object instead of dynamically importing CLI wrapper binaries (`prisma/config` or `dotenv`). The standalone Next.js tracer strips CLI devDependencies during the build, which will cause fatal runtime container crashes if imported.
 - **Microservices**: Separate containers defined in `docker-compose.yml`, proxied via `next.config.ts` rewrites.
-- **Coolify**: Deployed via Dockerfile builder natively mapping environment variables continuously into the container shell. Persistent storage mount required at `/app/data` for the SQLite root node database.
-- **Docker volumes**: Mount `/app/data` (frontend SQLite), `/app/packages/wwv-data-engine/data` (data engine SQLite), `/data` (Redis)
+- **Coolify**: Deployed via Dockerfile builder natively mapping environment variables continuously into the container shell.
+- **Docker volumes**: Ensure PostgreSQL data and Redis volumes are mounted for persistence.
 
 ---
 
@@ -315,7 +315,7 @@ Read the relevant rule file when working in that domain:
 | `plugin-architecture` | Creating/modifying plugins, lifecycle, registration | `.agents/rules/plugin-architecture.md` |
 | `cesium-rendering` | Globe rendering, entity types, primitives, LOD, culling | `.agents/rules/cesium-rendering.md` |
 | `state-management` | Zustand slices, store access, plugin settings | `.agents/rules/state-management.md` |
-| `database-migrations` | Prisma schema changes, migrations, SQLite/Postgres | `.agents/rules/database-migrations.md` |
+| `database-migrations` | Prisma schema changes, migrations, PostgreSQL | `.agents/rules/database-migrations.md` |
 | `continuous-improvement` | When to create/update rules, skills, or workflows | `.agents/rules/continuous-improvement.md` |
 | `context-and-memory` | How to orient and maintain project context between sessions | `.agents/rules/context-and-memory.md` |
 
@@ -362,3 +362,21 @@ Refer to these skill documents for specialized tasks:
 ### Global Skills
 
 52 skills are available across all projects. See `.agents/global-skills-index.md` for the full list and invocation paths.
+
+---
+
+## 15. Pull Request & Commit Guidelines
+
+- **Commit Format**: We strictly enforce Conventional Commits (`feat:`, `fix:`, `refactor:`, `perf:`).
+- **Workflow**: You **MUST** use the `/commit` workflow before every git commit to ensure proper semantic versioning bumps.
+- **Required Checks**: Ensure `pnpm test` and `pnpm build` complete successfully before proposing a merge.
+- **Review Process**: Use `/pr-review` to conduct a comprehensive multi-role review on any pull request.
+
+---
+
+## 16. Debugging and Troubleshooting
+
+- **Prisma & PostgreSQL Sync Issues**: If the local database state falls out of sync with Prisma schema, do not manually drop tables. Instead, run `pnpm db:reset` to cleanly wipe and re-apply all migrations.
+- **Cesium Entity Clipping**: If `billboard` entities are clipping or failing to render correctly, verify that you are not mixing `point` primitive properties (like `size` or `outlineWidth`) into the `billboard` options.
+- **Build Exhaustion (Docker)**: Multi-stage pnpm builds generate massive cache layers. If a Coolify deployment fails silently or PostgreSQL crashes abruptly, check host disk space and run `docker builder prune -a -f`.
+- **Next.js Typechecking Failures**: If backend-only `scripts/` fail during Next.js build, verify that the scripts directory is properly listed in the `exclude` array of `tsconfig.json`.

@@ -24,7 +24,7 @@ The system is highly modularized to separate React UI rendering from heavy Cesiu
 - `docker-compose.yml` - Defines the orchestration of the frontend, Redis cache, and all local plugin microservice backends (`wwv-data-engine`).
 
 ## Configuration
-- `prisma/schema.prisma` - Local SQLite and cloud PostgreSQL database schema for storing user settings and installed plugin manifests.
+- `prisma/schema.prisma` - PostgreSQL database schema for storing user settings and installed plugin manifests.
 - `scripts/copy-cesium.mjs` - Crucial build-time script that extracts and copies CesiumJS static web workers to `public/cesium/`.
 - `public/` - Static assets, plugin icons, and compiled Cesium workers.
 

@@ -20,7 +20,7 @@ The core build configuration resides in `package.json` and `next.config.ts`. A c
 
 ## Platform Setup
 
-- **Database Migrations:** Prisma schema is located at `prisma/schema.prisma`. During development, `pnpm dev` triggers a `predev` hook running `npx prisma migrate deploy` to ensure SQLite tables exist in `data/wwv.db`.
+- **Database Migrations:** Prisma schema is located at `prisma/schema.prisma`. During development, `pnpm dev` triggers a `predev` hook running `npx prisma migrate deploy` to ensure PostgreSQL tables are initialized.
 - **Microservices:** Data engine seeders and standalone Fastify backend plugins (like `wwv-plugin-iranwarlive/backend`) are started via `pnpm start:backends` and managed locally inside `packages/*/backend`.
 - **Plugin Packages:** Internal plugin packages must be properly listed in `tsconfig.json` paths and `next.config.ts`'s `transpilePackages` array.
 

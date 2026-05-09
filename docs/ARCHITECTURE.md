@@ -12,7 +12,7 @@ The core design philosophy is the "All-Bundle Model," where plugins are dynamica
 - **State Management:** Zustand slice-based architecture (in `src/core/state/`).
 - **Data Pipeline:** Custom event bus (`DataBus`) and WebSocket clients (`DataBusSubscriber`) routing live data to state (in `src/core/data/`).
 - **Plugin System:** Registration, lifecycle management, and ES module loaders (in `src/core/plugins/`).
-- **Database Layer:** Prisma ORM connecting to local SQLite or cloud PostgreSQL (in `prisma/`).
+- **Database Layer:** Prisma ORM connecting to PostgreSQL (in `prisma/`).
 
 ## Key Files
 - `src/core/plugins/PluginManager.ts` - The PluginManager class. Core registry that instantiates plugins, calls `initialize()`, and handles lifecycle events.

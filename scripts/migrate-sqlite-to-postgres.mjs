@@ -1,6 +1,9 @@
 import { execSync } from "child_process";
 import fs from "fs";
-import { PrismaClient } from "../src/generated/prisma/index.js";
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
+const { Pool } = pg;
 
 const SQLITE_DB_PATH = "./data/wwv.db";
 const MIGRATED_MARKER = "./data/wwv.db.migrated";
@@ -18,8 +21,16 @@ async function run() {
 
   console.log("[migration] Legacy SQLite database detected. Initiating migration to PostgreSQL...");
 
-  // Initialize Prisma client connecting to PostgreSQL
-  const prisma = new PrismaClient();
+  // Initialize Prisma client connecting to PostgreSQL natively via adapter
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    console.error("[migration] DATABASE_URL environment variable is missing.");
+    process.exit(1);
+  }
+
+  const pool = new Pool({ connectionString });
+  const adapter = new PrismaPg(pool);
+  const prisma = new PrismaClient({ adapter });
 
   try {
     await prisma.$connect();
@@ -38,7 +49,12 @@ async function run() {
       let rowsJson = "[]";
       try {
         // Read data from SQLite
-        const output = execSync(`sqlite3 --json ${SQLITE_DB_PATH} "SELECT * FROM ${table.sqlite};"`, { encoding: "utf-8", stdio: ['pipe', 'pipe', 'ignore'] });
+        const isWindows = process.platform === "win32";
+        const cmd = isWindows 
+          ? `docker run --rm -v "${process.cwd().replace(/\\/g, '/')}/data:/data" keinos/sqlite3 sqlite3 --json /data/wwv.db "SELECT * FROM ${table.sqlite};"`
+          : `sqlite3 --json ${SQLITE_DB_PATH} "SELECT * FROM ${table.sqlite};"`;
+          
+        const output = execSync(cmd, { encoding: "utf-8", stdio: ['pipe', 'pipe', 'ignore'] });
         if (output && output.trim()) {
           rowsJson = output;
         }

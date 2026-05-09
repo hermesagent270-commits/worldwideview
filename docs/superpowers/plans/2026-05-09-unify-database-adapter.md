@@ -135,7 +135,7 @@ git commit -m "refactor(db): remove better-sqlite3 dependencies"
 Replace the entire contents of `src/lib/db.ts` with:
 
 ```typescript
-import { PrismaClient } from "../generated/prisma/client";
+import { PrismaClient } from "../generated/prisma";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 
@@ -207,7 +207,7 @@ git commit -m "refactor(db): unify adapter to postgresql-only via PrismaPg"
 Replace the entire contents of `scripts/cleanup-plugins.ts`:
 
 ```typescript
-import { PrismaClient } from "../src/generated/prisma/client.js";
+import { PrismaClient } from "../src/generated/prisma/index.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 
@@ -243,7 +243,7 @@ main().catch(console.error);
 Replace the entire contents of `scripts/manage-users.ts`:
 
 ```typescript
-import { PrismaClient } from "../src/generated/prisma/client.js";
+import { PrismaClient } from "../src/generated/prisma/index.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { hashSync } from "bcryptjs";

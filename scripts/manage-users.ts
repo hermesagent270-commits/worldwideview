@@ -1,11 +1,5 @@
-import { PrismaClient } from "../src/generated/prisma/client.js";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
+import { prisma } from "../src/lib/db";
 import { hashSync } from "bcryptjs";
-
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter } as any);
 
 async function main() {
     const action = process.argv[2];

@@ -1,4 +1,4 @@
-import { PrismaClient } from "../generated/prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { headers } from "next/headers";
@@ -68,18 +68,23 @@ function applyTenantIsolation(client: any) {
 function createPrismaClient(): PrismaClient {
     const connectionString = process.env.DATABASE_URL;
 
+    // During Next.js build time, DATABASE_URL might not be set.
+    // We shouldn't throw synchronously here to avoid breaking static generation.
     if (!connectionString) {
-        throw new Error(
-            "[db] DATABASE_URL is not set. " +
-            "Run `npx prisma dev` for local development, " +
-            "or set DATABASE_URL to your PostgreSQL connection string."
-        );
+        console.warn("[db] DATABASE_URL is not set. Database operations will fail until it is provided.");
+        // Return a dummy proxy that throws only when an operation is actually attempted
+        return new Proxy({}, {
+            get(target, prop) {
+                if (prop === '$extends') return () => target; // needed for applyTenantIsolation
+                throw new Error("[db] DATABASE_URL is missing. Please set it to a PostgreSQL connection string.");
+            }
+        }) as PrismaClient;
     }
 
     const pool = new Pool({ connectionString });
     const adapter = new PrismaPg(pool);
-
-    const client = new PrismaClient({ adapter } as any);
+    const client = new PrismaClient({ adapter });
+    
     return applyTenantIsolation(client);
 }
 

@@ -17,7 +17,7 @@ The core value proposition of WorldWideView is mapping diverse, decoupled intell
 - **3D Engine:** CesiumJS + Resium (Google Photorealistic 3D Tiles) — `src/core/globe/GlobeView.tsx`
 - **State Management:** Zustand — `src/core/state/` (slice-based store)
 - **Event Bus:** Custom typed `DataBus` — `src/core/data/DataBus.ts`
-- **Database:** SQLite via Prisma (local), PostgreSQL (cloud) — `prisma/schema.prisma`
+- **Database:** PostgreSQL via Prisma 7 — `prisma/schema.prisma`
 - **Styling:** Vanilla CSS (no Tailwind) — `src/app/globals.css`
 
 ## Platform Support

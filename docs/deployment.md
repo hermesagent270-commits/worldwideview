@@ -18,7 +18,7 @@ WorldWideView utilizes a containerized deployment strategy based on Docker's mul
 ### Coolify Integration
 WorldWideView deploys optimally to Coolify using a Dockerfile builder.
 - **Environment Variables:** Must be explicitly mapped in the Coolify UI (e.g., `DATABASE_URL`, `AUTH_SECRET`).
-- **Persistent Storage:** SQLite requires a persistent volume mounted to `/app/data` to ensure the frontend registry (installed plugins, user configs) survives container rebuilds.
+- **Persistent Storage:** PostgreSQL databases must be hosted externally or mounted via persistent volumes to ensure the frontend registry (installed plugins, user configs) survives container rebuilds.
 - **Microservices Deployment:** The `wwv-data-engine-internal` and associated plugin seeders are deployed as separate Coolify services communicating over private internal networks.
 
 ### Docker Structure
@@ -29,6 +29,6 @@ WorldWideView deploys optimally to Coolify using a Dockerfile builder.
 - **Standalone Config:** `next.config.ts` (sets `output: "standalone"`).
 - **Prisma Export:** `prisma.config.ts` ensures no CLI wrappers are invoked inside the standalone container, preventing fatal `MODULE_NOT_FOUND` runtime crashes.
 - **Docker Mounts:** 
-  - Main App: `/app/data` (SQLite DB)
-  - Data Engine: `/app/packages/wwv-data-engine/data` (SQLite DB)
+  - Main App: PostgreSQL data volume (if running in-cluster)
+  - Data Engine: PostgreSQL data volume (if running in-cluster)
   - Cache: `/data` (Redis)

@@ -21,7 +21,7 @@ WorldWideView is a real-time geospatial engine visualizing live global data on a
 - **3D Engine:** CesiumJS + Resium (Google Photorealistic 3D Tiles)
 - **State Management:** Zustand
 - **Event Bus:** Custom typed `DataBus` for high-frequency WebSocket updates
-- **Database:** SQLite via Prisma (local), PostgreSQL (cloud)
+- **Database:** PostgreSQL via Prisma 7
 - **Deployment:** Docker multi-stage build, Coolify
 
 ## Quick Start (Self-Hosting)
@@ -41,7 +41,7 @@ Invoke-WebRequest -Uri https://raw.githubusercontent.com/silvertakana/worldwidev
 ```
 
 > [!NOTE]
-> Ensure you mount the `/app/data` volume to persist the SQLite database across container restarts.
+> Ensure you connect a PostgreSQL database via the `DATABASE_URL` environment variable for production deployments.
 
 ## Quick Start (Local Development)
 

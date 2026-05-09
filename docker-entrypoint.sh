@@ -10,10 +10,7 @@ echo "[entrypoint] Running database migrations..."
 npx -y prisma migrate deploy
 echo "[entrypoint] Migrations complete."
 
-if [ -f "./scripts/migrate-sqlite-to-postgres.mjs" ]; then
-  echo "[entrypoint] Checking for legacy SQLite database to migrate..."
-  node ./scripts/migrate-sqlite-to-postgres.mjs
-fi
+
 
 # Generate self-signed SSL certificates for local HTTPS bridging if they don't exist
 if [ ! -f "./data/localhost.crt" ] || [ ! -f "./data/localhost.key" ]; then

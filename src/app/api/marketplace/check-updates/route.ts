@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     if (rateLimited) return rateLimited;
 
     try {
-        // Fetch currently installed plugins from local SQLite
+        // Fetch currently installed plugins from PostgreSQL
         const installedPlugins = await getInstalledPlugins();
         
         // Exclude built-in versions, only check genuine semver strings or unverified records.
