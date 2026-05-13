@@ -69,6 +69,7 @@
     "copy-webpack-plugin": "^14.0.0",
     "eslint": "^9",
     "eslint-config-next": "^16.2.6",
+    "fast-check": "^4.8.0",
     "jsdom": "^28.1.0",
     "rollup-plugin-external-globals": "^0.13.0",
     "tsx": "^4.21.0",

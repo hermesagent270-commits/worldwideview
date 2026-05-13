@@ -1,5 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { normalizeToGeoJson } from "./normalizer";
+import fc from "fast-check";
 
 describe("normalizeToGeoJson", () => {
   test("passes through a valid FeatureCollection", () => {
@@ -160,5 +161,38 @@ describe("normalizeToGeoJson", () => {
 
   test("throws on unrecognized format", () => {
     expect(() => normalizeToGeoJson({ foo: "bar" })).toThrow("Unrecognized");
+  });
+
+  test("property: handles random coordinate inputs autonomously", () => {
+    // This property test autonomously generates random float pairs to test edge-cases
+    fc.assert(
+      fc.property(
+        fc.float({ noDefaultInfinity: true, noNaN: true }),
+        fc.float({ noDefaultInfinity: true, noNaN: true }),
+        (lon, lat) => {
+          const input = {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [lon, lat] },
+            properties: {},
+          };
+
+          try {
+            const result = normalizeToGeoJson(input);
+            // normalizer skips coordinates outside valid bounds [-180, 180], [-90, 90]
+            if (lon < -180 || lon > 180 || lat < -90 || lat > 90) {
+              expect(result.skippedCount).toBe(1);
+            } else {
+              expect(result.skippedCount).toBe(0);
+              expect(result.collection.features[0].geometry.coordinates).toEqual([lon, lat]);
+            }
+          } catch (e: any) {
+            // Normalizer explicitly throws if ALL features are skipped
+            if (e.message !== "No features with valid geometry found.") {
+              throw e;
+            }
+          }
+        }
+      )
+    );
   });
 });
