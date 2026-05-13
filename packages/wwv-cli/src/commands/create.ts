@@ -103,7 +103,14 @@ export const createCommand = new Command('create')
   "name": "@worldwideview/wwv-plugin-${pluginId}",
   "version": "1.0.0",
   "description": "${description}",
-  "main": "src/index.ts",
+  "main": "dist/frontend.mjs",
+  "module": "dist/frontend.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/frontend.mjs",
+      "require": "./dist/frontend.mjs"
+    }
+  },
   "scripts": {
     "build": "tsc"
   },
@@ -117,7 +124,8 @@ export const createCommand = new Command('create')
     "icon": "${defaultIcon}",
     "category": "${category}",${streamUrlField}
     "author": "Your Name",
-    "dev_entry": "src/index.ts"
+    "dev_entry": "src/index.ts",
+    "format": "bundle"
   }
 }
 `;

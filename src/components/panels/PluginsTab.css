@@ -338,58 +338,56 @@
     box-shadow: none;
 }
 
- / *   - - -   D i s a b l e d   s e c t i o n   - - -   * / 
- . p l u g i n s - t a b _ _ s e c t i o n - t i t l e   { 
-         f o n t - s i z e :   1 1 p x ; 
-         f o n t - w e i g h t :   6 0 0 ; 
-         c o l o r :   v a r ( - - t e x t - m u t e d ) ; 
-         t e x t - t r a n s f o r m :   u p p e r c a s e ; 
-         l e t t e r - s p a c i n g :   0 . 0 5 e m ; 
-         p a d d i n g :   v a r ( - - s p a c e - m d )   v a r ( - - s p a c e - s m )   v a r ( - - s p a c e - x s ) ; 
-         b o r d e r - b o t t o m :   1 p x   s o l i d   v a r ( - - g l a s s - b o r d e r ) ; 
-         m a r g i n - b o t t o m :   v a r ( - - s p a c e - x s ) ; 
- } 
- 
- . p l u g i n - i t e m - - d i s a b l e d   { 
-         o p a c i t y :   0 . 5 ; 
-         f i l t e r :   g r a y s c a l e ( 1 0 0 % ) ; 
- } 
- 
- . p l u g i n - i t e m _ _ d i s a b l e ,   . p l u g i n - i t e m _ _ e n a b l e   { 
-         d i s p l a y :   f l e x ; 
-         a l i g n - i t e m s :   c e n t e r ; 
-         j u s t i f y - c o n t e n t :   c e n t e r ; 
-         w i d t h :   2 8 p x ; 
-         h e i g h t :   2 8 p x ; 
-         b o r d e r - r a d i u s :   v a r ( - - r a d i u s - s m ) ; 
-         b a c k g r o u n d :   t r a n s p a r e n t ; 
-         b o r d e r :   1 p x   s o l i d   t r a n s p a r e n t ; 
-         c o l o r :   v a r ( - - t e x t - m u t e d ) ; 
-         c u r s o r :   p o i n t e r ; 
-         f l e x - s h r i n k :   0 ; 
-         o p a c i t y :   0 ; 
-         t r a n s i t i o n :   a l l   v a r ( - - d u r a t i o n - n o r m a l )   v a r ( - - e a s e - s p r i n g ) ; 
- } 
- 
- . p l u g i n - i t e m : h o v e r   . p l u g i n - i t e m _ _ d i s a b l e , 
- . p l u g i n - i t e m : h o v e r   . p l u g i n - i t e m _ _ e n a b l e   { 
-         o p a c i t y :   1 ; 
- } 
- 
- . p l u g i n - i t e m _ _ d i s a b l e : h o v e r   { 
-         c o l o r :   v a r ( - - a c c e n t - a m b e r ) ; 
-         b a c k g r o u n d :   r g b a ( 2 4 5 ,   1 5 8 ,   1 1 ,   0 . 1 ) ; 
-         b o r d e r - c o l o r :   r g b a ( 2 4 5 ,   1 5 8 ,   1 1 ,   0 . 3 ) ; 
-         b o x - s h a d o w :   v a r ( - - g l a s s - s h a d o w - i n n e r ) ; 
-         t r a n s f o r m :   s c a l e ( 0 . 9 5 ) ; 
- } 
- 
- . p l u g i n - i t e m _ _ e n a b l e : h o v e r   { 
-         c o l o r :   v a r ( - - a c c e n t - g r e e n ) ; 
-         b a c k g r o u n d :   r g b a ( 7 4 ,   2 2 2 ,   1 2 8 ,   0 . 1 ) ; 
-         b o r d e r - c o l o r :   r g b a ( 7 4 ,   2 2 2 ,   1 2 8 ,   0 . 3 ) ; 
-         b o x - s h a d o w :   v a r ( - - g l a s s - s h a d o w - i n n e r ) ; 
-         t r a n s f o r m :   s c a l e ( 0 . 9 5 ) ; 
- } 
-  
- 
+/* --- Disabled section --- */
+.plugins-tab__section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-md) var(--space-sm) var(--space-xs);
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: var(--space-xs);
+}
+
+.plugin-item--disabled {
+    opacity: 0.5;
+    filter: grayscale(100%);
+}
+
+.plugin-item__disable, .plugin-item__enable {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: all var(--duration-normal) var(--ease-spring);
+}
+
+.plugin-item:hover .plugin-item__disable,
+.plugin-item:hover .plugin-item__enable {
+    opacity: 1;
+}
+
+.plugin-item__disable:hover {
+    color: var(--accent-amber);
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.3);
+    box-shadow: var(--glass-shadow-inner);
+    transform: scale(0.95);
+}
+
+.plugin-item__enable:hover {
+    color: var(--accent-green);
+    background: rgba(74, 222, 128, 0.1);
+    border-color: rgba(74, 222, 128, 0.3);
+    box-shadow: var(--glass-shadow-inner);
+    transform: scale(0.95);
+}
