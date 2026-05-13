@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { createStore } from 'zustand/vanilla';
+import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createFavoritesSlice, FavoritesSlice, FavoriteItem } from './favoritesSlice';
 import type { GeoEntity } from '@/core/plugins/PluginTypes';
 
@@ -10,7 +10,7 @@ vi.mock('@/core/edition', () => ({
 import { isDemo } from '@/core/edition';
 
 describe('favoritesSlice', () => {
-    let store: ReturnType<typeof createStore<FavoritesSlice>>;
+    let store: StoreApi<FavoritesSlice>;
 
     beforeEach(() => {
         // Reset document.cookie and mock fetch

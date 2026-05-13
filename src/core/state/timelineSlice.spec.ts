@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createStore } from 'zustand/vanilla';
+import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createTimelineSlice, TimelineSlice } from './timelineSlice';
 import type { TimeWindow } from '@/core/plugins/PluginTypes';
 
 describe('timelineSlice', () => {
-    let store: ReturnType<typeof createStore<TimelineSlice>>;
+    let store: StoreApi<TimelineSlice>;
 
     beforeEach(() => {
         // Freeze time for consistent tests

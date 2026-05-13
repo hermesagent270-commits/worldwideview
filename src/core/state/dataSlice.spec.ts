@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createStore } from 'zustand/vanilla';
+import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createDataSlice, DataSlice } from './dataSlice';
 import type { GeoEntity } from '@/core/plugins/PluginTypes';
 
@@ -9,7 +9,7 @@ interface MockAppStore extends DataSlice {
 }
 
 describe('dataSlice', () => {
-    let store: ReturnType<typeof createStore<MockAppStore>>;
+    let store: StoreApi<MockAppStore>;
 
     beforeEach(() => {
         store = createStore<MockAppStore>((set, get, api) => {

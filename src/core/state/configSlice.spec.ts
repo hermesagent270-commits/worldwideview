@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createStore } from 'zustand/vanilla';
+import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createConfigSlice, ConfigSlice } from './configSlice';
 
 describe('configSlice', () => {
-    let store: ReturnType<typeof createStore<ConfigSlice>>;
+    let store: StoreApi<ConfigSlice>;
 
     beforeEach(() => {
         // Mock localStorage

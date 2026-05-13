@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createStore } from 'zustand/vanilla';
+import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createLayersSlice, LayersSlice } from './layersSlice';
 
 describe('layersSlice', () => {
-    let store: ReturnType<typeof createStore<LayersSlice>>;
+    let store: StoreApi<LayersSlice>;
 
     beforeEach(() => {
         store = createStore<LayersSlice>((set, get, api) => createLayersSlice(set as any, get as any, api as any));

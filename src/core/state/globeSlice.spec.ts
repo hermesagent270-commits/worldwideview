@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createStore } from 'zustand/vanilla';
+import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createGlobeSlice, GlobeSlice } from './globeSlice';
 
 describe('globeSlice', () => {
-    let store: ReturnType<typeof createStore<GlobeSlice>>;
+    let store: StoreApi<GlobeSlice>;
 
     beforeEach(() => {
         // Create an isolated vanilla store specifically for this slice

@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createStore } from 'zustand/vanilla';
+import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createGeoJsonSlice, GeoJsonSlice, ImportedLayer } from './geojsonSlice';
 
 describe('geojsonSlice', () => {
-    let store: ReturnType<typeof createStore<GeoJsonSlice>>;
+    let store: StoreApi<GeoJsonSlice>;
 
     const mockLayer: ImportedLayer = {
         id: 'layer-1',

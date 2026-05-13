@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createStore } from 'zustand/vanilla';
+import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createUISlice, UISlice, FloatingStream } from './uiSlice';
 import type { GeoEntity } from '@/core/plugins/PluginTypes';
 
@@ -9,7 +9,7 @@ vi.mock('@/lib/analytics', () => ({
 }));
 
 describe('uiSlice', () => {
-    let store: ReturnType<typeof createStore<UISlice>>;
+    let store: StoreApi<UISlice>;
 
     beforeEach(() => {
         // Reset local storage and document element

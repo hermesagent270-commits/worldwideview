@@ -8,7 +8,7 @@ describe("analytics", () => {
 
   it("should call window.umami.track if available", () => {
     trackEvent("test-event", { key: "val" });
-    expect(window.umami.track).toHaveBeenCalledWith("test-event", { key: "val" });
+    expect(window.umami!.track).toHaveBeenCalledWith("test-event", { key: "val" });
   });
 
   it("should not throw if umami is missing", () => {

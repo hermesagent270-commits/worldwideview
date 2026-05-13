@@ -86,7 +86,7 @@ describe("State Slices", () => {
       const get = () => state;
       const slice = createDataSlice(set, get, {} as any);
 
-      const newEntities = [{ id: "1", pluginId: "p1", name: "New Name" }];
+      const newEntities = [{ id: "1", pluginId: "p1", name: "New Name" } as any];
       slice.setEntities("p1", newEntities);
 
       expect(state.entitiesByPlugin["p1"]).toEqual(newEntities);
@@ -157,8 +157,8 @@ describe("State Slices", () => {
       const set = (fn: any) => { state = { ...state, ...fn(state) }; };
       const slice = createFilterSlice(set, () => ({} as any), {} as any);
 
-      slice.setFilter("p1", "f1", "val1");
-      expect(state.filters["p1"]["f1"]).toBe("val1");
+      slice.setFilter("p1", "f1", { type: "boolean", value: true });
+      expect(state.filters["p1"]["f1"]).toEqual({ type: "boolean", value: true });
 
       slice.clearFilters("p1");
       expect(state.filters["p1"]).toBeUndefined();

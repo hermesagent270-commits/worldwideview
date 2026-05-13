@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createStore } from 'zustand/vanilla';
+import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createFilterSlice, FilterSlice } from './filterSlice';
 import type { FilterValue } from '@/core/plugins/PluginTypes';
 
 describe('filterSlice', () => {
-    let store: ReturnType<typeof createStore<FilterSlice>>;
+    let store: StoreApi<FilterSlice>;
 
     beforeEach(() => {
         store = createStore<FilterSlice>((set, get, api) => createFilterSlice(set as any, get as any, api as any));
@@ -26,7 +26,7 @@ describe('filterSlice', () => {
 
     it('updates an existing filter without overwriting other filters for the same plugin', () => {
         const filterVal1: FilterValue = { type: 'boolean', value: true };
-        const filterVal2: FilterValue = { type: 'select', value: 'option1' };
+        const filterVal2: FilterValue = { type: 'select', values: ['option1'] };
         
         store.getState().setFilter('plugin-a', 'filter-1', filterVal1);
         store.getState().setFilter('plugin-a', 'filter-2', filterVal2);
