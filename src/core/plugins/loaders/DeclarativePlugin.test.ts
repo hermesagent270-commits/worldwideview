@@ -224,17 +224,20 @@ describe("DeclarativePlugin", () => {
         const plugin = new DeclarativePlugin(makeManifest({
             dataSource: {
                 url: "https://api.example.com/data?type=test",
+                method: "GET",
+                pollInterval: 60000,
+                format: "geojson",
                 auth: { type: "query", key: "token", envVar: "API_KEY" }
             }
         }));
-        
+
         await plugin.fetch({ start: new Date(), end: new Date() });
-        
+
         expect(fetch).toHaveBeenCalledWith(
             "https://api.example.com/data?type=test&token=secret123",
             expect.any(Object)
         );
-        
+
         process.env = originalEnv;
     });
 
@@ -251,6 +254,9 @@ describe("DeclarativePlugin", () => {
         const plugin = new DeclarativePlugin(makeManifest({
             dataSource: {
                 url: "https://api.example.com/data",
+                method: "GET",
+                pollInterval: 60000,
+                format: "geojson",
                 auth: { type: "query", key: "token", envVar: "MISSING_KEY" }
             }
         }));
@@ -277,6 +283,9 @@ describe("DeclarativePlugin", () => {
         const plugin = new DeclarativePlugin(makeManifest({
             dataSource: {
                 url: "https://api.example.com/data",
+                method: "GET",
+                pollInterval: 60000,
+                format: "geojson",
                 auth: { type: "header", key: "Authorization", envVar: "HEADER_KEY" }
             }
         }));
@@ -305,6 +314,8 @@ describe("DeclarativePlugin", () => {
             dataSource: {
                 url: "https://api.example.com/data",
                 method: "POST",
+                pollInterval: 60000,
+                format: "geojson",
                 body: { query: "test" }
             }
         }));
