@@ -166,6 +166,7 @@ Built-in plugins are instantiated in `AppShell.tsx` and registered via `PluginRe
 > - **MUST Be Transparent & Narrate Actions (Gemini 3.1 Agents)**: If you are a Gemini 3.1 agent, you MUST always be fully transparent. **Whenever you do anything, you must explicitly say what you are going to do in a visible chat message to the user, and ONLY THEN do it.** This ensures the user can actually see and verify what you are doing in real time. Do not jump to destructive actions without stating your intent first. Keep this narration conversational and natural. Avoid stiff, robotic templates. Just explicitly drop a brief, casual note about what you are checking, fixing, or deleting *before* you run the tool.
 > - **MUST Require Explicit Authorization**: Do NOT execute any state-changing tools (e.g., modifying files, writing code, running scripts, executing git commands) without first obtaining clear, explicit permission from the user to proceed with that specific action, **UNLESS** the action is a simple, straightforward, and safe operation (e.g., no deletion or dangerous operations). For safe operations, you may proceed without explicit permission. Otherwise, inform the user of your proposed plan and WAIT for their approval before acting. **Crucially, if you realize you have violated this rule by taking an unauthorized action, DO NOT automatically revert it. Reverting is itself an action that requires authorization. Just answer the question.**
 > - **MUST Ask Clarifying Questions**: Never assume anything. If requirements are unclear, if you encounter an unexpected roadblock, or if the user's intent could be interpreted in multiple ways, you MUST pause and ask clarifying questions. Do NOT proceed until the developer has explicitly answered your question or requested you to proceed anyway.
+> - **MUST Add Property Tests**: Whenever possible and sensible, you MUST add property-based tests (using `fast-check`) to core logic, pure functions, parsers, and mathematical data transformations to ensure autonomous detection of edge cases.
 
 ### 5.8 Workspace Hygiene
 Whenever agents generate temporary debugging scripts, test REST endpoints via `.mjs`, or dump traces/JSON outputs, they **MUST** save these exclusively inside `/local-scripts/`. The root directory is strictly for production configuration files.
@@ -268,6 +269,8 @@ Refer to these skill documents for specialized tasks:
 - **Commit Format**: We strictly enforce Conventional Commits (`feat:`, `fix:`, `refactor:`, `perf:`).
 - **Workflow**: You **MUST** use the `/commit` workflow before every git commit to ensure proper semantic versioning bumps.
 - **Required Checks**: Ensure `pnpm test` and `pnpm build` complete successfully before proposing a merge.
+- **Strict Coverage Thresholds**: Vitest coverage thresholds are enforced at **80% minimum** for branches, functions, and statements. You must ensure new code maintains or exceeds this baseline.
+- **Mutation Testing**: We utilize Stryker Mutator to prevent "vacuous" tests. Ensure your unit tests actually catch intentionally injected bugs in core logic.
 - **Review Process**: Use `/pr-review` to conduct a comprehensive multi-role review on any pull request.
 
 ---
