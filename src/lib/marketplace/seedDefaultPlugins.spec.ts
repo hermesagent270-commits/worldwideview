@@ -11,6 +11,7 @@ vi.mock("@/lib/db", () => ({
         setting: {
             findFirst: vi.fn(),
             upsert: vi.fn(),
+            create: vi.fn(),
         },
         installedPlugin: {
             count: vi.fn(),
@@ -47,8 +48,8 @@ describe("seedDefaultPlugins", () => {
     it("should skip if WWV_SKIP_DEFAULT_PLUGINS is true", async () => {
         process.env.WWV_SKIP_DEFAULT_PLUGINS = "true";
         await seedDefaultPlugins();
-        expect(prisma.setting.upsert).toHaveBeenCalledWith(expect.objectContaining({
-            create: expect.objectContaining({ key: "defaults_seeded" })
+        expect(prisma.setting.create).toHaveBeenCalledWith(expect.objectContaining({
+            data: expect.objectContaining({ key: "defaults_seeded" })
         }));
     });
 
@@ -63,7 +64,7 @@ describe("seedDefaultPlugins", () => {
         vi.mocked(prisma.installedPlugin.count).mockResolvedValue(5);
         await seedDefaultPlugins();
         expect(getVerifiedPluginIds).not.toHaveBeenCalled();
-        expect(prisma.setting.upsert).toHaveBeenCalled();
+        expect(prisma.setting.create).toHaveBeenCalled();
     });
 
     it("should seed verified plugins successfully", async () => {
@@ -82,7 +83,7 @@ describe("seedDefaultPlugins", () => {
             "1.0.0", 
             expect.stringContaining('"id":"aviation"')
         );
-        expect(prisma.setting.upsert).toHaveBeenCalled();
+        expect(prisma.setting.create).toHaveBeenCalled();
     });
 
     it("should skip unverified plugins", async () => {

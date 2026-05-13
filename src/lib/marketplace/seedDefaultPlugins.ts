@@ -81,11 +81,15 @@ export async function seedDefaultPlugins(): Promise<void> {
  * Records that the seeding process has completed.
  */
 async function markSeeded() {
-    await prisma.setting.upsert({
-        where: { key: "defaults_seeded" },
-        update: { value: "true" },
-        create: { key: "defaults_seeded", value: "true" },
+    const existing = await prisma.setting.findFirst({
+        where: { key: "defaults_seeded" }
     });
+    
+    if (!existing) {
+        await prisma.setting.create({
+            data: { key: "defaults_seeded", value: "true" }
+        });
+    }
 }
 
 /**
