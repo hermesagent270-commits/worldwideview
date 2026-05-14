@@ -9,6 +9,7 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 
 // Load environment variables manually since dotenv might not be installed globally
 /**
@@ -45,6 +46,32 @@ if (skipLocalDb) {
   console.log('⏭️ Skipping local PostgreSQL startup (WWV_SKIP_LOCAL_DB is set).');
   process.exit(0);
 }
+
+// Deterministic Port Assignment
+const cwd = process.cwd();
+const folderName = path.basename(cwd);
+let port = 5432; // Default for main repo
+
+if (folderName !== 'worldwideview') {
+  const hash = crypto.createHash('sha256').update(cwd).digest('hex');
+  const portOffset = parseInt(hash.substring(0, 4), 16) % 1000;
+  port = 5433 + portOffset;
+}
+
+process.env.WWV_DB_PORT = port.toString();
+console.log(`🔌 Assigned deterministic database port: ${port}`);
+
+// Rewrite DATABASE_URL in .env if it exists
+const envPath = path.resolve(cwd, '.env');
+if (fs.existsSync(envPath)) {
+  let envContent = fs.readFileSync(envPath, 'utf8');
+  const urlRegex = /(DATABASE_URL\s*=\s*["']?postgresql:\/\/[^:]+:[^@]+@localhost:)(\d+)(\/.*)/;
+  if (urlRegex.test(envContent)) {
+    envContent = envContent.replace(urlRegex, `$1${port}$3`);
+    fs.writeFileSync(envPath, envContent, 'utf8');
+  }
+}
+
 
 console.log('🚀 Checking local PostgreSQL database...');
 

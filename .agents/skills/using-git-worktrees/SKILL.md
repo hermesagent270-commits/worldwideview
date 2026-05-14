@@ -24,20 +24,29 @@ If you create a worktree inside a subdirectory of the current repo (e.g., `.agen
 Do not use raw `git worktree add`. Always use the `git-wt` alias provided by Worktrunk. It is pre-configured via `.config/wt.toml` to:
 - Automatically place the worktree in the correct sibling path.
 - Automatically run `pnpm install`.
-- Automatically copy `.env` and `.env.local` files so the environment works immediately.
+- Automatically copy `.env` files so the environment works immediately.
+
+> [!IMPORTANT]
+> **For AI Agents:** You MUST append the `--yes` flag when creating worktrees to bypass the interactive approval prompt for these hooks, otherwise the command will fail in your non-interactive shell.
+
+### 3. Database Lifecycle & Port Assignment
+Each worktree gets a deterministic PostgreSQL port assigned automatically based on its directory hash (to avoid collisions between multiple running worktrees).
+
+> [!CAUTION]
+> **Orphaned Volumes:** You MUST use `git-wt remove` to delete worktrees. This triggers a `pre-remove` hook that cleanly tears down the Docker database. If you manually delete the folder (`rm -rf`), the Docker volume is orphaned. If this happens, run `pnpm run db:prune` in the main repository to garbage collect orphaned database volumes.
 
 ## Quick Reference
 
 | Action | Command | Details |
 | :--- | :--- | :--- |
-| **Create Worktree** | `git-wt switch --create <branch>` | Provisions the sibling directory, branch, env files, and dependencies. |
+| **Create Worktree** | `git-wt switch --create <branch> --yes` | Provisions the sibling directory, branch, env files, and dependencies. |
 | **Delete Worktree** | `git-wt remove` | Deletes the worktree and the associated branch cleanly. Run from within the worktree. |
 
 ## Implementation Steps
 
-1. Run the create command from the main repository:
+1. Run the create command from the main repository (always include `--yes`):
    ```bash
-   git-wt switch --create feature/my-new-idea
+   git-wt switch --create feature/my-new-idea --yes
    ```
 2. **CRITICAL:** Change your working directory to the newly created worktree before editing files. Worktrunk creates it as a sibling.
    ```bash
