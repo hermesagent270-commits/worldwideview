@@ -87,13 +87,13 @@ WorldWideView uses a multi-stage Dockerfile designed for standalone output. To d
 **Mac/Linux:**
 ```bash
 mkdir worldwideview && cd worldwideview
-curl -fsSL https://raw.githubusercontent.com/silvertakana/worldwideview/main/setup.sh | bash
+curl -fsSL https://raw.githubusercontent.com/silvertakana/worldwideview/main/self-host/setup.sh | bash
 ```
 
 **Windows (PowerShell):**
 ```powershell
 mkdir worldwideview; cd worldwideview
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/silvertakana/worldwideview/main/setup.ps1 -UseBasicParsing | Invoke-Expression
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/silvertakana/worldwideview/main/self-host/setup.ps1 -UseBasicParsing | Invoke-Expression
 ```
 
 > [!NOTE]
