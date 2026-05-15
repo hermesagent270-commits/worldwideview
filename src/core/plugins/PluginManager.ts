@@ -59,8 +59,8 @@ class PluginManager {
                 }
             } catch (err) {
                 console.error(`[PluginManager] Failed to create dynamic plugin ${plugin.id}:`, err);
-                const toastStr = `Failed to load ${plugin.metadata.name}`;
-                useStore.getState().addToast({ title: "Import Error", description: toastStr, type: "error" });
+                const toastStr = `Failed to load ${plugin.name}`;
+                useStore.getState().showErrorToast(toastStr);
             }
         });
 
@@ -250,6 +250,19 @@ class PluginManager {
         console.debug(`[PluginManager] Emitting layerToggled false for ${pluginId}`);
         dataBus.emit("layerToggled", { pluginId, enabled: false });
         dataBus.emit("dataUpdated", { pluginId, entities: [] });
+    }
+
+    /**
+     * De-registers a plugin and ceases all activity, removing it from the store.
+     *
+     * @param pluginId - The unique identifier of the plugin to unregister.
+     */
+    unregisterPlugin(pluginId: string): void {
+        console.debug(`[PluginManager] unregisterPlugin called for ${pluginId}`);
+        this.disablePlugin(pluginId);
+        this.plugins.delete(pluginId);
+        cacheLayer.invalidate(pluginId);
+        useStore.getState().removeLayer(pluginId);
     }
 
     /**
