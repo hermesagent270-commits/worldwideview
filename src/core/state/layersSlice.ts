@@ -39,8 +39,7 @@ export interface LayersSlice {
 
 export const createLayersSlice: StateCreator<AppStore, [], [], LayersSlice> = (set) => ({
     layers: {},
-    toggleLayer: (pluginId) =>
-        set((state) => ({
+    toggleLayer: (pluginId) => set((state) => ({
             layers: {
                 ...state.layers,
                 [pluginId]: {
@@ -49,29 +48,25 @@ export const createLayersSlice: StateCreator<AppStore, [], [], LayersSlice> = (s
                 },
             },
         })),
-    setLayerEnabled: (pluginId, enabled) =>
-        set((state) => ({
+    setLayerEnabled: (pluginId, enabled) => set((state) => ({
             layers: {
                 ...state.layers,
                 [pluginId]: { ...state.layers[pluginId], enabled },
             },
         })),
-    setEntityCount: (pluginId, count) =>
-        set((state) => ({
+    setEntityCount: (pluginId, count) => set((state) => ({
             layers: {
                 ...state.layers,
                 [pluginId]: { ...state.layers[pluginId], entityCount: count },
             },
         })),
-    setLayerLoading: (pluginId, loading) =>
-        set((state) => ({
+    setLayerLoading: (pluginId, loading) => set((state) => ({
             layers: {
                 ...state.layers,
                 [pluginId]: { ...state.layers[pluginId], loading },
             },
         })),
-    initLayer: (pluginId, defaultEnabled = false) =>
-        set((state) => ({
+    initLayer: (pluginId, defaultEnabled = false) => set((state) => ({
             layers: {
                 ...state.layers,
                 [pluginId]: state.layers[pluginId] || { enabled: defaultEnabled, entityCount: 0, loading: false },

@@ -27,36 +27,36 @@ export function MobileHudBar() {
     const setTimeWindow = useStore((s) => s.setTimeWindow);
 
     return (
-        <div className="mobile-hud-bar glass-panel">
-            <div className="mobile-hud-bar__scroll">
-                {REGIONS.map((r) => (
-                    <button
-                        key={r.id}
-                        className="btn btn--glow"
-                        onClick={() => dataBus.emit("cameraPreset", { presetId: r.id })}
-                        title={r.label}
-                    >
-                        <Globe size={14} />
-                        {r.label}
-                    </button>
+      <div className="mobile-hud-bar glass-panel">
+        <div className="mobile-hud-bar__scroll">
+          {REGIONS.map((r) => (
+            <button
+              key={r.id}
+              className="btn btn--glow"
+              onClick={() => dataBus.emit("cameraPreset", { presetId: r.id })}
+              title={r.label}
+            >
+              <Globe size={14} />
+              {r.label}
+            </button>
                 ))}
 
-                <div className="mobile-hud-bar__divider" />
+          <div className="mobile-hud-bar__divider" />
 
-                {TIME_WINDOWS.map((tw) => (
-                    <button
-                        key={tw}
-                        className={`btn ${timeWindow === tw ? "btn--active" : ""}`}
-                        onClick={() => {
+          {TIME_WINDOWS.map((tw) => (
+            <button
+              key={tw}
+              className={`btn ${timeWindow === tw ? "btn--active" : ""}`}
+              onClick={() => {
                             setTimeWindow(tw);
                             const range = useStore.getState().timeRange;
                             pluginManager.updateTimeRange(range);
                         }}
-                    >
-                        {tw}
-                    </button>
+            >
+              {tw}
+            </button>
                 ))}
-            </div>
         </div>
+      </div>
     );
 }

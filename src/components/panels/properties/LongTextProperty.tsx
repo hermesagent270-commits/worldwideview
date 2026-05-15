@@ -27,20 +27,20 @@ export function LongTextProperty({ label, text, classNamePrefix = "intel-panel" 
     const isSummary = label.toLowerCase() === "summary" || label.toLowerCase() === "description";
 
     return (
-        <IntelPropertyRow label={label} isColumn={true} classNamePrefix={classNamePrefix}>
-            <div 
-                style={{ 
-                    maxHeight: isSummary ? "150px" : "auto", 
-                    width: "100%", 
-                    overflowY: isSummary ? "auto" : "visible", 
-                    whiteSpace: "pre-wrap", 
-                    paddingRight: "var(--space-xs)", 
+      <IntelPropertyRow label={label} isColumn classNamePrefix={classNamePrefix}>
+        <div
+          style={{
+                    maxHeight: isSummary ? "150px" : "auto",
+                    width: "100%",
+                    overflowY: isSummary ? "auto" : "visible",
+                    whiteSpace: "pre-wrap",
+                    paddingRight: "var(--space-xs)",
                     lineHeight: "1.4",
                     wordBreak: "break-word"
                 }}
-            >
-                {text}
-            </div>
-        </IntelPropertyRow>
+        >
+          {text}
+        </div>
+      </IntelPropertyRow>
     );
 }

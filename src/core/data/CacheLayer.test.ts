@@ -1,6 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { cacheLayer } from "./CacheLayer";
+import {
+ describe, it, expect, beforeEach, afterEach, vi
+} from "vitest";
 import type { GeoEntity } from "@/core/plugins/PluginTypes";
+import { cacheLayer } from "./CacheLayer";
 
 /**
  * In-memory cache contract. The persistent (IndexedDB) layer needs a

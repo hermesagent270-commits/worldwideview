@@ -27,69 +27,69 @@ export default function SetupPage() {
     }
 
     return (
-        <div className={styles.container}>
-            <div className={styles.card}>
-                <div className={styles.logo}>W</div>
-                <h1 className={styles.title}>Welcome to WorldWideView</h1>
-                <p className={styles.subtitle}>Create your admin account to get started</p>
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <div className={styles.logo}>W</div>
+          <h1 className={styles.title}>Welcome to WorldWideView</h1>
+          <p className={styles.subtitle}>Create your admin account to get started</p>
 
-                <form onSubmit={handleSubmit} className={styles.form}>
-                    <label className={styles.label} htmlFor="name">
-                        Display Name
-                    </label>
-                    <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        required
-                        className={styles.input}
-                        placeholder="Admin"
-                    />
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <label className={styles.label} htmlFor="name">
+              Display Name
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                className={styles.input}
+                placeholder="Admin"
+              />
+            </label>
 
-                    <label className={styles.label} htmlFor="email">
-                        Email
-                    </label>
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        required
-                        className={styles.input}
-                        placeholder="admin@example.com"
-                    />
+            <label className={styles.label} htmlFor="email">
+              Email
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                className={styles.input}
+                placeholder="admin@example.com"
+              />
+            </label>
 
-                    <label className={styles.label} htmlFor="password">
-                        Password
-                    </label>
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        required
-                        minLength={8}
-                        className={styles.input}
-                        placeholder="Min. 8 characters"
-                    />
+            <label className={styles.label} htmlFor="password">
+              Password
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                minLength={8}
+                className={styles.input}
+                placeholder="Min. 8 characters"
+              />
+            </label>
 
-                    <label className={styles.label} htmlFor="confirm">
-                        Confirm Password
-                    </label>
-                    <input
-                        id="confirm"
-                        name="confirm"
-                        type="password"
-                        required
-                        minLength={8}
-                        className={styles.input}
-                    />
+            <label className={styles.label} htmlFor="confirm">
+              Confirm Password
+              <input
+                id="confirm"
+                name="confirm"
+                type="password"
+                required
+                minLength={8}
+                className={styles.input}
+              />
+            </label>
 
-                    {error && <p className={styles.error}>{error}</p>}
+            {error && <p className={styles.error}>{error}</p>}
 
-                    <button type="submit" disabled={loading} className={styles.button}>
-                        {loading ? "Creating..." : "Create Admin Account"}
-                    </button>
-                </form>
-            </div>
+            <button type="submit" disabled={loading} className={styles.button}>
+              {loading ? "Creating..." : "Create Admin Account"}
+            </button>
+          </form>
         </div>
+      </div>
     );
 }

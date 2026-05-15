@@ -1,7 +1,7 @@
-import { PrismaClient } from "../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { headers } from "next/headers";
+import { PrismaClient } from "prisma-client-deca962f6a47f596886a3d83cbf41cca88f84f26f1aac58d881c9529eafea2bf";
 
 /**
  * Prisma client singleton — PostgreSQL only.
@@ -21,7 +21,9 @@ function applyTenantIsolation(client: any) {
     return client.$extends({
         query: {
             $allModels: {
-                async $allOperations({ model, operation, args, query }: { model: string, operation: string, args: any, query: any }) {
+                async $allOperations({
+ model, operation, args, query
+}: { model: string, operation: string, args: any, query: any }) {
                     let tenantSubdomain = null;
                     try {
                         const headersList = await headers();
@@ -29,10 +31,10 @@ function applyTenantIsolation(client: any) {
                     } catch (e) {
                         // Not in a request context (e.g. scripts, background jobs)
                     }
-                    
+
                     if (tenantSubdomain && model !== 'Workspace' && model !== 'WorkspaceMember') {
                         args = args || {};
-                        
+
                         // Inject into data for creates
                         if (operation === 'create' || operation === 'createMany') {
                             if (Array.isArray(args.data)) {
@@ -41,7 +43,7 @@ function applyTenantIsolation(client: any) {
                                 args.data.tenantId = tenantSubdomain;
                             }
                         }
-                        
+
                         // Inject into data for updates
                         if (operation === 'update' || operation === 'updateMany') {
                             if (args.data) args.data.tenantId = tenantSubdomain;
@@ -55,7 +57,7 @@ function applyTenantIsolation(client: any) {
                         if (['findUnique', 'findFirst', 'findMany', 'update', 'updateMany', 'delete', 'deleteMany', 'count', 'upsert'].includes(operation)) {
                             args.where = { ...(args.where || {}), tenantId: tenantSubdomain };
                         }
-                        
+
                         return query(args);
                     }
                     return query(args);
@@ -84,7 +86,7 @@ function createPrismaClient(): PrismaClient {
     const pool = new Pool({ connectionString });
     const adapter = new PrismaPg(pool);
     const client = new PrismaClient({ adapter });
-    
+
     return applyTenantIsolation(client);
 }
 

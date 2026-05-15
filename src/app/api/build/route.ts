@@ -22,14 +22,12 @@ function readMaybe(p: string): string | null {
     }
 }
 
-const BUILD_ID =
-    process.env.NEXT_PUBLIC_WWV_BUILD_ID ??
-    readMaybe(path.join(process.cwd(), ".build-id")) ??
-    "dev";
-const BUILD_AT =
-    process.env.NEXT_PUBLIC_WWV_BUILD_AT ??
-    readMaybe(path.join(process.cwd(), ".build-at")) ??
-    null;
+const BUILD_ID = process.env.NEXT_PUBLIC_WWV_BUILD_ID
+    ?? readMaybe(path.join(process.cwd(), ".build-id"))
+    ?? "dev";
+const BUILD_AT = process.env.NEXT_PUBLIC_WWV_BUILD_AT
+    ?? readMaybe(path.join(process.cwd(), ".build-at"))
+    ?? null;
 
 export async function GET() {
     return NextResponse.json({

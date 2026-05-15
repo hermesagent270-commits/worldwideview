@@ -1,6 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { authConfig } from "./auth.config";
+import {
+ describe, it, expect, vi, beforeEach
+} from "vitest";
 import { isDemo } from "@/core/edition";
+import { authConfig } from "./auth.config";
 
 vi.mock("@/core/edition", () => ({
   isDemo: false,

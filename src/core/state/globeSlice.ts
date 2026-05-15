@@ -51,8 +51,9 @@ export const createGlobeSlice: StateCreator<AppStore, [], [], GlobeSlice> = (set
     cameraRoll: 0,
     isAnimating: false,
     fps: 0,
-    setCameraPosition: (lat, lon, alt, heading = 0, pitch = -90, roll = 0) =>
-        set({ cameraLat: lat, cameraLon: lon, cameraAlt: alt, cameraHeading: heading, cameraPitch: pitch, cameraRoll: roll }),
+    setCameraPosition: (lat, lon, alt, heading = 0, pitch = -90, roll = 0) => set({
+ cameraLat: lat, cameraLon: lon, cameraAlt: alt, cameraHeading: heading, cameraPitch: pitch, cameraRoll: roll
+}),
     setAnimating: (val) => set({ isAnimating: val }),
     setFps: (fps) => set({ fps }),
 });

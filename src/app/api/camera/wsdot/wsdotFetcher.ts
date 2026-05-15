@@ -13,8 +13,7 @@
 
 import type { GdotCameraFeature } from "../gdot/gdotFetcher";
 
-const WSDOT_BASE =
-    "https://wsdot.wa.gov/Traffic/api/HighwayCameras/HighwayCamerasREST.svc/GetCamerasAsJson";
+const WSDOT_BASE = "https://wsdot.wa.gov/Traffic/api/HighwayCameras/HighwayCamerasREST.svc/GetCamerasAsJson";
 
 interface WsdotCamera {
     CameraID: number;
@@ -78,8 +77,8 @@ export async function fetchWsdotCameras(): Promise<GdotCameraFeature[]> {
     if (!key) {
         if (!warnedMissingKey) {
             console.warn(
-                "[WSDOT] WSDOT_API_KEY not set — skipping. " +
-                "Get a free key at https://wsdot.wa.gov/traffic/api/",
+                "[WSDOT] WSDOT_API_KEY not set — skipping. "
+                + "Get a free key at https://wsdot.wa.gov/traffic/api/",
             );
             warnedMissingKey = true;
         }

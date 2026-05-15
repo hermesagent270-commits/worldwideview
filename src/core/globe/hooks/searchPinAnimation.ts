@@ -1,5 +1,7 @@
 import type { Viewer as CesiumViewer } from "cesium";
-import { Cartesian3, Cartesian2, Color, HeightReference } from "cesium";
+import {
+ Cartesian3, Cartesian2, Color, HeightReference
+} from "cesium";
 
 /** Duration of the full animation sequence in ms */
 const TOTAL_DURATION_MS = 2500;

@@ -41,7 +41,12 @@ export default function UnverifiedPluginBatchDialog({
           <div className={styles.icon}>⚠️</div>
           <h3 className={styles.title}>Unverified Plugins</h3>
           <p className={styles.subtitle}>
-            {manifests.length} plugin{manifests.length > 1 ? "s" : ""} not
+            {manifests.length}
+            {' '}
+            plugin
+            {manifests.length > 1 ? "s" : ""}
+            {' '}
+            not
             verified by WorldWideView. Select which to install.
           </p>
         </div>

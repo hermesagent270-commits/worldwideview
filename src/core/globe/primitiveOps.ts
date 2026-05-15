@@ -52,9 +52,7 @@ export function getDefaultDotIcon(color: Color, outlineColor: Color, outlineWidt
 }
 
 /** Update an existing AnimatableItem with new entity data. */
-export function updateExistingItem(
-    item: AnimatableItem, entity: GeoEntity, options: CesiumEntityOptions, color: Color
-) {
+export function updateExistingItem(item: AnimatableItem, entity: GeoEntity, options: CesiumEntityOptions, color: Color) {
     item.entity = entity;
     item.options = options;
     Cartesian3.clone(scratchPosition, item.posRef);
@@ -64,10 +62,10 @@ export function updateExistingItem(
     item.baseOutlineColor = getCachedColor(options.outlineColor) || Color.BLACK;
 
     const isGroundBased = (entity.altitude || 0) < 100;
-    const disableDepthTestDistance = isGroundBased 
-        ? Number.POSITIVE_INFINITY 
+    const disableDepthTestDistance = isGroundBased
+        ? Number.POSITIVE_INFINITY
         : options.disableDepthTestDistance;
-    
+
     if (item.primitive.disableDepthTestDistance !== disableDepthTestDistance) {
         item.primitive.disableDepthTestDistance = disableDepthTestDistance;
     }
@@ -110,9 +108,13 @@ export function updateExistingItem(
 
 /** Create a new primitive + AnimatableItem and add it to the existingMap. */
 export function createNewItem(
-    entity: GeoEntity, options: CesiumEntityOptions, color: Color, clickId: any,
+    entity: GeoEntity,
+options: CesiumEntityOptions,
+color: Color,
+clickId: any,
     existingMap: Map<string, AnimatableItem>,
-    points: PointPrimitiveCollection, billboards: BillboardCollection,
+    points: PointPrimitiveCollection,
+billboards: BillboardCollection,
 ) {
     const newPosition = Cartesian3.clone(scratchPosition);
     const outlineColor = getCachedColor(options.outlineColor) || Color.BLACK;
@@ -124,37 +126,56 @@ export function createNewItem(
     const baseSize = getBaseSize();
     const billboardColor = (options as any)._isAutoSVG ? Color.WHITE : color;
 
-    // Performance optimization: Ground-based entities (altitude < 100m) should disable 
+    // Performance optimization: Ground-based entities (altitude < 100m) should disable
     // Cesium's heavy depth testing and instead use our efficient manual horizon culling.
     // Air-based entities keep depth testing enabled for realistic occlusion against mountains.
     const isGroundBased = (entity.altitude || 0) < 100;
-    const disableDepthTestDistance = isGroundBased 
-        ? Number.POSITIVE_INFINITY 
+    const disableDepthTestDistance = isGroundBased
+        ? Number.POSITIVE_INFINITY
         : options.disableDepthTestDistance;
 
         const addedPrimitive = options.iconUrl
         ? billboards.add({
-            position: newPosition, image: resolvedIcon,
-            width: baseSize, height: baseSize, show: false,
+            position: newPosition,
+image: resolvedIcon,
+            width: baseSize,
+height: baseSize,
+show: false,
             scale: options.iconScale ?? DEFAULT_BILLBOARD_SCALE,
-            verticalOrigin: VerticalOrigin.CENTER, horizontalOrigin: HorizontalOrigin.CENTER,
+            verticalOrigin: VerticalOrigin.CENTER,
+horizontalOrigin: HorizontalOrigin.CENTER,
             rotation: options.rotation ? -CesiumMath.toRadians(options.rotation) : 0,
-            color: billboardColor, scaleByDistance: new NearFarScalar(1e6, 1.0, 2e7, 0.5), id: clickId,
+            color: billboardColor,
+scaleByDistance: new NearFarScalar(1e6, 1.0, 2e7, 0.5),
+id: clickId,
             // eyeOffset: new Cartesian3(0, 0, options.depthBias ?? -10000), // Small depth bias for far-range terrain
             // WARNING: Do NOT use heightReference: HeightReference.CLAMP_TO_GROUND here.
             // It causes severe lag/performance drops with thousands of dynamic entities.
-            disableDepthTestDistance, distanceDisplayCondition: ddc,
+            disableDepthTestDistance,
+distanceDisplayCondition: ddc,
         })
         : points.add({
-            position: newPosition, pixelSize: options.size || defaultPointSize(), color, outlineColor,
-            outlineWidth: options.outlineWidth || 1, show: false,
-            scaleByDistance: new NearFarScalar(1e6, 1.0, 2e7, 0.5), id: clickId,
-            disableDepthTestDistance, distanceDisplayCondition: ddc,
+            position: newPosition,
+pixelSize: options.size || defaultPointSize(),
+color,
+outlineColor,
+            outlineWidth: options.outlineWidth || 1,
+show: false,
+            scaleByDistance: new NearFarScalar(1e6, 1.0, 2e7, 0.5),
+id: clickId,
+            disableDepthTestDistance,
+distanceDisplayCondition: ddc,
         });
 
     existingMap.set(entity.id, {
-        primitive: addedPrimitive, labelPrimitive: undefined, entity, posRef: newPosition,
-        options, baseColor: color, baseOutlineColor: outlineColor, lastHighlightState: 'normal'
+        primitive: addedPrimitive,
+labelPrimitive: undefined,
+entity,
+posRef: newPosition,
+        options,
+baseColor: color,
+baseOutlineColor: outlineColor,
+lastHighlightState: 'normal'
     });
 
     // Trigger async upscale for newly spawned primitives that missed the cache
@@ -171,8 +192,11 @@ export function createNewItem(
 
 /** Cleanup primitives for entities no longer in visibleEntities. */
 export function cleanupRemovedEntities(
-    existingMap: Map<string, AnimatableItem>, currentIds: Set<string>,
-    points: PointPrimitiveCollection, billboards: BillboardCollection, labels: LabelCollection,
+    existingMap: Map<string, AnimatableItem>,
+currentIds: Set<string>,
+    points: PointPrimitiveCollection,
+billboards: BillboardCollection,
+labels: LabelCollection,
     polylines: any
 ) {
     for (const [id, item] of existingMap.entries()) {
@@ -181,7 +205,7 @@ export function cleanupRemovedEntities(
             item.primitive = null;
             if (item.labelPrimitive) { labels.remove(item.labelPrimitive); item.labelPrimitive = undefined; }
             if (item.polylinePrimitive) {
-                polylines.remove(item.polylinePrimitive); 
+                polylines.remove(item.polylinePrimitive);
             }
             item.polylinePrimitive = undefined;
             item.trailPositions = undefined;

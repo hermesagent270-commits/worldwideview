@@ -12,9 +12,9 @@ import { useStore } from "@/core/state/store";
 
 /**
  * Headless component that listens for plugin updates over a local WebSocket.
- * Only active in `development` environments. Allows for real-time plugin 
+ * Only active in `development` environments. Allows for real-time plugin
  * addition and reloading without full page refreshes.
- * 
+ *
  * @returns null
  */
 export function DevModeSubscriber() {
@@ -40,13 +40,12 @@ export function DevModeSubscriber() {
             ws.onmessage = async (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    
+
                     if (data.type === "plugin:added") {
                         console.log(`[DevMode] Plugin added from CLI: ${data.manifest.id}`);
                         await pluginManager.loadFromManifest(data.manifest);
                         initLayer(data.manifest.id, true);
                         await pluginManager.enablePlugin(data.manifest.id);
-                        
                     } else if (data.type === "plugin:updated") {
                         console.log(`[DevMode] Reloading plugin: ${data.pluginId}`);
                         // Destroy and re-load from manifest for dev hot-reload
@@ -56,7 +55,6 @@ export function DevModeSubscriber() {
                             initLayer(data.manifest.id, true);
                             await pluginManager.enablePlugin(data.manifest.id);
                         }
-                        
                     } else if (data.type === "plugin:error") {
                         console.error(`[DevMode] Dev Server Build Error: ${data.error}`);
                         useStore.getState().showErrorToast?.(`Build Error in ${data.pluginId}: ${data.error}`);

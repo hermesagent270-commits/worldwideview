@@ -113,12 +113,10 @@ export async function fetchAdapter(adapter: CameraAdapter): Promise<CameraFeatur
     try {
         const data = await Promise.race([
             adapter.fetch(),
-            new Promise<CameraFeature[]>((_resolve, reject) =>
-                setTimeout(
+            new Promise<CameraFeature[]>((_resolve, reject) => setTimeout(
                     () => reject(new Error(`Adapter ${adapter.id} timed out after ${ADAPTER_FETCH_TIMEOUT_MS}ms`)),
                     ADAPTER_FETCH_TIMEOUT_MS,
-                ),
-            ),
+                ),),
         ]);
         cache.set(adapter.id, {
             data,

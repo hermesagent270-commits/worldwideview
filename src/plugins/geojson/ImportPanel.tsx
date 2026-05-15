@@ -9,18 +9,19 @@ export function ImportPanel() {
     const [modalOpen, setModalOpen] = useState(false);
 
     return (
-        <div className="geojson-import-panel">
-            <button
-                className="geojson-btn geojson-btn--primary geojson-btn--full"
-                onClick={() => setModalOpen(true)}
-            >
-                <Plus size={16} />
-                Import GeoJSON
-            </button>
+      <div className="geojson-import-panel">
+        <button
+          type="button"
+          className="geojson-btn geojson-btn--primary geojson-btn--full"
+          onClick={() => setModalOpen(true)}
+        >
+          <Plus size={16} />
+          Import GeoJSON
+        </button>
 
-            <ImportedLayerList />
+        <ImportedLayerList />
 
-            {modalOpen && <ImportModal onClose={() => setModalOpen(false)} />}
-        </div>
+        {modalOpen && <ImportModal onClose={() => setModalOpen(false)} />}
+      </div>
     );
 }

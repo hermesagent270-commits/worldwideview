@@ -1,6 +1,6 @@
 /**
  * @file CameraStatsPanel.tsx
- * @description Head-up display (HUD) overlay providing real-time camera position, 
+ * @description Head-up display (HUD) overlay providing real-time camera position,
  * orientation, and performance metrics (FPS).
  * @module src/components/panels
  */
@@ -10,7 +10,7 @@ import { useStore } from "@/core/state/store";
 
 /**
  * @component CameraStatsPanel
- * @description A minimal HUD component that displays latitude, longitude, 
+ * @description A minimal HUD component that displays latitude, longitude,
  * altitude, heading, pitch, roll, and FPS. Can be collapsed by the user.
  */
 export default function CameraStatsPanel() {
@@ -32,52 +32,52 @@ export default function CameraStatsPanel() {
     const formatDeg = (val: number) => `${val.toFixed(1)}°`;
 
     return (
-        <div
-            className={`camera-stats ${collapsed ? "camera-stats--collapsed" : ""}`}
-            onClick={() => setCollapsed(!collapsed)}
-            title={collapsed ? "Show HUD" : "Click to hide HUD"}
-        >
-            {!collapsed ? (
-                <>
-                    <div className="camera-stats__group">
-                        <span className="camera-stats__label">LAT</span>
-                        <span className="camera-stats__value">{formatCoord(cameraLat)}</span>
-                    </div>
-                    <div className="camera-stats__group">
-                        <span className="camera-stats__label">LON</span>
-                        <span className="camera-stats__value">{formatCoord(cameraLon)}</span>
-                    </div>
-                    <div className="camera-stats__group">
-                        <span className="camera-stats__label">ALT</span>
-                        <span className="camera-stats__value">{formatAlt(cameraAlt)}</span>
-                    </div>
-                    <div className="camera-stats__divider" />
-                    <div className="camera-stats__group">
-                        <span className="camera-stats__label">HDG</span>
-                        <span className="camera-stats__value">{formatDeg(cameraHeading)}</span>
-                    </div>
-                    <div className="camera-stats__group">
-                        <span className="camera-stats__label">PTC</span>
-                        <span className="camera-stats__value">{formatDeg(cameraPitch)}</span>
-                    </div>
-                    <div className="camera-stats__group">
-                        <span className="camera-stats__label">ROL</span>
-                        <span className="camera-stats__value">{formatDeg(cameraRoll)}</span>
-                    </div>
-                    <div className="camera-stats__divider" />
-                    <div className="camera-stats__group">
-                        <span className="camera-stats__label">FPS</span>
-                        <span className="camera-stats__value">{fps}</span>
-                    </div>
-                </>
+      <div
+        className={`camera-stats ${collapsed ? "camera-stats--collapsed" : ""}`}
+        onClick={() => setCollapsed(!collapsed)}
+        title={collapsed ? "Show HUD" : "Click to hide HUD"}
+      >
+        {!collapsed ? (
+          <>
+            <div className="camera-stats__group">
+              <span className="camera-stats__label">LAT</span>
+              <span className="camera-stats__value">{formatCoord(cameraLat)}</span>
+            </div>
+            <div className="camera-stats__group">
+              <span className="camera-stats__label">LON</span>
+              <span className="camera-stats__value">{formatCoord(cameraLon)}</span>
+            </div>
+            <div className="camera-stats__group">
+              <span className="camera-stats__label">ALT</span>
+              <span className="camera-stats__value">{formatAlt(cameraAlt)}</span>
+            </div>
+            <div className="camera-stats__divider" />
+            <div className="camera-stats__group">
+              <span className="camera-stats__label">HDG</span>
+              <span className="camera-stats__value">{formatDeg(cameraHeading)}</span>
+            </div>
+            <div className="camera-stats__group">
+              <span className="camera-stats__label">PTC</span>
+              <span className="camera-stats__value">{formatDeg(cameraPitch)}</span>
+            </div>
+            <div className="camera-stats__group">
+              <span className="camera-stats__label">ROL</span>
+              <span className="camera-stats__value">{formatDeg(cameraRoll)}</span>
+            </div>
+            <div className="camera-stats__divider" />
+            <div className="camera-stats__group">
+              <span className="camera-stats__label">FPS</span>
+              <span className="camera-stats__value">{fps}</span>
+            </div>
+          </>
             ) : (
-                <div className="camera-stats__collapsed-label">
-                    <span>HUD</span>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </div>
+              <div className="camera-stats__collapsed-label">
+                <span>HUD</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
             )}
-        </div>
+      </div>
     );
 }

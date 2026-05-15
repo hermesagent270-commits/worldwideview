@@ -13,7 +13,7 @@ export async function GET(request: Request) {
             where: { userId: session.user.id },
             orderBy: { lastSeen: "desc" }
         });
-        
+
         return NextResponse.json(favorites);
     } catch (e) {
         console.error("GET Favorites Error:", e);
@@ -29,7 +29,9 @@ export async function POST(request: Request) {
 
     try {
         const body = await request.json();
-        const { entityId, pluginId, label, pluginName } = body;
+        const {
+ entityId, pluginId, label, pluginName
+} = body;
 
         if (!entityId || !pluginId || !label || !pluginName) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -39,7 +41,7 @@ export async function POST(request: Request) {
             where: {
                 userId_entityId: {
                     userId: session.user.id,
-                    entityId: entityId
+                    entityId
                 }
             },
             update: {
@@ -70,7 +72,7 @@ export async function DELETE(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const entityId = searchParams.get("entityId");
-        
+
         if (!entityId) {
             return NextResponse.json({ error: "Missing entityId" }, { status: 400 });
         }
@@ -79,7 +81,7 @@ export async function DELETE(request: Request) {
             where: {
                 userId_entityId: {
                     userId: session.user.id,
-                    entityId: entityId
+                    entityId
                 }
             }
         });

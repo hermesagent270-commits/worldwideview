@@ -31,4 +31,3 @@ export const authConfig: NextAuthConfig = {
     },
     providers: [], // Added in auth.ts
 };
-

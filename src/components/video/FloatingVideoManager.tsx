@@ -3,7 +3,7 @@
 /**
  * @file FloatingVideoManager.tsx
  * @description Orchestrator for multiple floating video/image feeds.
- * Manages the lifecycle and spatial state of draggable camera windows 
+ * Manages the lifecycle and spatial state of draggable camera windows
  * across the viewport.
  * @module src/components/video
  */
@@ -11,9 +11,9 @@
 import React, { useEffect, useRef } from "react";
 import { useStore } from "@/core/state/store";
 import { FloatingWindow } from "@/components/common/FloatingWindow";
-import { CameraStream } from "./CameraStream";
 import { PannableView } from "@/components/common/PannableView";
 import { trackEvent } from "@/lib/analytics";
+import { CameraStream } from "./CameraStream";
 
 /**
  * @component FloatingVideoManager
@@ -37,43 +37,43 @@ export const FloatingVideoManager: React.FC = () => {
     if (floatingStreams.length === 0) return null;
 
     return (
-        <>
-            {floatingStreams.map((stream) => (
-                <FloatingWindow
-                    key={stream.id}
-                    id={stream.id}
-                    title={stream.label}
-                    initialPosition={stream.position}
-                    initialSize={stream.size}
-                    onClose={() => removeFloatingStream(stream.id)}
-                    onUpdate={(updates) => updateFloatingStream(stream.id, updates)}
-                >
-                    <div style={{ width: "100%", height: "100%", backgroundColor: stream.type === "image" ? "rgba(0,0,0,0.8)" : "black" }}>
-                        {stream.type === "image" ? (
-                            <PannableView>
-                                <img
-                                    src={stream.streamUrl}
-                                    alt={stream.label}
-                                    draggable={false}
-                                    style={{
+      <>
+        {floatingStreams.map((stream) => (
+          <FloatingWindow
+            key={stream.id}
+            id={stream.id}
+            title={stream.label}
+            initialPosition={stream.position}
+            initialSize={stream.size}
+            onClose={() => removeFloatingStream(stream.id)}
+            onUpdate={(updates) => updateFloatingStream(stream.id, updates)}
+          >
+            <div style={{ width: "100%", height: "100%", backgroundColor: stream.type === "image" ? "rgba(0,0,0,0.8)" : "black" }}>
+              {stream.type === "image" ? (
+                <PannableView>
+                  <img
+                    src={stream.streamUrl}
+                    alt={stream.label}
+                    draggable={false}
+                    style={{
                                         width: "100%",
                                         height: "100%",
                                         objectFit: "contain",
                                         display: "block",
                                     }}
-                                />
-                            </PannableView>
+                  />
+                </PannableView>
                         ) : (
-                            <CameraStream
-                                streamUrl={stream.streamUrl}
-                                isIframe={stream.isIframe ?? false}
-                                label={stream.label}
-                                className="h-full w-full"
-                            />
+                          <CameraStream
+                            streamUrl={stream.streamUrl}
+                            isIframe={stream.isIframe ?? false}
+                            label={stream.label}
+                            className="h-full w-full"
+                          />
                         )}
-                    </div>
-                </FloatingWindow>
+            </div>
+          </FloatingWindow>
             ))}
-        </>
+      </>
     );
 };

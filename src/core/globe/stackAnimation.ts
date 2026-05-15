@@ -5,7 +5,9 @@
  * pixelOffset towards the target (expand) or back to zero (collapse).
  * Uses a dedicated persistent Billboard per stack for the textual hub badge.
  */
-import { Cartesian2, Cartesian3, HorizontalOrigin, VerticalOrigin, NearFarScalar, HeightReference, Color } from "cesium";
+import {
+ Cartesian2, Cartesian3, HorizontalOrigin, VerticalOrigin, NearFarScalar, HeightReference, Color
+} from "cesium";
 import type { LabelCollection, BillboardCollection } from "cesium";
 import {
     getStacks, getSpiderOffset, isAnyStackExpanded,
@@ -19,8 +21,8 @@ const hubScaleByDistance = new NearFarScalar(2.0e6, 1.0, 1.5e7, 0.5);
 /** Duration of expand/collapse animation in ms. */
 const ANIM_DURATION_MS = 220;
 
-/** 
- * Radius of the cluster hub background circle. 
+/**
+ * Radius of the cluster hub background circle.
  * Adjust this to scale the black half-transparent badge.
  */
 const HUB_BG_RADIUS = 14;
@@ -46,7 +48,7 @@ function getClusterIcon(count: number, hexColor: string): string {
         <circle cx="${center}" cy="${center}" r="${HUB_BG_RADIUS}" fill="${fillValue}" stroke="${hexColor}" stroke-width="2.5"/>
         <text x="${center}" y="${center + 1}" font-family="Inter, sans-serif" font-size="14px" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">${textStr}</text>
     </svg>`;
-    
+
     cached = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
     clusterIconCache.set(cacheKey, cached);
     return cached;
@@ -95,7 +97,7 @@ function tickSingle(stack: EntityStack, now: number, billboards: BillboardCollec
     if (state === "expanding" && t >= 1) stack.state = "expanded";
     if (state === "collapsing" && t >= 1) {
         stack.state = "collapsed";
-        
+
         // Final pass to ensure everything hidden completely
         for (let i = 0; i < children.length; i++) {
             const prim = children[i].primitive;
@@ -163,13 +165,13 @@ function tickSingle(stack: EntityStack, now: number, billboards: BillboardCollec
 function manageDedicatedHub(stack: EntityStack, billboards: BillboardCollection) {
     let bb = hubBillboards.get(stack.id);
     const count = stack.children.length;
-    
+
     // Check if the hubItem's baseColor has changed since we last cached it
     const currentBaseColor = stack.hubItem.baseColor?.toCssColorString() ?? "#ffffff";
     if ((stack.hubItem as any)._cachedCssColor !== currentBaseColor) {
         (stack.hubItem as any)._cachedCssColor = currentBaseColor;
     }
-    
+
     const cssColor = (stack.hubItem as any)._cachedCssColor;
     const expectedImage = getClusterIcon(count, cssColor);
 
@@ -211,5 +213,5 @@ function manageDedicatedHub(stack: EntityStack, billboards: BillboardCollection)
 
 /** Ease-out cubic for smooth deceleration. */
 function easeOut(t: number): number {
-    return 1 - Math.pow(1 - t, 3);
+    return 1 - (1 - t)**3;
 }

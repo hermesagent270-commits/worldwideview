@@ -1,23 +1,28 @@
 /**
  * @file ApiKeysTab.tsx
  * @description Manages user-provided API keys and license verification.
- * Allows users to override default keys for services like Google Maps or 
+ * Allows users to override default keys for services like Google Maps or
  * proprietary data sources.
  * @module src/components/layout
  */
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import { Eye, EyeOff, Trash2, Key, CheckCircle, XCircle, Loader, ShieldCheck } from "lucide-react";
+import {
+ useState, useCallback, useEffect, useRef
+} from "react";
+import {
+ Eye, EyeOff, Trash2, Key, CheckCircle, XCircle, Loader, ShieldCheck
+} from "lucide-react";
 import {
     API_KEY_REGISTRY,
     getUserApiKey,
     setUserApiKey,
     clearAllUserApiKeys,
 } from "@/lib/userApiKeys";
-import { sectionHeaderStyle, inputGroupStyle, labelStyle } from "../panels/DataConfig/sharedStyles";
 import ReloadToast from "@/components/ui/ReloadToast";
 import { useStore } from "@/core/state/store";
 import { verifyLicenseKey } from "@/core/license/verifyLicense";
+import { sectionHeaderStyle, inputGroupStyle, labelStyle } from "../panels/DataConfig/sharedStyles";
+
 type VerifyStatus = "idle" | "verifying" | "valid" | "invalid";
 
 const keyInputStyle: React.CSSProperties = {
@@ -54,15 +59,15 @@ const MIN_KEY_LENGTH = 20;
  */
 function StatusIcon({ status }: { status: VerifyStatus }) {
     if (status === "verifying")
-        return (
-            <span style={{ display: "flex", alignItems: "center", color: "var(--text-muted)" }}>
-                <Loader size={13} style={{ animation: "spin 1s linear infinite" }} />
-            </span>
-        );
+        { return (
+          <span style={{ display: "flex", alignItems: "center", color: "var(--text-muted)" }}>
+            <Loader size={13} style={{ animation: "spin 1s linear infinite" }} />
+          </span>
+        ); }
     if (status === "valid")
-        return <CheckCircle size={13} style={{ color: "#22c55e", flexShrink: 0 }} />;
+        { return <CheckCircle size={13} style={{ color: "#22c55e", flexShrink: 0 }} />; }
     if (status === "invalid")
-        return <XCircle size={13} style={{ color: "#ef4444", flexShrink: 0 }} />;
+        { return <XCircle size={13} style={{ color: "#ef4444", flexShrink: 0 }} />; }
     return null;
 }
 
@@ -181,137 +186,138 @@ export function ApiKeysTab() {
     const hasAnyKey = Object.values(keys).some((v) => v.length > 0);
 
     return (
-        <>
-            <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-            <div style={{ marginBottom: "var(--space-lg)" }}>
-                <div style={sectionHeaderStyle}>
-                    <Key size={10} style={{ marginRight: 4, verticalAlign: "middle" }} />
-                    License Key
-                </div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: "var(--space-md)" }}>
-                    Current Tier: <strong style={{ color: "var(--text-primary)", textTransform: "capitalize" }}>{activeTier}</strong>
-                </div>
+      <>
+        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+        <div style={{ marginBottom: "var(--space-lg)" }}>
+          <div style={sectionHeaderStyle}>
+            <Key size={10} style={{ marginRight: 4, verticalAlign: "middle" }} />
+            License Key
+          </div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: "var(--space-md)" }}>
+            Current Tier:
+            {' '}
+            <strong style={{ color: "var(--text-primary)", textTransform: "capitalize" }}>{activeTier}</strong>
+          </div>
 
-                <div style={{ marginBottom: "var(--space-md)" }}>
-                    <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                        <input
-                            type="password"
-                            value={licenseInput}
-                            placeholder="eyJhbGciOiJSUzI1NiI..."
-                            onChange={(e) => setLicenseInput(e.target.value)}
-                            style={{ 
-                                ...keyInputStyle, 
-                                border: `1px solid ${licenseStatus === "valid" ? "rgba(34,197,94,0.5)" : licenseStatus === "invalid" ? "rgba(239,68,68,0.5)" : "var(--border-subtle)"}` 
+          <div style={{ marginBottom: "var(--space-md)" }}>
+            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+              <input
+                type="password"
+                value={licenseInput}
+                placeholder="eyJhbGciOiJSUzI1NiI..."
+                onChange={(e) => setLicenseInput(e.target.value)}
+                style={{
+                                ...keyInputStyle,
+                                border: `1px solid ${licenseStatus === "valid" ? "rgba(34,197,94,0.5)" : licenseStatus === "invalid" ? "rgba(239,68,68,0.5)" : "var(--border-subtle)"}`
                             }}
-                            spellCheck={false}
-                            autoComplete="off"
-                        />
-                        <StatusIcon status={licenseStatus} />
-                        <button
-                            onClick={handleVerifyLicense}
-                            disabled={!licenseInput || licenseStatus === "verifying"}
-                            title="Verify license"
-                            style={{
+                spellCheck={false}
+                autoComplete="off"
+              />
+              <StatusIcon status={licenseStatus} />
+              <button
+                onClick={handleVerifyLicense}
+                disabled={!licenseInput || licenseStatus === "verifying"}
+                title="Verify license"
+                style={{
                                 ...toggleBtnStyle,
                                 color: licenseStatus === "valid" ? "#22c55e" : licenseStatus === "invalid" ? "#ef4444" : "var(--text-muted)",
                                 opacity: (!licenseInput || licenseStatus === "verifying") ? 0.4 : 1,
                                 cursor: (!licenseInput || licenseStatus === "verifying") ? "not-allowed" : "pointer",
                             }}
-                        >
-                            <ShieldCheck size={14} />
-                        </button>
-                        {licenseInput && (
-                            <button
-                                style={toggleBtnStyle}
-                                onClick={handleClearLicense}
-                                title="Clear License"
-                            >
-                                <Trash2 size={14} />
-                            </button>
+              >
+                <ShieldCheck size={14} />
+              </button>
+              {licenseInput && (
+              <button
+                style={toggleBtnStyle}
+                onClick={handleClearLicense}
+                title="Clear License"
+              >
+                <Trash2 size={14} />
+              </button>
                         )}
-                    </div>
-                    {licenseStatus === "invalid" && licenseError && (
-                        <div style={{ fontSize: 10, color: "#ef4444", marginTop: 3 }}>{licenseError}</div>
-                    )}
-                    {licenseStatus === "valid" && (
-                        <div style={{ fontSize: 10, color: "#22c55e", marginTop: 3 }}>License verified ✓</div>
-                    )}
-                </div>
             </div>
+            {licenseStatus === "invalid" && licenseError && (
+            <div style={{ fontSize: 10, color: "#ef4444", marginTop: 3 }}>{licenseError}</div>
+                    )}
+            {licenseStatus === "valid" && (
+            <div style={{ fontSize: 10, color: "#22c55e", marginTop: 3 }}>License verified ✓</div>
+                    )}
+          </div>
+        </div>
 
-            <div style={{ marginBottom: "var(--space-lg)" }}>
-                <div style={sectionHeaderStyle}>
-                    <Key size={10} style={{ marginRight: 4, verticalAlign: "middle" }} />
-                    Your API Keys
-                </div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: "var(--space-md)" }}>
-                    Optional — if set, your key is used instead of the shared default.
-                    Keys are stored only in your browser.
-                </div>
+        <div style={{ marginBottom: "var(--space-lg)" }}>
+          <div style={sectionHeaderStyle}>
+            <Key size={10} style={{ marginRight: 4, verticalAlign: "middle" }} />
+            Your API Keys
+          </div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: "var(--space-md)" }}>
+            Optional — if set, your key is used instead of the shared default.
+            Keys are stored only in your browser.
+          </div>
 
-                {API_KEY_REGISTRY.map((entry) => {
+          {API_KEY_REGISTRY.map((entry) => {
                     const st = status[entry.service] ?? "idle";
                     const err = errors[entry.service];
-                    const borderColor =
-                        st === "valid" ? "rgba(34,197,94,0.5)"
+                    const borderColor = st === "valid" ? "rgba(34,197,94,0.5)"
                             : st === "invalid" ? "rgba(239,68,68,0.5)"
                                 : "var(--border-subtle)";
 
                     return (
-                        <div key={entry.service} style={{ marginBottom: "var(--space-md)" }}>
-                            <div style={{ ...inputGroupStyle, marginBottom: "var(--space-xs)" }}>
-                                <label style={labelStyle}>{entry.label}</label>
-                            </div>
-                            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                                <input
-                                    type={visible[entry.service] ? "text" : "password"}
-                                    value={keys[entry.service]}
-                                    placeholder={entry.placeholder}
-                                    onChange={(e) => handleChange(entry.service, e.target.value)}
-                                    style={{ ...keyInputStyle, border: `1px solid ${borderColor}` }}
-                                    spellCheck={false}
-                                    autoComplete="new-password"
-                                    data-form-type="other"
-                                    data-lpignore="true"
-                                    name={`wwv-apikey-${entry.service}`}
-                                />
-                                <StatusIcon status={st} />
-                                <button
-                                    onClick={() => handleManualVerify(entry.service)}
-                                    disabled={!keys[entry.service] || keys[entry.service].length < MIN_KEY_LENGTH || st === "verifying"}
-                                    title="Verify key"
-                                    style={{
+                      <div key={entry.service} style={{ marginBottom: "var(--space-md)" }}>
+                        <div style={{ ...inputGroupStyle, marginBottom: "var(--space-xs)" }}>
+                          <label style={labelStyle}>{entry.label}</label>
+                        </div>
+                        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                          <input
+                            type={visible[entry.service] ? "text" : "password"}
+                            value={keys[entry.service]}
+                            placeholder={entry.placeholder}
+                            onChange={(e) => handleChange(entry.service, e.target.value)}
+                            style={{ ...keyInputStyle, border: `1px solid ${borderColor}` }}
+                            spellCheck={false}
+                            autoComplete="new-password"
+                            data-form-type="other"
+                            data-lpignore="true"
+                            name={`wwv-apikey-${entry.service}`}
+                          />
+                          <StatusIcon status={st} />
+                          <button
+                            onClick={() => handleManualVerify(entry.service)}
+                            disabled={!keys[entry.service] || keys[entry.service].length < MIN_KEY_LENGTH || st === "verifying"}
+                            title="Verify key"
+                            style={{
                                         ...toggleBtnStyle,
                                         color: st === "valid" ? "#22c55e" : st === "invalid" ? "#ef4444" : "var(--text-muted)",
                                         opacity: (!keys[entry.service] || keys[entry.service].length < MIN_KEY_LENGTH || st === "verifying") ? 0.4 : 1,
                                         cursor: (!keys[entry.service] || keys[entry.service].length < MIN_KEY_LENGTH || st === "verifying") ? "not-allowed" : "pointer",
                                     }}
-                                >
-                                    <ShieldCheck size={14} />
-                                </button>
-                                <button
-                                    style={toggleBtnStyle}
-                                    onClick={() => toggleVisibility(entry.service)}
-                                    title={visible[entry.service] ? "Hide" : "Show"}
-                                >
-                                    {visible[entry.service] ? <EyeOff size={14} /> : <Eye size={14} />}
-                                </button>
-                            </div>
-                            {st === "invalid" && err && (
-                                <div style={{ fontSize: 10, color: "#ef4444", marginTop: 3 }}>{err}</div>
-                            )}
-                            {st === "valid" && (
-                                <div style={{ fontSize: 10, color: "#22c55e", marginTop: 3 }}>Key verified ✓</div>
-                            )}
+                          >
+                            <ShieldCheck size={14} />
+                          </button>
+                          <button
+                            style={toggleBtnStyle}
+                            onClick={() => toggleVisibility(entry.service)}
+                            title={visible[entry.service] ? "Hide" : "Show"}
+                          >
+                            {visible[entry.service] ? <EyeOff size={14} /> : <Eye size={14} />}
+                          </button>
                         </div>
+                        {st === "invalid" && err && (
+                        <div style={{ fontSize: 10, color: "#ef4444", marginTop: 3 }}>{err}</div>
+                            )}
+                        {st === "valid" && (
+                        <div style={{ fontSize: 10, color: "#22c55e", marginTop: 3 }}>Key verified ✓</div>
+                            )}
+                      </div>
                     );
                 })}
-            </div>
+        </div>
 
-            {hasAnyKey && (
-                <button
-                    onClick={handleClearAll}
-                    style={{
+        {hasAnyKey && (
+          <button
+            onClick={handleClearAll}
+            style={{
                         display: "flex",
                         alignItems: "center",
                         gap: 6,
@@ -325,13 +331,13 @@ export function ApiKeysTab() {
                         width: "100%",
                         justifyContent: "center",
                     }}
-                >
-                    <Trash2 size={12} />
-                    Clear All Keys
-                </button>
+          >
+            <Trash2 size={12} />
+            Clear All Keys
+          </button>
             )}
-            
-            {needsReload && <ReloadToast message="Google Maps API Key validated. Reload to apply." />}
-        </>
+
+        {needsReload && <ReloadToast message="Google Maps API Key validated. Reload to apply." />}
+      </>
     );
 }

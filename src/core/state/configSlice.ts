@@ -1,6 +1,6 @@
 /**
  * @file configSlice.ts
- * @description State slice managing application-wide settings, data engine configuration, 
+ * @description State slice managing application-wide settings, data engine configuration,
  * and map rendering parameters.
  */
 
@@ -109,19 +109,16 @@ export const createConfigSlice: StateCreator<AppStore, [], [], ConfigSlice> = (s
         fallbackLayerId: null,
         sceneMode: 3,
     },
-    updateDataConfig: (config) =>
-        set((state) => ({
+    updateDataConfig: (config) => set((state) => ({
             dataConfig: { ...state.dataConfig, ...config },
         })),
-    updateMapConfig: (config) =>
-        set((state) => {
+    updateMapConfig: (config) => set((state) => {
             if (config.baseLayerId && typeof window !== "undefined" && window.localStorage && typeof window.localStorage.setItem === "function") {
                 localStorage.setItem("wwv_map_layer", config.baseLayerId);
             }
             return { mapConfig: { ...state.mapConfig, ...config } };
         }),
-    setPollingInterval: (pluginId, intervalMs) =>
-        set((state) => ({
+    setPollingInterval: (pluginId, intervalMs) => set((state) => ({
             dataConfig: {
                 ...state.dataConfig,
                 pollingIntervals: {
@@ -130,8 +127,7 @@ export const createConfigSlice: StateCreator<AppStore, [], [], ConfigSlice> = (s
                 },
             },
         })),
-    updatePluginSettings: (pluginId, settings) =>
-        set((state) => ({
+    updatePluginSettings: (pluginId, settings) => set((state) => ({
             dataConfig: {
                 ...state.dataConfig,
                 pluginSettings: {

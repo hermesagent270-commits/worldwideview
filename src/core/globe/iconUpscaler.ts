@@ -27,8 +27,8 @@ export function getBaseSize(): number {
 /** Padding ratio — the icon fills (1 - 2*INSET) of the canvas. */
 const ICON_INSET = 0.12;
 
-/** 
- * Background circle size ratio (relative to canvas radius). 
+/**
+ * Background circle size ratio (relative to canvas radius).
  * Adjust this to scale the black half-transparent backdrop.
  * 1.0 = fills canvas, 0.8 = 80% of canvas radius.
  */

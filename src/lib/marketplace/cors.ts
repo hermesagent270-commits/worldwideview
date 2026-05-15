@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-
 /** Build CORS headers for the marketplace bridge API. */
 export function corsHeaders(request: Request): Record<string, string> {
     const origin = request.headers.get("origin");

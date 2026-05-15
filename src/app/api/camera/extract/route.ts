@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
             const ajaxRes = await fetch(ajaxUrl, {
                 headers: {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                    "Referer": targetUrl
+                    Referer: targetUrl
                 }
             });
             const ajaxHtml = await ajaxRes.text();
@@ -37,9 +37,8 @@ export async function GET(req: NextRequest) {
             const streamMatch = ajaxHtml.match(/src:\s*'([^']+m3u8[^']+)'/);
             if (streamMatch && streamMatch[1]) {
                 return NextResponse.json({ streamUrl: streamMatch[1] });
-            } else {
-                return NextResponse.json({ error: "Could not find m3u8 stream on balticlivecam backend" }, { status: 404 });
             }
+                return NextResponse.json({ error: "Could not find m3u8 stream on balticlivecam backend" }, { status: 404 });
         }
 
         return NextResponse.json({ error: "Unsupported extractor platform" }, { status: 400 });

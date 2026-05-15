@@ -101,9 +101,7 @@ export class FrustumRenderer {
 
     private createNew(viewer: CesiumViewer, id: string, edges: FrustumEdges): void {
         const corners = [edges.topLeft, edges.topRight, edges.bottomLeft, edges.bottomRight];
-        const lines = corners.map((corner) =>
-            this.addEdgeLine(viewer, id, edges.apex, corner),
-        );
+        const lines = corners.map((corner) => this.addEdgeLine(viewer, id, edges.apex, corner),);
         this.entityMap.set(id, lines);
     }
 
@@ -125,8 +123,10 @@ export class FrustumRenderer {
     }
 
     private addEdgeLine(
-        viewer: CesiumViewer, parentId: string,
-        from: Point3D, to: Point3D,
+        viewer: CesiumViewer,
+parentId: string,
+        from: Point3D,
+to: Point3D,
     ): Entity {
         return viewer.entities.add({
             id: `frustum-${parentId}-${Math.random().toString(36).slice(2, 8)}`,

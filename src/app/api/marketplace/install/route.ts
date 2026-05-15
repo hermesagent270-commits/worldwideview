@@ -21,8 +21,6 @@ export async function POST(request: Request) {
         );
     }
 
-
-
     const rateLimited = marketplaceApiLimiter.check(getClientIp(request));
     if (rateLimited) return withCors(rateLimited, request);
 
@@ -53,9 +51,9 @@ export async function POST(request: Request) {
                 if (res.ok) {
                     const card = await res.json();
                     finalManifest = { ...card };
-                    
+
                     // Reconstruct entry URL for plugins that are distributed via NPM.
-                    // We also forcefully coerce format to "bundle" here because 
+                    // We also forcefully coerce format to "bundle" here because
                     // the marketplace cache might still return "static" for plugins we recently converted.
                     if (finalManifest.npmPackage) {
                         const targetVersion = version || finalManifest.version || "1.0.0";
@@ -73,9 +71,9 @@ export async function POST(request: Request) {
             const validation = validateManifest(finalManifest);
             if (!validation.valid) {
                 console.error(
-                    `[Marketplace Install Route] ❌ MANIFEST VALIDATION FAILED for ${pluginId}\n` +
-                    `Errors: ${validation.errors.join(", ")}\n` +
-                    `Evaluated Payload:\n${JSON.stringify(finalManifest, null, 2)}`
+                    `[Marketplace Install Route] ❌ MANIFEST VALIDATION FAILED for ${pluginId}\n`
+                    + `Errors: ${validation.errors.join(", ")}\n`
+                    + `Evaluated Payload:\n${JSON.stringify(finalManifest, null, 2)}`
                 );
                 return withCors(
                     NextResponse.json(

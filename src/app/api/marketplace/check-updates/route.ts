@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     try {
         // Fetch currently installed plugins from PostgreSQL
         const installedPlugins = await getInstalledPlugins();
-        
+
         // Exclude built-in versions, only check genuine semver strings or unverified records.
         const updatablePlugins = installedPlugins.filter((p: any) => p.version !== "built-in");
 
@@ -24,13 +24,13 @@ export async function GET(request: Request) {
         const res = await fetch(`${MARKETPLACE_URL}/api/plugins`, {
             next: { revalidate: 60 } // Cache for 60 seconds
         });
-        
+
         if (!res.ok) {
             throw new Error(`Marketplace returned ${res.status}`);
         }
 
         const marketplacePlugins = await res.json();
-        
+
         // Build a lookup map of Market versions
         const marketVersions = new Map();
         for (const p of marketplacePlugins) {
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
         // Compare and flag updates
         for (const localPlugin of updatablePlugins) {
             const marketVersion = marketVersions.get(localPlugin.pluginId);
-            
+
             // Only suggest an update if marketplace version exists and differs
             if (marketVersion && marketVersion !== "0.0.0" && marketVersion !== localPlugin.version) {
                  updates[localPlugin.pluginId] = marketVersion;

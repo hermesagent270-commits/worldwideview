@@ -1,7 +1,7 @@
 /**
  * @file hostGlobals.ts
  * @description Exposes essential host libraries (React, Cesium, SDK, etc.) on `globalThis`.
- * This allows dynamically loaded ES module plugins to share the host's dependencies 
+ * This allows dynamically loaded ES module plugins to share the host's dependencies
  * rather than bundling their own copies, preventing version conflicts and reducing bundle size.
  */
 
@@ -30,16 +30,16 @@ export interface WWVHostGlobals {
 }
 
 declare global {
-    // eslint-disable-next-line no-var
+
     var __WWV_HOST__: WWVHostGlobals | undefined;
 }
 
 /**
  * Injects the required libraries and configuration onto the global scope.
- * 
+ *
  * This must be called exactly once during the application's initial boot sequence,
  * before any dynamic plugins are imported.
- * 
+ *
  * @returns A promise that resolves when all globals have been injected.
  */
 export async function injectHostGlobals(): Promise<void> {
@@ -73,7 +73,7 @@ export async function injectHostGlobals(): Promise<void> {
     }
 
     // WebSocket Engine URL
-    const fallbackWs = envDataEngine ? envDataEngine.replace(/^http/, "ws") + "/stream" : 'wss://dataengine.worldwideview.dev/stream';
+    const fallbackWs = envDataEngine ? `${envDataEngine.replace(/^http/, "ws")}/stream` : 'wss://dataengine.worldwideview.dev/stream';
     (globalThis as any).__WWV_WS_ENGINE_URL__ = fallbackWs;
 
     console.log("[HostGlobals] React and SDK injected for dynamic plugins");

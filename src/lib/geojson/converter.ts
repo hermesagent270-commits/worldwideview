@@ -71,16 +71,16 @@ export function convertToGeoJson(
     throw new Error("Input must be a non-empty array of objects.");
   }
 
-  let latField = options.latField;
-  let lonField = options.lonField;
-  let altField = options.altField;
+  let {latField} = options;
+  let {lonField} = options;
+  let {altField} = options;
 
   if (!latField || !lonField) {
     const detected = detectGeoFields(data[0]);
     if (!detected) {
       throw new Error(
-        "Could not auto-detect latitude/longitude fields. " +
-        "Provide latField and lonField in options.",
+        "Could not auto-detect latitude/longitude fields. "
+        + "Provide latField and lonField in options.",
       );
     }
     latField = latField ?? detected.latField;

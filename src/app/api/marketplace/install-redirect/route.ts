@@ -24,7 +24,7 @@ if (process.env.ALLOWED_DEV_ORIGIN) {
 function isSafeRedirect(url: string): boolean {
     try {
         const parsed = new URL(url);
-        const hostname = parsed.hostname;
+        const {hostname} = parsed;
         return ALLOWED_REDIRECT_HOSTS.has(hostname) || hostname.endsWith(".worldwideview.dev");
     } catch {
         return false;
@@ -126,7 +126,6 @@ export async function GET(request: NextRequest) {
 
         // Token in fragment — never sent to server in logs/referer
         return NextResponse.redirect(`${successUrl.toString()}#token=${token}`);
-
     } catch (err) {
         // Top-level catch: log and redirect to marketplace with error, don't expose raw 500
         console.error("[install-redirect] Unexpected error:", err);

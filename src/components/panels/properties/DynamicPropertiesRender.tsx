@@ -1,6 +1,6 @@
 /**
  * @file DynamicPropertiesRender.tsx
- * @description Heuristic-based property renderer that automatically detects 
+ * @description Heuristic-based property renderer that automatically detects
  * content types (images, URLs, long text) from raw entity properties.
  * @module src/components/panels/properties
  */
@@ -26,18 +26,17 @@ interface DynamicPropertiesRenderProps {
 export function DynamicPropertiesRender({ entity, classNamePrefix = "intel-panel" }: DynamicPropertiesRenderProps) {
     // Filter out standard non-display properties
     const displayProps = Object.entries(entity.properties).filter(
-        ([key]) =>
-            !["id", "pluginId"].includes(key) &&
-            entity.properties[key] !== null &&
-            entity.properties[key] !== undefined
+        ([key]) => !["id", "pluginId"].includes(key)
+            && entity.properties[key] !== null
+            && entity.properties[key] !== undefined
     );
 
     return (
-        <>
-            {displayProps.map(([key, value]) => {
+      <>
+        {displayProps.map(([key, value]) => {
                 const label = key.replace(/_/g, " ");
                 const stringValue = String(value);
-                
+
                 // Identify property type
                 const isImage = typeof value === "string" && key.toLowerCase().includes("image") && /^https?:\/\//i.test(value);
                 const isUrl = !isImage && typeof value === "string" && /^https?:\/\//i.test(value);
@@ -45,50 +44,50 @@ export function DynamicPropertiesRender({ entity, classNamePrefix = "intel-panel
 
                 if (isImage) {
                     return (
-                        <ImageProperty 
-                            key={key} 
-                            label={label} 
-                            imageUrl={stringValue} 
-                            entityId={entity.id} 
-                            entityLabel={entity.label} 
-                            classNamePrefix={classNamePrefix} 
-                        />
+                      <ImageProperty
+                        key={key}
+                        label={label}
+                        imageUrl={stringValue}
+                        entityId={entity.id}
+                        entityLabel={entity.label}
+                        classNamePrefix={classNamePrefix}
+                      />
                     );
                 }
 
                 if (isUrl) {
                     return (
-                        <UrlProperty 
-                            key={key} 
-                            label={label} 
-                            url={stringValue} 
-                            classNamePrefix={classNamePrefix} 
-                        />
+                      <UrlProperty
+                        key={key}
+                        label={label}
+                        url={stringValue}
+                        classNamePrefix={classNamePrefix}
+                      />
                     );
                 }
 
                 if (isLongText || key === "summary") {
                     return (
-                        <LongTextProperty 
-                            key={key} 
-                            label={label} 
-                            text={stringValue} 
-                            classNamePrefix={classNamePrefix} 
-                        />
+                      <LongTextProperty
+                        key={key}
+                        label={label}
+                        text={stringValue}
+                        classNamePrefix={classNamePrefix}
+                      />
                     );
                 }
 
                 // Standard property fallback
                 return (
-                    <IntelPropertyRow 
-                        key={key} 
-                        label={label} 
-                        classNamePrefix={classNamePrefix}
-                    >
-                        {typeof value === "boolean" ? (value ? "Yes" : "No") : stringValue}
-                    </IntelPropertyRow>
+                  <IntelPropertyRow
+                    key={key}
+                    label={label}
+                    classNamePrefix={classNamePrefix}
+                  >
+                    {typeof value === "boolean" ? (value ? "Yes" : "No") : stringValue}
+                  </IntelPropertyRow>
                 );
             })}
-        </>
+      </>
     );
 }

@@ -17,7 +17,7 @@ export function searchEntities(
     query: string,
     layers: Record<string, { enabled: boolean }>
 ): SearchSection[] {
-    const entitiesByPlugin = useStore.getState().entitiesByPlugin;
+    const {entitiesByPlugin} = useStore.getState();
     const sections: SearchSection[] = [];
 
     for (const [pluginId, entities] of Object.entries(entitiesByPlugin)) {
@@ -50,11 +50,11 @@ export function searchEntities(
                         const start = Math.max(0, matchIndex - 30);
                         const end = Math.min(subLabel.length, matchIndex + query.length + 30);
                         let snippet = subLabel.substring(start, end);
-                        if (start > 0) snippet = "..." + snippet;
-                        if (end < subLabel.length) snippet = snippet + "...";
+                        if (start > 0) snippet = `...${snippet}`;
+                        if (end < subLabel.length) snippet += "...";
                         subLabel = snippet;
                     } else if (subLabel.length > 60) {
-                        subLabel = subLabel.substring(0, 60) + "...";
+                        subLabel = `${subLabel.substring(0, 60)}...`;
                     }
                 }
 

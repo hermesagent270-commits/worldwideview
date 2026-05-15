@@ -28,8 +28,13 @@ describe("validateManifest", () => {
 
   it("should flag invalid entry URLs", () => {
     const manifest: any = {
-      id: "p1", name: "n1", version: "1", type: "data-layer", trust: "verified", 
-      capabilities: ["c1"], entry: "https://hacker.com/malicious.js"
+      id: "p1",
+name: "n1",
+version: "1",
+type: "data-layer",
+trust: "verified",
+      capabilities: ["c1"],
+entry: "https://hacker.com/malicious.js"
     };
     const result = validateManifest(manifest);
     expect(result.valid).toBe(false);
@@ -38,8 +43,13 @@ describe("validateManifest", () => {
 
   it("should require extends for extensions", () => {
     const manifest: any = {
-      id: "p1", name: "n1", version: "1", type: "extension", trust: "verified", 
-      capabilities: ["c1"], entry: "/p.js"
+      id: "p1",
+name: "n1",
+version: "1",
+type: "extension",
+trust: "verified",
+      capabilities: ["c1"],
+entry: "/p.js"
     };
     const result = validateManifest(manifest);
     expect(result.valid).toBe(false);

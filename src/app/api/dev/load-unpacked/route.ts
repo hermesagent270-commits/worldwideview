@@ -30,10 +30,10 @@ export async function POST(request: Request) {
 
     try {
         const body = await request.json();
-        
+
         // Convert wwv-manifest.json format to PluginManifest format
         const manifest = parseWwvManifest(body);
-        
+
         // Dev-loaded plugins are unverified by default
         manifest.trust = "unverified";
 

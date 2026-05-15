@@ -1,5 +1,5 @@
-import type { AnimatableItem } from "./EntityRenderer";
 import { pluginManager } from "@/core/plugins/PluginManager";
+import type { AnimatableItem } from "./EntityRenderer";
 
 /** Calculate dynamic grid size based on camera altitude. */
 export function calculateGridSizeDegrees(altitude: number): number {

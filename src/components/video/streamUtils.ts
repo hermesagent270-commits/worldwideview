@@ -1,13 +1,13 @@
 /**
  * @file streamUtils.ts
- * @description specialized utilities for detecting, transforming, and 
- * proxying video streams to ensure cross-origin compatibility and 
+ * @description specialized utilities for detecting, transforming, and
+ * proxying video streams to ensure cross-origin compatibility and
  * playback stability.
  * @module src/components/video
  */
 
-/** 
- * Returns true if the URL points to an HLS manifest (.m3u8). 
+/**
+ * Returns true if the URL points to an HLS manifest (.m3u8).
  * @param {string} url - The URL to check.
  */
 export function isHlsUrl(url: string): boolean {
@@ -16,39 +16,39 @@ export function isHlsUrl(url: string): boolean {
     return lower.endsWith(".m3u8") || lower.includes(".m3u8?");
 }
 
-/** 
- * Returns true if the URL belongs to a known embeddable video platform. 
+/**
+ * Returns true if the URL belongs to a known embeddable video platform.
  * @param {string} url - The URL to check.
  */
 export function isKnownVideoPlatform(url: string): boolean {
     if (!url) return false;
     const lower = url.toLowerCase();
     return (
-        lower.includes("youtube.com") ||
-        lower.includes("youtu.be") ||
-        lower.includes("youtube-nocookie.com") ||
-        lower.includes("twitch.tv") ||
-        lower.includes("vimeo.com") ||
-        lower.includes("player.") ||
-        lower.includes("/player/") ||
-        lower.includes("webcamera.pl") ||
-        lower.includes("ivideon.com") ||
-        lower.includes("rtsp.me") ||
-        lower.includes("bnu.tv") ||
-        lower.includes(".html")
+        lower.includes("youtube.com")
+        || lower.includes("youtu.be")
+        || lower.includes("youtube-nocookie.com")
+        || lower.includes("twitch.tv")
+        || lower.includes("vimeo.com")
+        || lower.includes("player.")
+        || lower.includes("/player/")
+        || lower.includes("webcamera.pl")
+        || lower.includes("ivideon.com")
+        || lower.includes("rtsp.me")
+        || lower.includes("bnu.tv")
+        || lower.includes(".html")
     );
 }
 
-/** 
- * Convert a YouTube watch / short URL into an embeddable URL with autoplay. 
+/**
+ * Convert a YouTube watch / short URL into an embeddable URL with autoplay.
  * @param {string} url - The raw YouTube URL.
  */
 export function getYouTubeEmbedUrl(url: string): string {
     if (!url) return url;
     if (
-        !url.includes("youtube.com") &&
-        !url.includes("youtube-nocookie.com") &&
-        !url.includes("youtu.be")
+        !url.includes("youtube.com")
+        && !url.includes("youtube-nocookie.com")
+        && !url.includes("youtu.be")
     ) {
         return url;
     }
@@ -82,7 +82,7 @@ export function getYouTubeEmbedUrl(url: string): string {
  */
 export function getProxiedStreamUrl(url: string): string {
     if (!url) return url;
-    
+
     // Always proxy to bypass CORS restrictions from camera providers!
     return `/api/camera/proxy/stream?url=${encodeURIComponent(url)}`;
 }
@@ -97,15 +97,15 @@ export function getProxiedIframeUrl(url: string): string {
     return `/api/camera/proxy/iframe?url=${encodeURIComponent(url)}`;
 }
 
-/** 
- * Return a user-friendly error message for a failed stream URL. 
+/**
+ * Return a user-friendly error message for a failed stream URL.
  * @param {string} streamUrl - The URL that failed.
  */
 export function getStreamErrorMessage(streamUrl: string): string {
     if (
-        streamUrl.startsWith("http://") &&
-        typeof window !== "undefined" &&
-        window.location.protocol === "https:"
+        streamUrl.startsWith("http://")
+        && typeof window !== "undefined"
+        && window.location.protocol === "https:"
     ) {
         return "Mixed Content Error: Connection blocked because the stream uses insecure HTTP on a secure HTTPS site.";
     }

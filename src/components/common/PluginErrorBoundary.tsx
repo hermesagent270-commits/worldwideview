@@ -29,8 +29,8 @@ interface State {
 
 /**
  * @component PluginErrorBoundary
- * @description A standard React error boundary used to isolate failures in third-party 
- * or dynamic plugin components. When a crash occurs, the boundary renders 
+ * @description A standard React error boundary used to isolate failures in third-party
+ * or dynamic plugin components. When a crash occurs, the boundary renders
  * nothing (null), allowing the rest of the UI (sidebar, globe) to remain functional.
  */
 export class PluginErrorBoundary extends Component<Props, State> {

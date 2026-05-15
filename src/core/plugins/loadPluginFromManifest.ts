@@ -24,11 +24,11 @@ export class ManifestLoadError extends Error {
 
 /**
  * Orchestrates the dynamic ES module import of a plugin bundle.
- * This method is the core of our "Bundled Plugin" architecture, bypassing standard 
- * build-time dependencies to load external code at runtime. It aggressively 
- * probes the imported module for a valid WorldPlugin implementation, checking 
+ * This method is the core of our "Bundled Plugin" architecture, bypassing standard
+ * build-time dependencies to load external code at runtime. It aggressively
+ * probes the imported module for a valid WorldPlugin implementation, checking
  * default exports, named class exports, and object literals with 'initialize' hooks.
- * 
+ *
  * @param entry - The URL or path to the ES module entry point (e.g., unpkg.com URL).
  * @returns A promise resolving to an instantiated WorldPlugin implementation.
  * @throws Error if the module cannot be reached or no valid plugin interface is discovered.
@@ -75,17 +75,17 @@ async function loadBundlePlugin(entry: string): Promise<WorldPlugin> {
     }
 
     throw new Error(
-        `Failed to load valid WorldPlugin from bundle: ${entry}. ` +
-        `Make sure you export a class that implements WorldPlugin.`,
+        `Failed to load valid WorldPlugin from bundle: ${entry}. `
+        + `Make sure you export a class that implements WorldPlugin.`,
     );
 }
 
 /**
  * Validates a plugin manifest and returns a fully constructed WorldPlugin instance.
- * This is the primary system entry point for turning a JSON marketplace declaration 
- * into a live, interactive data layer. It enforces strict schema validation 
+ * This is the primary system entry point for turning a JSON marketplace declaration
+ * into a live, interactive data layer. It enforces strict schema validation
  * before attempting the expensive network request for the module bundle.
- * 
+ *
  * @param manifest - The raw JSON manifest declaration for the plugin.
  * @returns A promise resolving to a constructed WorldPlugin.
  * @throws ManifestLoadError if the schema is invalid or the network bundle fails to resolve.
@@ -96,9 +96,9 @@ export async function loadPluginFromManifest(
     const result = validateManifest(manifest);
     if (!result.valid) {
         console.error(
-            `[loadPluginFromManifest] ❌ VALIDATION FAILED for "${manifest.id || "unknown"}"\n` +
-            `Errors: ${result.errors.join(", ")}\n` +
-            `Payload:\n${JSON.stringify(manifest, null, 2)}`,
+            `[loadPluginFromManifest] ❌ VALIDATION FAILED for "${manifest.id || "unknown"}"\n`
+            + `Errors: ${result.errors.join(", ")}\n`
+            + `Payload:\n${JSON.stringify(manifest, null, 2)}`,
         );
         throw new ManifestLoadError(
             manifest.id,

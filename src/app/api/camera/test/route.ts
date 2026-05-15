@@ -8,7 +8,7 @@ function isPrivateUrl(urlStr: string): boolean {
         const parsed = new URL(urlStr);
         if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return true;
         const host = parsed.hostname;
-        
+
         // If developer overrides local restrictions, bypass checks
         if (process.env.WWV_PROXY_ALLOW_LOCAL === "true") return false;
 
@@ -48,8 +48,8 @@ export async function GET(req: NextRequest) {
                 signal: AbortSignal.timeout(TIMEOUT_MS)
             });
         } catch (headError: any) {
-            // Primitive IP camera servers (like Insecam sources) often aggressively drop the TCP connection 
-            // instead of returning 405 when they see an unsupported HTTP method like HEAD. 
+            // Primitive IP camera servers (like Insecam sources) often aggressively drop the TCP connection
+            // instead of returning 405 when they see an unsupported HTTP method like HEAD.
             // If the socket was closed unexpectedly, retry with GET.
             if (headError.cause?.code === 'UND_ERR_SOCKET' || headError.message?.includes('fetch failed')) {
                 response = await fetch(url, {

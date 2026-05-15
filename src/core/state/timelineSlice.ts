@@ -1,12 +1,12 @@
 /**
  * @file timelineSlice.ts
- * @description State slice managing the application's temporal context, including time windows, 
+ * @description State slice managing the application's temporal context, including time windows,
  * playback controls, and historical data availability.
  */
 
 import type { StateCreator } from "zustand";
-import type { AppStore } from "./store";
 import type { TimeRange, TimeWindow } from "@/core/plugins/PluginTypes";
+import type { AppStore } from "./store";
 
 // ─── Timeline Slice ──────────────────────────────────────────
 /**
@@ -72,8 +72,7 @@ export const createTimelineSlice: StateCreator<AppStore, [], [], TimelineSlice> 
     playbackTime: Date.now(),
     timelineAvailability: {},
     setCurrentTime: (time) => set({ currentTime: time }),
-    setTimeWindow: (window) =>
-        set({ timeWindow: window, timeRange: getTimeRange(window) }),
+    setTimeWindow: (window) => set({ timeWindow: window, timeRange: getTimeRange(window) }),
     setTimeRange: (range) => set({ timeRange: range }),
     setPlaying: (playing) => set({ isPlaying: playing }),
     setPlaybackSpeed: (speed) => set({ playbackSpeed: speed }),

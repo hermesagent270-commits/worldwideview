@@ -1,13 +1,12 @@
-import { prisma } from "../db";
 import { isDemo } from "@/core/edition";
+import { validateManifest } from "@/core/plugins/validateManifest";
+import { prisma } from "../db";
 import { DEFAULT_PLUGIN_IDS } from "./defaultPlugins";
 import { upsertPlugin } from "./repository";
-import { validateManifest } from "@/core/plugins/validateManifest";
 import { getVerifiedPluginIds } from "./registryClient";
 
-const MARKETPLACE_URL =
-    process.env.NEXT_PUBLIC_MARKETPLACE_URL ||
-    "https://marketplace.worldwideview.dev";
+const MARKETPLACE_URL = process.env.NEXT_PUBLIC_MARKETPLACE_URL
+    || "https://marketplace.worldwideview.dev";
 
 /**
  * Seed default marketplace plugins on a fresh install.
@@ -82,7 +81,7 @@ export async function seedDefaultPlugins(): Promise<void> {
                     manifest.version || "1.0.0",
                     JSON.stringify(manifest),
                 );
-                installed++;
+                installed += 1;
             } catch (err) {
                 console.warn(
                     `[DefaultPlugins] Failed to seed ${pluginId}:`,

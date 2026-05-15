@@ -55,8 +55,7 @@ export const osmSurveillanceAdapter: CameraAdapter = {
         if (!res.ok) throw new Error(`overpass ${res.status}`);
         const data = (await res.json()) as { elements?: OverpassNode[] };
         const nodes = (data.elements ?? []).filter(
-            (e): e is OverpassNode =>
-                e.type === "node" && typeof e.lat === "number",
+            (e): e is OverpassNode => e.type === "node" && typeof e.lat === "number",
         );
 
         return nodes.map<CameraFeature>((n) => {

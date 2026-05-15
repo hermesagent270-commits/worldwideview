@@ -25,7 +25,7 @@ import type { Viewer as CesiumViewer } from "cesium";
 
 /**
  * Hook that manages physical 3D borders and labels.
- * 
+ *
  * Performance Note: We bypass the high-level Entity/DataSource APIs completely.
  * By parsing the GeoJSON and compiling ALL 190+ borders into a SINGLE `Primitive`
  * with a `GeometryInstance` array, we compress ~1000 draw calls and complex depth-sorting
@@ -42,9 +42,9 @@ export function useBorders(
         labels: LabelCollection;
     } | null>(null);
     const isBuildingRef = useRef(false);
-    
+
     // Always keep track of the absolute latest toggle state during a render.
-    // If the user toggles it off mid-load, the ongoing build will finish safely 
+    // If the user toggles it off mid-load, the ongoing build will finish safely
     // and turn itself invisible instead of unpredictably popping up.
     const enabledRef = useRef(enabled);
     enabledRef.current = enabled;
@@ -54,8 +54,8 @@ export function useBorders(
 
         // If data is already built, instantly toggle visibility without rebuilding
         if (bordersDataRef.current) {
-            bordersDataRef.current.primitives.forEach(p => p.show = enabled);
-            const labels = bordersDataRef.current.labels;
+            bordersDataRef.current.primitives.forEach((p) => p.show = enabled);
+            const {labels} = bordersDataRef.current;
             for (let i = 0; i < labels.length; ++i) {
                 labels.get(i).show = enabled;
             }
@@ -91,7 +91,7 @@ export function useBorders(
                     // Time-based yielding: process as many entities as possible within an 8ms frame budget.
                     // This is 30-40x faster than fixed-interval chunking while still preventing the UI from freezing.
                     if (performance.now() - lastYield > 8) {
-                        await new Promise(resolve => setTimeout(resolve, 0));
+                        await new Promise((resolve) => setTimeout(resolve, 0));
                         if (viewer!.isDestroyed()) return;
                         lastYield = performance.now();
                     }
@@ -119,7 +119,7 @@ export function useBorders(
                         // Compile into an unmanaged geometry instance
                         instances.push(new GeometryInstance({
                             geometry: new WallGeometry({
-                                positions: positions,
+                                positions,
                                 minimumHeights: new Array(positions.length).fill(-10000), // 10km underground
                                 maximumHeights: new Array(positions.length).fill(100000), // 100km above ground
                             }),
@@ -131,7 +131,8 @@ export function useBorders(
 
                         if (name) {
                             // Compute centroid of the polygon in lat/lon to place the label at the country center
-                            let sumLat = 0, sumLon = 0;
+                            let sumLat = 0; let
+sumLon = 0;
                             for (let j = 0; j < positions.length; j++) {
                                 const carto = Cartographic.fromCartesian(positions[j]);
                                 sumLat += carto.latitude;
@@ -178,31 +179,30 @@ export function useBorders(
                             closed: false
                         }),
                         asynchronous: true, // Generate geometry in a Web Worker to avoid freezing the main UI
-                        show: true 
+                        show: true
                     });
 
                     viewer!.scene.primitives.add(primitive);
                     primitivesList.push(primitive);
 
                     // Reduced 50ms yield loop down to 5ms: just long enough for WebWorkers to claim execution cycles.
-                    await new Promise(resolve => setTimeout(resolve, 5));
+                    await new Promise((resolve) => setTimeout(resolve, 5));
                     if (viewer!.isDestroyed()) return;
                 }
 
                 console.timeEnd("[useBorders] 3. Compile Master Primitives");
-                
+
                 bordersDataRef.current = { primitives: primitivesList, labels };
 
                 // Ensure the ultimate state perfectly aligns with what the user requested during the load time.
                 const currentlyEnabled = enabledRef.current;
-                primitivesList.forEach(p => p.show = currentlyEnabled);
+                primitivesList.forEach((p) => p.show = currentlyEnabled);
                 for (let i = 0; i < labels.length; ++i) {
                     labels.get(i).show = currentlyEnabled;
                 }
-
             } catch (err) {
                 console.warn("[useBorders] Failed to compile low-level 3D borders", err);
-                primitivesList.forEach(p => {
+                primitivesList.forEach((p) => {
                     if (viewer!.scene.primitives.contains(p)) viewer!.scene.primitives.remove(p);
                 });
                 if (viewer!.scene.primitives.contains(labels)) viewer!.scene.primitives.remove(labels);
@@ -210,14 +210,12 @@ export function useBorders(
                 isBuildingRef.current = false;
             }
         }
-
     }, [viewer, enabled]);
 
     // Cleanup on unmount
-    useEffect(() => {
-        return () => {
+    useEffect(() => () => {
             if (viewer && !viewer.isDestroyed() && bordersDataRef.current) {
-                bordersDataRef.current.primitives.forEach(p => {
+                bordersDataRef.current.primitives.forEach((p) => {
                     if (viewer.scene.primitives.contains(p)) {
                         viewer.scene.primitives.remove(p);
                     }
@@ -227,6 +225,5 @@ export function useBorders(
                 }
                 bordersDataRef.current = null;
             }
-        };
-    }, [viewer]);
+        }, [viewer]);
 }

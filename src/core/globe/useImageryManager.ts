@@ -12,7 +12,7 @@ export function useImageryManager(viewer: CesiumViewer | null, viewerReady: bool
     const baseLayerId = useStore((s) => s.mapConfig.baseLayerId);
     const fallbackLayerId = useStore((s) => s.mapConfig.fallbackLayerId);
     const sceneMode = useStore((s) => s.mapConfig.sceneMode);
-    
+
     // Resolve runtime truth:
     const activeLayerId = fallbackLayerId || baseLayerId;
 
@@ -46,12 +46,12 @@ export function useImageryManager(viewer: CesiumViewer | null, viewerReady: bool
 
             // Toggle Google 3D Tileset visibility if it exists
             // Or find it in primitives
-            const primitives = viewer.scene.primitives;
+            const {primitives} = viewer.scene;
             let foundTileset: Cesium3DTileset | null = null;
 
             for (let i = 0; i < primitives.length; i++) {
                 const p = primitives.get(i);
-                // Simple check for Google Tileset - usually it's the only 3DTileset 
+                // Simple check for Google Tileset - usually it's the only 3DTileset
                 // added during initialization or has custom properties
                 if (p instanceof Cesium3DTileset) {
                     foundTileset = p;
@@ -63,7 +63,7 @@ export function useImageryManager(viewer: CesiumViewer | null, viewerReady: bool
                 foundTileset.show = isGoogle3D;
             }
 
-            // If we are in Google 3D mode, we usually hide the globe surface 
+            // If we are in Google 3D mode, we usually hide the globe surface
             // to avoid z-fighting or showing low-res imagery underneath
             viewer.scene.globe.show = !isGoogle3D;
 

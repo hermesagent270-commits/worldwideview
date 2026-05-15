@@ -57,8 +57,7 @@ export const isDemo: boolean = edition === "demo";
  * Set `WWV_DEMO_ADMIN_SECRET` in `.env` — never use `NEXT_PUBLIC_`.
  * When configured on demo, enables plugin management for the instance.
  */
-const DEMO_ADMIN_SECRET: string | undefined =
-    process.env.WWV_DEMO_ADMIN_SECRET?.trim() || undefined;
+const DEMO_ADMIN_SECRET: string | undefined = process.env.WWV_DEMO_ADMIN_SECRET?.trim() || undefined;
 
 /** True when demo edition has an admin secret configured. */
 export const isDemoAdminConfigured: boolean = isDemo && !!DEMO_ADMIN_SECRET;
@@ -109,4 +108,3 @@ export const DEMO_ADMIN_ROLE = "demo-admin";
 export function isDemoAdmin(session: any): boolean {
     return isDemo && session?.user?.role === DEMO_ADMIN_ROLE;
 }
-

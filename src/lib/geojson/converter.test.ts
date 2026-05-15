@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
+import fc from "fast-check";
 import { convertToGeoJson } from "./converter";
 import { detectGeoFields } from "./fieldDetector";
-import fc from "fast-check";
 
 // ── Field Detector ──────────────────────────────────────────────
 
@@ -122,8 +122,12 @@ describe("convertToGeoJson", () => {
 
   test("converts multiple rows preserving all properties", () => {
     const input = [
-      { lat: 1, lon: 2, category: "traffic", active: true },
-      { lat: 3, lon: 4, category: "nature", active: false },
+      {
+ lat: 1, lon: 2, category: "traffic", active: true
+},
+      {
+ lat: 3, lon: 4, category: "nature", active: false
+},
     ];
     const result = convertToGeoJson(input);
 

@@ -4,8 +4,8 @@
  */
 
 import type { StateCreator } from "zustand";
-import type { AppStore } from "./store";
 import type { FilterValue } from "@/core/plugins/PluginTypes";
+import type { AppStore } from "./store";
 
 // ─── Filter Slice ────────────────────────────────────────────
 /**
@@ -24,8 +24,7 @@ export interface FilterSlice {
 
 export const createFilterSlice: StateCreator<AppStore, [], [], FilterSlice> = (set) => ({
     filters: {},
-    setFilter: (pluginId, filterId, value) =>
-        set((state) => ({
+    setFilter: (pluginId, filterId, value) => set((state) => ({
             filters: {
                 ...state.filters,
                 [pluginId]: {
@@ -34,8 +33,7 @@ export const createFilterSlice: StateCreator<AppStore, [], [], FilterSlice> = (s
                 },
             },
         })),
-    clearFilters: (pluginId) =>
-        set((state) => {
+    clearFilters: (pluginId) => set((state) => {
             const copy = { ...state.filters };
             delete copy[pluginId];
             return { filters: copy };

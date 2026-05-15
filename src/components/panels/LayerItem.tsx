@@ -40,15 +40,15 @@ function TrustIcon({ trust }: { trust: TrustTier }) {
     if (trust !== "unverified") return null;
 
     return (
-        <Tooltip content="Unverified plugin, use at your own risk">
-            <span className="layer-item__unverified-icon-wrapper">
-                <ShieldAlert
-                    size={12}
-                    className="layer-item__unverified-icon"
-                    aria-label="Unverified plugin"
-                />
-            </span>
-        </Tooltip>
+      <Tooltip content="Unverified plugin, use at your own risk">
+        <span className="layer-item__unverified-icon-wrapper">
+          <ShieldAlert
+            size={12}
+            className="layer-item__unverified-icon"
+            aria-label="Unverified plugin"
+          />
+        </span>
+      </Tooltip>
     );
 }
 
@@ -91,40 +91,40 @@ export function LayerItem({
     const trust = getTrust(plugin.id);
 
     return (
-        <div 
-            className={`layer-item ${isSelected ? "layer-item--selected" : ""}`} 
-            onClick={onSelect}
-        >
-            <span className="layer-item__icon">
-                <PluginIcon icon={plugin.icon} size={18} />
-            </span>
+      <div
+        className={`layer-item ${isSelected ? "layer-item--selected" : ""}`}
+        onClick={onSelect}
+      >
+        <span className="layer-item__icon">
+          <PluginIcon icon={plugin.icon} size={18} />
+        </span>
 
-            <div className="layer-item__info">
-                <div className="layer-item__header">
-                    <span className="layer-item__name">{plugin.name}</span>
-                    <TrustIcon trust={trust} />
-                </div>
-                <div className="layer-item__desc">{plugin.description}</div>
-                <div className="layer-item__footer">
-                    {isEnabled && !isLoading && entityCount > 0 && (
-                        <span className="layer-item__count">
-                            {entityCount.toLocaleString()}
-                        </span>
+        <div className="layer-item__info">
+          <div className="layer-item__header">
+            <span className="layer-item__name">{plugin.name}</span>
+            <TrustIcon trust={trust} />
+          </div>
+          <div className="layer-item__desc">{plugin.description}</div>
+          <div className="layer-item__footer">
+            {isEnabled && !isLoading && entityCount > 0 && (
+              <span className="layer-item__count">
+                {entityCount.toLocaleString()}
+              </span>
                     )}
-                </div>
-            </div>
+          </div>
+        </div>
 
-            {isEnabled && isLoading && (
-                <span className="layer-item__spinner" aria-label="Loading" />
+        {isEnabled && isLoading && (
+          <span className="layer-item__spinner" aria-label="Loading" />
             )}
 
-            <div
-                className={`layer-item__toggle ${isEnabled ? "layer-item__toggle--on" : ""}`}
-                onClick={(e) => {
+        <div
+          className={`layer-item__toggle ${isEnabled ? "layer-item__toggle--on" : ""}`}
+          onClick={(e) => {
                     e.stopPropagation();
                     onToggle();
                 }}
-            />
-        </div>
+        />
+      </div>
     );
 }

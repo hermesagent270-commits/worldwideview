@@ -1,13 +1,13 @@
 /**
  * @file favoritesSlice.ts
- * @description State slice for managing user-bookmarked entities. 
+ * @description State slice for managing user-bookmarked entities.
  * Supports cross-session persistence via Cookies (demo mode) or PostgreSQL (local/cloud editions).
  */
 
 import type { StateCreator } from "zustand";
-import type { AppStore } from "./store";
 import type { GeoEntity } from "@/core/plugins/PluginTypes";
 import { isDemo } from "@/core/edition";
+import type { AppStore } from "./store";
 
 /**
  * A bookmarked entity with metadata for quick retrieval.
@@ -44,16 +44,16 @@ export interface FavoritesSlice {
 function syncFavoritesCookie(favorites: FavoriteItem[]) {
     if (typeof document !== "undefined") {
         // Omit icon (unserializable React element) during JSON stringify
-        const toSave = favorites.map(f => ({ ...f, icon: undefined }));
+        const toSave = favorites.map((f) => ({ ...f, icon: undefined }));
         document.cookie = `wwv_favorites=${encodeURIComponent(JSON.stringify(toSave))}; path=/; max-age=31536000`; // 1 year
     }
 }
 
 export const createFavoritesSlice: StateCreator<AppStore, [], [], FavoritesSlice> = (set, get) => ({
     favorites: [],
-    
+
     initFavorites: (favorites) => set({ favorites }),
-    
+
     addFavorite: (entity, pluginName, icon) => {
         const state = get();
         if (state.favorites.some((f) => f.id === entity.id)) return;
@@ -83,10 +83,10 @@ export const createFavoritesSlice: StateCreator<AppStore, [], [], FavoritesSlice
                     label: entity.label || entity.id,
                     pluginName
                 })
-            }).catch(e => console.error("Failed to sync add favorite to DB:", e));
+            }).catch((e) => console.error("Failed to sync add favorite to DB:", e));
         }
     },
-    
+
     removeFavorite: (id) => {
         const state = get();
         const newFavorites = state.favorites.filter((f) => f.id !== id);
@@ -97,7 +97,7 @@ export const createFavoritesSlice: StateCreator<AppStore, [], [], FavoritesSlice
         } else {
             fetch(`/api/user/favorites?entityId=${encodeURIComponent(id)}`, {
                 method: "DELETE"
-            }).catch(e => console.error("Failed to sync remove favorite from DB:", e));
+            }).catch((e) => console.error("Failed to sync remove favorite from DB:", e));
         }
     },
 });

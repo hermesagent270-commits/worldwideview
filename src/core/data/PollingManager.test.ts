@@ -1,4 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import {
+ describe, it, expect, beforeEach, afterEach, vi
+} from "vitest";
+
+import { pollingManager } from "./PollingManager";
 
 // The store import in PollingManager's constructor pulls in Cesium,
 // zustand middleware, and the entire UI state tree. Mock it before the
@@ -10,8 +14,6 @@ vi.mock("@/core/state/store", () => ({
         subscribe: () => () => {},
     },
 }));
-
-import { pollingManager } from "./PollingManager";
 
 beforeEach(() => {
     vi.useFakeTimers();

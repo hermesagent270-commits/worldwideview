@@ -48,8 +48,7 @@ export async function GET(req: NextRequest) {
             );
         }
 
-        const contentType =
-            upstream.headers.get("content-type") || "application/octet-stream";
+        const contentType = upstream.headers.get("content-type") || "application/octet-stream";
 
         return new Response(upstream.body as ReadableStream, {
             status: 200,

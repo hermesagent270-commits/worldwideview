@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import {
+ useState, useRef, useEffect, useCallback
+} from "react";
 import type { TestResult } from "./types";
 
 export function useCameraTestRunner(testSources: string[], testStatuses: string[]) {
@@ -61,7 +63,7 @@ export function useCameraTestRunner(testSources: string[], testStatuses: string[
             abortControllerRef.current.abort();
         }
         abortControllerRef.current = new AbortController();
-        const signal = abortControllerRef.current.signal;
+        const {signal} = abortControllerRef.current;
 
         const maxConcurrent = 20;
         let index = 0;
@@ -75,10 +77,12 @@ export function useCameraTestRunner(testSources: string[], testStatuses: string[
                 return sourceMatches && statusMatches;
             });
 
-        setCameras(prev => {
+        setCameras((prev) => {
             const nextState = [...prev];
             for (const { originalIndex } of itemsToTest) {
-                nextState[originalIndex] = { ...nextState[originalIndex], status: "pending", testStartTime: undefined, latencyMs: undefined, errorMsg: undefined, httpStatus: undefined, contentType: undefined };
+                nextState[originalIndex] = {
+ ...nextState[originalIndex], status: "pending", testStartTime: undefined, latencyMs: undefined, errorMsg: undefined, httpStatus: undefined, contentType: undefined
+};
             }
             return nextState;
         });
@@ -90,15 +94,16 @@ export function useCameraTestRunner(testSources: string[], testStatuses: string[
                     return;
                 }
                 while (active < maxConcurrent && index < itemsToTest.length) {
-                    const item = itemsToTest[index++];
+                    const item = itemsToTest[index];
+                    index += 1;
                     const currentIndex = item.originalIndex;
-                    active++;
+                    active += 1;
 
                     const cam = item.c;
-                    let streamUrl = cam.feature.properties.stream;
+                    const streamUrl = cam.feature.properties.stream;
 
                     if (!streamUrl) {
-                        setCameras(prev => {
+                        setCameras((prev) => {
                             const nextState = [...prev];
                             nextState[currentIndex] = {
                                 ...nextState[currentIndex],
@@ -107,21 +112,21 @@ export function useCameraTestRunner(testSources: string[], testStatuses: string[
                             };
                             return nextState;
                         });
-                        active--;
+                        active -= 1;
                         next();
                         continue;
                     }
 
-                    setCameras(prev => {
+                    setCameras((prev) => {
                         const nextState = [...prev];
                         nextState[currentIndex] = { ...nextState[currentIndex], status: "testing", testStartTime: Date.now() };
                         return nextState;
                     });
 
                     fetch(`/api/camera/test?url=${encodeURIComponent(streamUrl)}`, { signal })
-                        .then(res => res.json())
-                        .then(data => {
-                            setCameras(prev => {
+                        .then((res) => res.json())
+                        .then((data) => {
+                            setCameras((prev) => {
                                 const nextState = [...prev];
                                 const isOk = data.status === 200 || data.status === 204 || data.status === 206;
                                 nextState[currentIndex] = {
@@ -135,9 +140,9 @@ export function useCameraTestRunner(testSources: string[], testStatuses: string[
                                 return nextState;
                             });
                         })
-                        .catch(err => {
+                        .catch((err) => {
                             if (err.name === 'AbortError') return;
-                            setCameras(prev => {
+                            setCameras((prev) => {
                                 const nextState = [...prev];
                                 nextState[currentIndex] = {
                                     ...nextState[currentIndex],
@@ -148,7 +153,7 @@ export function useCameraTestRunner(testSources: string[], testStatuses: string[
                             });
                         })
                         .finally(() => {
-                            active--;
+                            active -= 1;
                             next();
                         });
                 }
@@ -175,16 +180,18 @@ export function useCameraTestRunner(testSources: string[], testStatuses: string[
         const streamUrl = cam.feature.properties.stream;
         if (!streamUrl) return;
 
-        setCameras(prev => {
+        setCameras((prev) => {
             const nextState = [...prev];
-            nextState[globalIndex] = { ...nextState[globalIndex], status: "testing", testStartTime: Date.now(), latencyMs: undefined, errorMsg: undefined, httpStatus: undefined, contentType: undefined };
+            nextState[globalIndex] = {
+ ...nextState[globalIndex], status: "testing", testStartTime: Date.now(), latencyMs: undefined, errorMsg: undefined, httpStatus: undefined, contentType: undefined
+};
             return nextState;
         });
 
         try {
             const res = await fetch(`/api/camera/test?url=${encodeURIComponent(streamUrl)}`);
             const data = await res.json();
-            setCameras(prev => {
+            setCameras((prev) => {
                 const nextState = [...prev];
                 const isOk = data.status === 200 || data.status === 204 || data.status === 206;
                 nextState[globalIndex] = {
@@ -198,7 +205,7 @@ export function useCameraTestRunner(testSources: string[], testStatuses: string[
                 return nextState;
             });
         } catch (err: any) {
-            setCameras(prev => {
+            setCameras((prev) => {
                 const nextState = [...prev];
                 nextState[globalIndex] = {
                     ...nextState[globalIndex],
@@ -210,5 +217,7 @@ export function useCameraTestRunner(testSources: string[], testStatuses: string[
         }
     };
 
-    return { cameras, loading, testing, runTests, stopTests, retestCamera };
+    return {
+ cameras, loading, testing, runTests, stopTests, retestCamera
+};
 }

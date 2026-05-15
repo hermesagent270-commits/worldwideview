@@ -1,6 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { RateLimiter, getClientIp } from "./rateLimit";
+import {
+ describe, it, expect, beforeEach, afterEach
+} from "vitest";
 import fc from "fast-check";
+import { RateLimiter, getClientIp } from "./rateLimit";
 
 describe("RateLimiter", () => {
     let limiter: RateLimiter;
@@ -65,13 +67,13 @@ describe("RateLimiter", () => {
     it("cleans up expired entries", () => {
         const localLimiter = new RateLimiter({ windowMs: 100, maxRequests: 5 });
         localLimiter.check("ip-cleanup");
-        
+
         // Force the store resetAt to be in the past
         const entry = (localLimiter as any).store.get("ip-cleanup");
         entry.resetAt = Date.now() - 1000;
-        
+
         (localLimiter as any).cleanup();
-        
+
         expect((localLimiter as any).store.has("ip-cleanup")).toBe(false);
         localLimiter.destroy();
     });

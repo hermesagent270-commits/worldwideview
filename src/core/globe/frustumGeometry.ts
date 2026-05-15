@@ -35,12 +35,12 @@ export interface FrustumEdges {
 export interface FrustumParams {
     lat: number;
     lon: number;
-    alt: number;       // metres above ground
+    alt: number; // metres above ground
     headingDeg: number; // 0 = north, 90 = east
-    pitchDeg: number;   // 0 = horizontal, negative = looking down
-    hFovDeg: number;    // horizontal field of view
-    vFovDeg: number;    // vertical field of view (or derived from aspect)
-    rangeMtrs: number;  // max visible distance
+    pitchDeg: number; // 0 = horizontal, negative = looking down
+    hFovDeg: number; // horizontal field of view
+    vFovDeg: number; // vertical field of view (or derived from aspect)
+    rangeMtrs: number; // max visible distance
 }
 
 // ─── Defaults ────────────────────────────────────────────────
@@ -64,7 +64,9 @@ export const FRUSTUM_DEFAULTS = {
  * to each corner, or passed to a ground-projection step.
  */
 export function computeFrustumEdges(params: FrustumParams): FrustumEdges {
-    const { lat, lon, alt, headingDeg, pitchDeg, hFovDeg, vFovDeg, rangeMtrs } = params;
+    const {
+ lat, lon, alt, headingDeg, pitchDeg, hFovDeg, vFovDeg, rangeMtrs
+} = params;
 
     const apex: Point3D = { lat, lon, alt };
 
@@ -76,30 +78,52 @@ export function computeFrustumEdges(params: FrustumParams): FrustumEdges {
     // For each corner we compute horizontal bearing offset ± halfH
     // and vertical pitch offset ± halfV, then project to a destination.
     const corners: [number, number][] = [
-        [-halfH, halfV],  // topLeft
-        [halfH, halfV],   // topRight
+        [-halfH, halfV], // topLeft
+        [halfH, halfV], // topRight
         [-halfH, -halfV], // bottomLeft
-        [halfH, -halfV],  // bottomRight
+        [halfH, -halfV], // bottomRight
     ];
 
     const [topLeft, topRight, bottomLeft, bottomRight] = corners.map(
         ([hOff, vOff]) => projectCorner(lat, lon, alt, heading, pitch, hOff, vOff, rangeMtrs),
     );
 
-    return { apex, topLeft, topRight, bottomLeft, bottomRight };
+    return {
+ apex, topLeft, topRight, bottomLeft, bottomRight
+};
 }
 
 // ─── Cardinal direction helper ───────────────────────────────
 
 const CARDINAL_MAP: Record<string, number> = {
-    n: 0, north: 0, nb: 0, northbound: 0,
-    ne: 45, northeast: 45, neb: 45,
-    e: 90, east: 90, eb: 90, eastbound: 90,
-    se: 135, southeast: 135, seb: 135,
-    s: 180, south: 180, sb: 180, southbound: 180,
-    sw: 225, southwest: 225, swb: 225,
-    w: 270, west: 270, wb: 270, westbound: 270,
-    nw: 315, northwest: 315, nwb: 315,
+    n: 0,
+north: 0,
+nb: 0,
+northbound: 0,
+    ne: 45,
+northeast: 45,
+neb: 45,
+    e: 90,
+east: 90,
+eb: 90,
+eastbound: 90,
+    se: 135,
+southeast: 135,
+seb: 135,
+    s: 180,
+south: 180,
+sb: 180,
+southbound: 180,
+    sw: 225,
+southwest: 225,
+swb: 225,
+    w: 270,
+west: 270,
+wb: 270,
+westbound: 270,
+    nw: 315,
+northwest: 315,
+nwb: 315,
 };
 
 /**
@@ -121,9 +145,13 @@ export function cardinalToHeading(dir: string): number | undefined {
  * 4. Use haversine destination formula for the ground position
  */
 function projectCorner(
-    latDeg: number, lonDeg: number, altM: number,
-    headingRad: number, pitchRad: number,
-    hOffRad: number, vOffRad: number,
+    latDeg: number,
+lonDeg: number,
+altM: number,
+    headingRad: number,
+pitchRad: number,
+    hOffRad: number,
+vOffRad: number,
     range: number,
 ): Point3D {
     const bearing = headingRad + hOffRad;
@@ -146,8 +174,10 @@ function projectCorner(
  * distance (m), and bearing (rad).
  */
 function destinationPoint(
-    latDeg: number, lonDeg: number,
-    distMetres: number, bearingRad: number,
+    latDeg: number,
+lonDeg: number,
+    distMetres: number,
+bearingRad: number,
 ): { lat: number; lon: number } {
     const lat1 = latDeg * DEG2RAD;
     const lon1 = lonDeg * DEG2RAD;

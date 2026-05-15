@@ -7,11 +7,11 @@ import type { PluginManifest } from "./PluginManifest";
 
 /**
  * Validates and converts a raw `wwv-manifest.json` object into an internal `PluginManifest`.
- * This utility implements the 'Safe-Hydration' pattern, ensuring that arbitrary JSON 
- * fetched from external marketplace sources is coerced into our strictly-typed 
- * internal model. It provides sensible defaults (e.g., category: 'custom', 
+ * This utility implements the 'Safe-Hydration' pattern, ensuring that arbitrary JSON
+ * fetched from external marketplace sources is coerced into our strictly-typed
+ * internal model. It provides sensible defaults (e.g., category: 'custom',
  * format: 'bundle') to ensure compatibility with older or minimalist manifests.
- * 
+ *
  * @param rawManifest - The raw, untrusted JSON object typically fetched from a remote server or CDN.
  * @returns A sanitized and properly structured PluginManifest object.
  * @throws Error if the raw input is not a valid JSON object.
@@ -22,7 +22,7 @@ export function parseWwvManifest(rawManifest: any): PluginManifest {
     }
 
     /**
-     * Partial construction allows us to explicitly map and default fields 
+     * Partial construction allows us to explicitly map and default fields
      * before casting to the final strict interface.
      */
     const manifest: Partial<PluginManifest> = {

@@ -65,9 +65,7 @@ export async function GET(request: Request) {
         }
 
         const allRecords = [...records, ...localPlugins];
-        
 
-        
         const manifests = allRecords
             .map((r: any): PluginManifest | null => {
                 try {
@@ -92,10 +90,10 @@ export async function GET(request: Request) {
                 // Skip bundle plugins whose entry is a bare module specifier
                 // (e.g. "camera") — cannot be dynamically imported in the browser.
                 if (
-                    m.format === "bundle" &&
-                    !m.entry.startsWith("/") &&
-                    !m.entry.startsWith("./") &&
-                    !m.entry.startsWith("http")
+                    m.format === "bundle"
+                    && !m.entry.startsWith("/")
+                    && !m.entry.startsWith("./")
+                    && !m.entry.startsWith("http")
                 ) return false;
 
                 // For anything that looks like a real manifest, validate it and log if it fails
@@ -103,7 +101,7 @@ export async function GET(request: Request) {
                 if (!validation.valid) {
                     const errorMessage = `Manifest validation failed for ${m.id}`;
                     console.error(`[Marketplace API] ${errorMessage}:`, validation.errors);
-                    
+
                     // Capture in Sentry so we have visibility into malformed third-party plugins
                     Sentry.captureMessage(errorMessage, {
                         level: "error",
@@ -131,7 +129,7 @@ export async function GET(request: Request) {
                 if (m.format === "declarative" && m.dataSource) {
                     // Only omit headers and potentially sensitive auth params.
                     // The URL might be needed by the client for polling, but headers like Bearer tokens shouldn't leak.
-                    // If the audit explicitly asks to strip URL, maybe just replace it entirely if it's sensitive, 
+                    // If the audit explicitly asks to strip URL, maybe just replace it entirely if it's sensitive,
                     // but usually headers are the sensitive part. We strip headers.
                     if (m.dataSource.headers) {
                         m.dataSource.headers = {};
@@ -146,4 +144,3 @@ export async function GET(request: Request) {
         return withCors(NextResponse.json({ manifests: [] }), request);
     }
 }
-

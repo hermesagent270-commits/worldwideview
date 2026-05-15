@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import type { Viewer as CesiumViewer } from "cesium";
-import { Cartesian3, Color, Ellipsoid, Material, DistanceDisplayCondition, Cartographic } from "cesium";
+import {
+ Cartesian3, Color, Ellipsoid, Material, DistanceDisplayCondition, Cartographic
+} from "cesium";
 import type { AnimatableItem } from "../EntityRenderer";
 import { getCollections } from "../EntityRenderer";
 
@@ -20,7 +22,7 @@ export function useTrailRendering(
             lastUpdateTime = now;
 
             const collections = getCollections(viewer);
-            const polylines = collections.polylines;
+            const {polylines} = collections;
             if (!polylines) return;
 
             const MAX_DIST_SQ = 250000000000; // 500km squared
@@ -29,13 +31,13 @@ export function useTrailRendering(
             // Manage additions and removals
             for (const item of animatablesMapRef.current.values()) {
                 const history = item.entity.properties.history as any[];
-                let trailOpts = item.options.trailOptions;
-                
+                const trailOpts = item.options.trailOptions;
+
                 if (history && history.length > 0 && trailOpts) {
                     const isSelected = item.lastHighlightState === 'selected';
                     const isHovered = item.lastHighlightState === 'hovered';
                     const shouldHighlight = isSelected || isHovered;
-                    
+
                     const distSq = Cartesian3.distanceSquared(cameraPos, item.posRef);
                     const isClose = distSq < MAX_DIST_SQ;
 
@@ -47,15 +49,13 @@ export function useTrailRendering(
 
                         if (!item.trailPositions || item._lastHistoryTs !== latestHistoryTs) {
                             try {
-                                item.trailPositions = history.map(point => 
-                                    Cartesian3.fromDegrees(
-                                        point.lon || point.longitude || 0, 
-                                        point.lat || point.latitude || 0, 
-                                        altOffset, 
+                                item.trailPositions = history.map((point) => Cartesian3.fromDegrees(
+                                        point.lon || point.longitude || 0,
+                                        point.lat || point.latitude || 0,
+                                        altOffset,
                                         Ellipsoid.WGS84
-                                    )
-                                );
-                                
+                                    ));
+
                                 if (tipCartographic) {
                                     item.trailPositions.push(
                                         Cartesian3.fromRadians(
@@ -99,12 +99,12 @@ export function useTrailRendering(
                         if (!item.polylinePrimitive) {
                             const colorStr = trailOpts.color || item.options.color || "#0ef";
                             const baseColor = Color.fromCssColorString(colorStr);
-                            
+
                             let material;
                             if (trailOpts.dashPattern === "dashed") {
                                 material = Material.fromType("PolylineDash", { color: baseColor });
                             } else if (trailOpts.opacityFade) {
-                                material = Material.fromType("PolylineGlow", { 
+                                material = Material.fromType("PolylineGlow", {
                                     color: baseColor,
                                     glowPower: 0.1,
                                     taperPower: 1.0
@@ -116,7 +116,7 @@ export function useTrailRendering(
                             item.polylinePrimitive = polylines.add({
                                 positions: item.trailPositions,
                                 width: trailOpts.width || 2,
-                                material: material,
+                                material,
                                 distanceDisplayCondition: new DistanceDisplayCondition(0, 500000)
                             });
                         }
@@ -131,11 +131,9 @@ export function useTrailRendering(
                                 if (currentDDC !== undefined) {
                                     item.polylinePrimitive.distanceDisplayCondition = undefined;
                                 }
-                            } else {
-                                if (currentDDC === undefined || currentDDC.near !== 0 || currentDDC.far !== 500000) {
+                            } else if (currentDDC === undefined || currentDDC.near !== 0 || currentDDC.far !== 500000) {
                                     item.polylinePrimitive.distanceDisplayCondition = new DistanceDisplayCondition(0, 500000);
                                 }
-                            }
                         }
                     } else {
                         // Math-culled: remove from geometry collection to save massive memory
@@ -161,7 +159,7 @@ export function useTrailRendering(
             if (!viewer.isDestroyed()) {
                 viewer.scene.preUpdate.removeEventListener(updateTrails);
                 const collections = getCollections(viewer);
-                const polylines = collections.polylines;
+                const {polylines} = collections;
                 if (polylines) {
                     for (const item of animatablesMapRef.current.values()) {
                         if (item.polylinePrimitive) {

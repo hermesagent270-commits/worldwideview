@@ -1,7 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+ describe, it, expect, vi, beforeEach
+} from "vitest";
+import { pluginManager } from "@/core/plugins/PluginManager";
 import { fetchLocalEngineManifest, localEngineHasPlugin, resetManifestCache } from "./engineManifest";
 import { resolveEngineUrl } from "./resolveEngineUrl";
-import { pluginManager } from "@/core/plugins/PluginManager";
 
 // Mock PluginManager
 vi.mock("@/core/plugins/PluginManager", () => ({
@@ -28,7 +30,7 @@ describe("EngineManifest", () => {
     expect(plugins).toEqual(["plugin-a", "plugin-b"]);
     expect(localEngineHasPlugin("plugin-a")).toBe(true);
     expect(localEngineHasPlugin("plugin-c")).toBe(false);
-    
+
     // Second call should used cache
     await fetchLocalEngineManifest();
     expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -39,7 +41,7 @@ describe("EngineManifest", () => {
 
     const plugins = await fetchLocalEngineManifest();
     expect(plugins).toBeNull();
-    
+
     // Should not retry fetch
     await fetchLocalEngineManifest();
     expect(global.fetch).toHaveBeenCalledTimes(1);

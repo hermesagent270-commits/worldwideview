@@ -14,8 +14,7 @@
 import type { CameraAdapter, CameraFeature } from "./types";
 
 const BULK_URL = "https://eapps.ncdot.gov/services/traffic-prod/v1/cameras";
-const DETAIL_URL = (id: number) =>
-    `https://eapps.ncdot.gov/services/traffic-prod/v1/cameras/${id}`;
+const DETAIL_URL = (id: number) => `https://eapps.ncdot.gov/services/traffic-prod/v1/cameras/${id}`;
 
 const CONCURRENCY = 20;
 
@@ -64,7 +63,8 @@ async function mapWithConcurrency<T, R>(
     let next = 0;
     async function run() {
         while (next < items.length) {
-            const i = next++;
+            const i = next;
+            next += 1;
             results[i] = await worker(items[i]);
         }
     }
@@ -113,9 +113,7 @@ export const ncdotAdapter: CameraAdapter = {
         const bulk = (await bulkRes.json()) as BulkRecord[];
         if (!Array.isArray(bulk)) return [];
 
-        const details = await mapWithConcurrency(bulk, CONCURRENCY, (b) =>
-            fetchDetail(b.id),
-        );
+        const details = await mapWithConcurrency(bulk, CONCURRENCY, (b) => fetchDetail(b.id),);
 
         const features: CameraFeature[] = [];
         for (const d of details) {

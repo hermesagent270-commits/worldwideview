@@ -95,7 +95,7 @@ export function useSelectionAnchor(
             const pos = item ? item.posRef : fallbackPos;
             return Cartesian3.clone(pos, result);
         }, false) as any;
-        
+
         if (viewer && !viewer.isDestroyed()) viewer.scene.requestRender();
     }, [selectedEntity, lockedEntityId, selectionEntityRef, animatablesMapRef, viewer]);
 }

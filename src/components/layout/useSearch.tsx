@@ -5,9 +5,9 @@ import { Clock } from "lucide-react";
 import { useStore } from "@/core/state/store";
 import { dataBus } from "@/core/data/DataBus";
 import { buildUserKeyHeaders } from "@/lib/userApiKeys";
+import { trackEvent } from "@/lib/analytics";
 import { getZoomForTypes } from "./placeCategories";
 import { useSearchHistory } from "./useSearchHistory";
-import { trackEvent } from "@/lib/analytics";
 import type { SearchResult, SearchSection } from "./searchTypes";
 import { searchEntities } from "./searchEntities";
 import { searchLocations } from "./searchLocations";
@@ -27,16 +27,18 @@ export function useSearch() {
         const q = query.trim().toLowerCase();
         if (!q) {
             if (history.length === 0) return [];
-            return [{ title: "Recent", icon: <Clock size={16} />, results: history, maxScore: 0 }];
+            return [{
+ title: "Recent", icon: <Clock size={16} />, results: history, maxScore: 0
+}];
         }
         const matchingHistory = history.filter(
-            (r) =>
-                r.label.toLowerCase().includes(q) ||
-                (r.subLabel && r.subLabel.toLowerCase().includes(q))
+            (r) => r.label.toLowerCase().includes(q)
+                || (r.subLabel && r.subLabel.toLowerCase().includes(q))
         );
-        const recentSection: SearchSection | null =
-            matchingHistory.length > 0
-                ? { title: "Recent", icon: <Clock size={16} />, results: matchingHistory, maxScore: 99 }
+        const recentSection: SearchSection | null = matchingHistory.length > 0
+                ? {
+ title: "Recent", icon: <Clock size={16} />, results: matchingHistory, maxScore: 99
+}
                 : null;
         return recentSection ? [recentSection, ...liveSections] : liveSections;
     }, [query, history, liveSections]);
@@ -107,8 +109,15 @@ export function useSearch() {
     };
 
     return {
-        query, setQuery, isOpen, setIsOpen,
-        sections, selectedIndex, setSelectedIndex,
-        flatResults, handleSelect, clearHistory,
+        query,
+setQuery,
+isOpen,
+setIsOpen,
+        sections,
+selectedIndex,
+setSelectedIndex,
+        flatResults,
+handleSelect,
+clearHistory,
     };
 }

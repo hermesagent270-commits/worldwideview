@@ -3,7 +3,9 @@ import Credentials from "next-auth/providers/credentials";
 import { compareSync } from "bcryptjs";
 import { timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/db";
-import { isDemo, isCloud, getDemoAdminSecret, DEMO_ADMIN_ROLE } from "@/core/edition";
+import {
+ isDemo, isCloud, getDemoAdminSecret, DEMO_ADMIN_ROLE
+} from "@/core/edition";
 import { authConfig } from "@/lib/auth.config";
 import { SupabaseAdapter } from "@auth/supabase-adapter";
 
@@ -50,7 +52,9 @@ const localCredentialsProvider = Credentials({
     },
 });
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const {
+ handlers, auth, signIn, signOut
+} = NextAuth({
     ...authConfig,
     session: { strategy: "jwt" },
     adapter: isCloud ? SupabaseAdapter({

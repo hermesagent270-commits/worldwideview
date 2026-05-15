@@ -3,7 +3,7 @@
 /**
  * @file Tooltip.tsx
  * @description Lightweight accessibility-focused tooltip system.
- * Uses React Portals for overflow safety and features smart positioning 
+ * Uses React Portals for overflow safety and features smart positioning
  * with configurable delay and hover/focus triggers.
  * @module src/components/ui
  */
@@ -20,7 +20,7 @@ interface TooltipProps {
 /**
  * @component Tooltip
  * @description Renders a floating content box near a target element on hover/focus.
- * 
+ *
  * @param {TooltipProps} props - Component properties.
  * @param {React.ReactNode} props.children - The trigger element.
  * @param {React.ReactNode} props.content - Content to display inside the tooltip.
@@ -53,20 +53,20 @@ export function Tooltip({ children, content, delay = 300 }: TooltipProps) {
     }, [visible]);
 
     return (
-        <span
-            ref={targetRef}
-            onMouseEnter={showTooltip}
-            onMouseLeave={hideTooltip}
-            onFocus={showTooltip}
-            onBlur={hideTooltip}
-            style={{ display: "inline-flex" }}
-        >
-            {children}
-            {visible &&
-                typeof document !== "undefined" &&
-                createPortal(
-                    <div
-                        style={{
+      <span
+        ref={targetRef}
+        onMouseEnter={showTooltip}
+        onMouseLeave={hideTooltip}
+        onFocus={showTooltip}
+        onBlur={hideTooltip}
+        style={{ display: "inline-flex" }}
+      >
+        {children}
+        {visible
+                && typeof document !== "undefined"
+                && createPortal(
+                  <div
+                    style={{
                             position: "fixed",
                             top: coords.top,
                             left: coords.left,
@@ -84,17 +84,19 @@ export function Tooltip({ children, content, delay = 300 }: TooltipProps) {
                             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
                             animation: "tooltip-fade-in 0.15s ease-out",
                         }}
-                    >
-                        {content}
-                        <style>{`
+                  >
+                    {content}
+                    <style>
+                      {`
                             @keyframes tooltip-fade-in {
                                 from { opacity: 0; transform: translate(-50%, -90%); }
                                 to { opacity: 1; transform: translate(-50%, -100%); }
                             }
-                        `}</style>
-                    </div>,
+                        `}
+                    </style>
+                  </div>,
                     document.body
                 )}
-        </span>
+      </span>
     );
 }

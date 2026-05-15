@@ -1,4 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import {
+ describe, it, expect, beforeEach
+} from 'vitest';
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createLayersSlice, LayersSlice } from './layersSlice';
 
@@ -33,11 +35,11 @@ describe('layersSlice', () => {
     it('does not overwrite an existing layer upon re-initialization', () => {
         store.getState().initLayer('test-plugin', true);
         store.getState().setEntityCount('test-plugin', 42);
-        
+
         // Re-initialize
         store.getState().initLayer('test-plugin', false);
         const state = store.getState();
-        
+
         // Should preserve previous state
         expect(state.layers['test-plugin'].enabled).toBe(true);
         expect(state.layers['test-plugin'].entityCount).toBe(42);
@@ -45,37 +47,37 @@ describe('layersSlice', () => {
 
     it('toggles layer enabled status', () => {
         store.getState().initLayer('test-plugin', false);
-        
+
         store.getState().toggleLayer('test-plugin');
         expect(store.getState().layers['test-plugin'].enabled).toBe(true);
-        
+
         store.getState().toggleLayer('test-plugin');
         expect(store.getState().layers['test-plugin'].enabled).toBe(false);
     });
 
     it('explicitly sets layer enabled status', () => {
         store.getState().initLayer('test-plugin', false);
-        
+
         store.getState().setLayerEnabled('test-plugin', true);
         expect(store.getState().layers['test-plugin'].enabled).toBe(true);
-        
+
         store.getState().setLayerEnabled('test-plugin', true); // Should remain true
         expect(store.getState().layers['test-plugin'].enabled).toBe(true);
     });
 
     it('updates entity count', () => {
         store.getState().initLayer('test-plugin');
-        
+
         store.getState().setEntityCount('test-plugin', 150);
         expect(store.getState().layers['test-plugin'].entityCount).toBe(150);
     });
 
     it('updates loading status', () => {
         store.getState().initLayer('test-plugin');
-        
+
         store.getState().setLayerLoading('test-plugin', true);
         expect(store.getState().layers['test-plugin'].loading).toBe(true);
-        
+
         store.getState().setLayerLoading('test-plugin', false);
         expect(store.getState().layers['test-plugin'].loading).toBe(false);
     });

@@ -3,9 +3,9 @@ import type { AnimatableItem } from "./EntityRenderer";
 export type StackState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
 export interface EntityStack {
-    id: string;                       // hash key (rounded lat,lon)
-    hubItem: AnimatableItem;          // first item — visible when collapsed
-    children: AnimatableItem[];       // all items INCLUDING hub
+    id: string; // hash key (rounded lat,lon)
+    hubItem: AnimatableItem; // first item — visible when collapsed
+    children: AnimatableItem[]; // all items INCLUDING hub
     state: StackState;
     /** Timestamp (ms) when the state last transitioned. */
     stateStartMs: number;

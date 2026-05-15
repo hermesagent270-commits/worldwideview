@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+ describe, it, expect, vi, beforeEach
+} from "vitest";
 import { createGlobeSlice } from "./globeSlice";
 import { createLayersSlice } from "./layersSlice";
 import { createUISlice } from "./uiSlice";
@@ -14,7 +16,7 @@ describe("State Slices", () => {
       let state: any = {};
       const set = (update: any) => { state = { ...state, ...update }; };
       const slice = createGlobeSlice(set, () => ({} as any), {} as any);
-      
+
       slice.setCameraPosition(10, 20, 30);
       expect(state.cameraLat).toBe(10);
       expect(state.cameraLon).toBe(20);
@@ -24,21 +26,21 @@ describe("State Slices", () => {
 
   describe("LayersSlice", () => {
     it("should toggle layer", () => {
-      let state: any = { layers: { "p1": { enabled: false } } };
+      let state: any = { layers: { p1: { enabled: false } } };
       const set = (fn: any) => { state = { ...state, ...fn(state) }; };
       const slice = createLayersSlice(set, () => state as any, {} as any);
-      
+
       slice.toggleLayer("p1");
-      expect(state.layers["p1"].enabled).toBe(true);
+      expect(state.layers.p1.enabled).toBe(true);
     });
 
     it("should init layer if missing", () => {
       let state: any = { layers: {} };
       const set = (fn: any) => { state = { ...state, ...fn(state) }; };
       const slice = createLayersSlice(set, () => state as any, {} as any);
-      
+
       slice.initLayer("p2", true);
-      expect(state.layers["p2"]).toEqual({ enabled: true, entityCount: 0, loading: false });
+      expect(state.layers.p2).toEqual({ enabled: true, entityCount: 0, loading: false });
     });
   });
 
@@ -59,7 +61,7 @@ describe("State Slices", () => {
       let state: any = { theme: "black" };
       const set = (fn: any) => { state = { ...state, ...fn(state) }; };
       const slice = createUISlice(set, () => state as any, {} as any);
-      
+
       slice.toggleTheme();
       expect(state.theme).toBe("light");
       expect(document.documentElement.setAttribute).toHaveBeenCalledWith("data-theme", "light");
@@ -69,8 +71,10 @@ describe("State Slices", () => {
       let state: any = { floatingStreams: [] };
       const set = (fn: any) => { state = { ...state, ...fn(state) }; };
       const slice = createUISlice(set, () => state as any, {} as any);
-      
-      slice.addFloatingStream({ id: "s1", label: "Stream 1", streamUrl: "url", isIframe: false });
+
+      slice.addFloatingStream({
+ id: "s1", label: "Stream 1", streamUrl: "url", isIframe: false
+});
       expect(state.floatingStreams.length).toBe(1);
       expect(state.floatingStreams[0].id).toBe("s1");
     });
@@ -78,9 +82,9 @@ describe("State Slices", () => {
 
   describe("DataSlice", () => {
     it("should set entities and keep selectedEntity fresh", () => {
-      let state: any = { 
-        entitiesByPlugin: {}, 
-        selectedEntity: { id: "1", pluginId: "p1", name: "Old Name" } 
+      let state: any = {
+        entitiesByPlugin: {},
+        selectedEntity: { id: "1", pluginId: "p1", name: "Old Name" }
       };
       const set = (fn: any) => { state = { ...state, ...fn(state) }; };
       const get = () => state;
@@ -89,7 +93,7 @@ describe("State Slices", () => {
       const newEntities = [{ id: "1", pluginId: "p1", name: "New Name" } as any];
       slice.setEntities("p1", newEntities);
 
-      expect(state.entitiesByPlugin["p1"]).toEqual(newEntities);
+      expect(state.entitiesByPlugin.p1).toEqual(newEntities);
       expect(state.selectedEntity.name).toBe("New Name");
     });
   });
@@ -110,7 +114,7 @@ describe("State Slices", () => {
       const slice = createConfigSlice(set, () => ({} as any), {} as any);
 
       slice.setPollingInterval("p1", 5000);
-      expect(state.dataConfig.pollingIntervals["p1"]).toBe(5000);
+      expect(state.dataConfig.pollingIntervals.p1).toBe(5000);
     });
   });
 
@@ -158,10 +162,10 @@ describe("State Slices", () => {
       const slice = createFilterSlice(set, () => ({} as any), {} as any);
 
       slice.setFilter("p1", "f1", { type: "boolean", value: true });
-      expect(state.filters["p1"]["f1"]).toEqual({ type: "boolean", value: true });
+      expect(state.filters.p1.f1).toEqual({ type: "boolean", value: true });
 
       slice.clearFilters("p1");
-      expect(state.filters["p1"]).toBeUndefined();
+      expect(state.filters.p1).toBeUndefined();
     });
   });
 });

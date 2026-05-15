@@ -1,12 +1,12 @@
 /**
  * @file uiSlice.ts
- * @description State slice managing the application's user interface, including themes, 
+ * @description State slice managing the application's user interface, including themes,
  * sidebars, panels, entity selection, and floating data streams.
  */
 
 import type { StateCreator } from "zustand";
-import type { AppStore } from "./store";
 import type { GeoEntity } from "@/core/plugins/PluginTypes";
+import type { AppStore } from "./store";
 
 // ─── UI Slice ────────────────────────────────────────────────
 /**
@@ -138,29 +138,25 @@ export const createUISlice: StateCreator<AppStore, [], [], UISlice> = (set) => (
     bottomPanelHeight: 220,
     toggleTheme: () => set((state) => {
         const nextTheme = {
-            "dark": "black",
-            "black": "light",
-            "light": "legacy",
-            "legacy": "dark"
+            dark: "black",
+            black: "light",
+            light: "legacy",
+            legacy: "dark"
         }[state.theme] as "dark" | "light" | "legacy" | "black";
-        
-        try { localStorage.setItem("wwv-theme", nextTheme); } catch (e) {}
+
+        try { localStorage.setItem("wwv-theme", nextTheme); } catch { /* ignored */ }
         document.documentElement.setAttribute('data-theme', nextTheme);
         return { theme: nextTheme };
     }),
     setTheme: (theme) => set(() => {
-        try { localStorage.setItem("wwv-theme", theme); } catch (e) {}
+        try { localStorage.setItem("wwv-theme", theme); } catch { /* ignored */ }
         document.documentElement.setAttribute('data-theme', theme);
         return { theme };
     }),
-    toggleLeftSidebar: () =>
-        set((state) => ({ leftSidebarOpen: !state.leftSidebarOpen })),
-    toggleRightSidebar: () =>
-        set((state) => ({ rightSidebarOpen: !state.rightSidebarOpen })),
-    toggleConfigPanel: () =>
-        set((state) => ({ configPanelOpen: !state.configPanelOpen })),
-    toggleFilterPanel: () =>
-        set((state) => ({ filterPanelOpen: !state.filterPanelOpen })),
+    toggleLeftSidebar: () => set((state) => ({ leftSidebarOpen: !state.leftSidebarOpen })),
+    toggleRightSidebar: () => set((state) => ({ rightSidebarOpen: !state.rightSidebarOpen })),
+    toggleConfigPanel: () => set((state) => ({ configPanelOpen: !state.configPanelOpen })),
+    toggleFilterPanel: () => set((state) => ({ filterPanelOpen: !state.filterPanelOpen })),
     setFeedbackDialogOpen: (open) => set({ feedbackDialogOpen: open }),
     setSelectedEntity: (entity) => {
         if (entity) {
@@ -178,13 +174,10 @@ export const createUISlice: StateCreator<AppStore, [], [], UISlice> = (set) => (
             activeConfigTab: entity !== null ? "intel" : state.activeConfigTab
         }));
     },
-    setHoveredEntity: (entity, screenPos) =>
-        set({ hoveredEntity: entity, hoveredScreenPosition: screenPos ?? null }),
-    setLockedEntityId: (id) =>
-        set({ lockedEntityId: id }),
-    addFloatingStream: (stream) =>
-        set((state) => {
-            if (state.floatingStreams.find(s => s.id === stream.id)) return state;
+    setHoveredEntity: (entity, screenPos) => set({ hoveredEntity: entity, hoveredScreenPosition: screenPos ?? null }),
+    setLockedEntityId: (id) => set({ lockedEntityId: id }),
+    addFloatingStream: (stream) => set((state) => {
+            if (state.floatingStreams.find((s) => s.id === stream.id)) return state;
             return {
                 floatingStreams: [
                     ...state.floatingStreams,
@@ -196,19 +189,16 @@ export const createUISlice: StateCreator<AppStore, [], [], UISlice> = (set) => (
                 ]
             };
         }),
-    removeFloatingStream: (id) =>
-        set((state) => ({
-            floatingStreams: state.floatingStreams.filter(s => s.id !== id)
+    removeFloatingStream: (id) => set((state) => ({
+            floatingStreams: state.floatingStreams.filter((s) => s.id !== id)
         })),
-    updateFloatingStream: (id, updates) =>
-        set((state) => ({
-            floatingStreams: state.floatingStreams.map(s => s.id === id ? { ...s, ...updates } : s)
+    updateFloatingStream: (id, updates) => set((state) => ({
+            floatingStreams: state.floatingStreams.map((s) => (s.id === id ? { ...s, ...updates } : s))
         })),
     setActiveConfigTab: (tab) => set({ activeConfigTab: tab }),
     setHighlightLayerId: (id) => set({ highlightLayerId: id }),
     setConfigPanelOpen: (open) => set({ configPanelOpen: open }),
-    setOpenMobilePanel: (panel) =>
-        set((state) => ({
+    setOpenMobilePanel: (panel) => set((state) => ({
             openMobilePanel: state.openMobilePanel === panel ? null : panel,
             mobileRightPanelGlow: panel === "right" ? false : state.mobileRightPanelGlow,
         })),
@@ -218,4 +208,3 @@ export const createUISlice: StateCreator<AppStore, [], [], UISlice> = (set) => (
     setActiveBottomPanel: (id) => set({ activeBottomPanel: id }),
     setBottomPanelHeight: (height) => set({ bottomPanelHeight: height }),
 });
-

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { applyFilters } from "./filterEngine";
 import type { GeoEntity, FilterDefinition, FilterValue } from "@/core/plugins/PluginTypes";
+import { applyFilters } from "./filterEngine";
 
 /**
  * Helper to keep the fixture set small and on-spec. `GeoEntity` requires
@@ -29,12 +29,20 @@ describe("applyFilters", () => {
 
     it("returns a subset (or equal) of the input when filtering by text", () => {
         const entities: GeoEntity[] = [
-            entity({ id: "1", pluginId: "test", label: "alpha", properties: { name: "alpha" } }),
-            entity({ id: "2", pluginId: "test", label: "beta", properties: { name: "beta" } }),
-            entity({ id: "3", pluginId: "test", label: "gamma", properties: { name: "gamma" } }),
+            entity({
+ id: "1", pluginId: "test", label: "alpha", properties: { name: "alpha" }
+}),
+            entity({
+ id: "2", pluginId: "test", label: "beta", properties: { name: "beta" }
+}),
+            entity({
+ id: "3", pluginId: "test", label: "gamma", properties: { name: "gamma" }
+}),
         ];
         const definitions: FilterDefinition[] = [
-            { id: "name", label: "Name", type: "text", propertyKey: "name" },
+            {
+ id: "name", label: "Name", type: "text", propertyKey: "name"
+},
         ];
         const activeFilters: Record<string, FilterValue> = {
             name: { type: "text", value: "a" },
@@ -52,13 +60,17 @@ describe("applyFilters", () => {
                 id: "1",
                 pluginId: "test",
                 label: "test1",
-                properties: { category: "A", speed: 50, active: true, invalidNum: "NaN" },
+                properties: {
+ category: "A", speed: 50, active: true, invalidNum: "NaN"
+},
             }),
             entity({
                 id: "2",
                 pluginId: "test",
                 label: "test2",
-                properties: { category: "B", speed: 100, active: false, noProp: undefined },
+                properties: {
+ category: "B", speed: 100, active: false, noProp: undefined
+},
             }),
         ];
 

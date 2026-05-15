@@ -23,7 +23,8 @@ export function assignRingOffsets(stack: EntityStack, spiderOffsets: Map<string,
             spiderOffsets.set(childItem.entity.id, {
                 targetX: radius * Math.cos(angle),
                 targetY: radius * Math.sin(angle),
-                currentX: 0, currentY: 0,
+                currentX: 0,
+currentY: 0,
             });
         }
     } else {
@@ -35,14 +36,15 @@ export function assignRingOffsets(stack: EntityStack, spiderOffsets: Map<string,
             // Radius scales with sqrt of count to preserve uniform area/spacing
             const radius = (35 * spacingScale) * Math.sqrt(n);
             const angle = n * GOLDEN_ANGLE - Math.PI / 2;
-            
+
             if (radius > outerRadius) outerRadius = radius;
 
             const childItem = stack.children[i];
             spiderOffsets.set(childItem.entity.id, {
                 targetX: radius * Math.cos(angle),
                 targetY: radius * Math.sin(angle),
-                currentX: 0, currentY: 0,
+                currentX: 0,
+currentY: 0,
             });
         }
     }

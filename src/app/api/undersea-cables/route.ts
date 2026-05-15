@@ -7,7 +7,7 @@ export async function GET() {
         const response = await fetch("https://www.submarinecablemap.com/api/v3/cable/cable-geo.json", {
             headers: {
                 "User-Agent": "WorldWideView/1.0",
-                "Accept": "application/json",
+                Accept: "application/json",
             },
         });
 

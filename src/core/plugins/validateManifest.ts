@@ -21,12 +21,12 @@ const VALID_TRUSTS = ["built-in", "verified", "unverified"] as const;
 
 /**
  * Validates a plugin manifest for structural integrity and security compliance.
- * This is the primary security gate for the WorldWideView plugin ecosystem. 
- * It ensures that all required fields are present and, crucially, enforces 
- * an 'Entry URL Allowlist' to prevent Remote Code Execution (RCE) from 
- * untrusted domains. All external bundles must originate from approved 
+ * This is the primary security gate for the WorldWideView plugin ecosystem.
+ * It ensures that all required fields are present and, crucially, enforces
+ * an 'Entry URL Allowlist' to prevent Remote Code Execution (RCE) from
+ * untrusted domains. All external bundles must originate from approved
  * CDNs or official WorldWideView infrastructure.
- * 
+ *
  * @param manifest - The manifest object to validate (potentially partial during parsing).
  * @returns A ValidationResult indicating success or a list of identified security/structural risks.
  */

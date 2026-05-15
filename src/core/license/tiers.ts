@@ -9,8 +9,16 @@ export interface TierFeatures {
 }
 
 export const TIER_FEATURES: Record<LicenseTier, TierFeatures> = {
-    free: { maxUsers: 3, storageQuotaBytes: 500 * 1024 * 1024, historyEnabled: false, snapshotCapture: false, customDomains: false },
-    pro: { maxUsers: 20, storageQuotaBytes: 5 * 1024 * 1024 * 1024, historyEnabled: true, snapshotCapture: true, customDomains: false },
-    team: { maxUsers: -1, storageQuotaBytes: -1, historyEnabled: true, snapshotCapture: true, customDomains: false },
-    enterprise: { maxUsers: -1, storageQuotaBytes: -1, historyEnabled: true, snapshotCapture: true, customDomains: true },
+    free: {
+ maxUsers: 3, storageQuotaBytes: 500 * 1024 * 1024, historyEnabled: false, snapshotCapture: false, customDomains: false
+},
+    pro: {
+ maxUsers: 20, storageQuotaBytes: 5 * 1024 * 1024 * 1024, historyEnabled: true, snapshotCapture: true, customDomains: false
+},
+    team: {
+ maxUsers: -1, storageQuotaBytes: -1, historyEnabled: true, snapshotCapture: true, customDomains: false
+},
+    enterprise: {
+ maxUsers: -1, storageQuotaBytes: -1, historyEnabled: true, snapshotCapture: true, customDomains: true
+},
 };

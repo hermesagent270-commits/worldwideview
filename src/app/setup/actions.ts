@@ -32,7 +32,9 @@ export async function createAdminAccount(formData: FormData): Promise<SetupResul
 
     const hashedPassword = hashSync(password, 12);
     await prisma.user.create({
-        data: { name, email, hashedPassword, role: "admin" },
+        data: {
+ name, email, hashedPassword, role: "admin"
+},
     });
 
     return { success: true };

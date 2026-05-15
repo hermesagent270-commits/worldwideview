@@ -42,7 +42,7 @@ export class DeclarativePlugin implements WorldPlugin {
 
     /**
      * Initializes the plugin with the provided context.
-     * 
+     *
      * @param ctx - The host context provided by the manager.
      * @returns A promise that resolves when initialization is complete.
      */
@@ -59,7 +59,7 @@ export class DeclarativePlugin implements WorldPlugin {
 
     /**
      * Fetches fresh data from the remote data source defined in the manifest.
-     * 
+     *
      * @param _timeRange - The current globe time range (unused in this implementation).
      * @returns A promise resolving to an array of GeoEntities.
      */
@@ -88,7 +88,7 @@ export class DeclarativePlugin implements WorldPlugin {
 
     /**
      * Retrieves the polling interval from the manifest configuration.
-     * 
+     *
      * @returns The poll interval in milliseconds (defaults to 30s).
      */
     getPollingInterval(): number {
@@ -97,7 +97,7 @@ export class DeclarativePlugin implements WorldPlugin {
 
     /**
      * Returns the visual configuration for the map layer.
-     * 
+     *
      * @returns The LayerConfig object.
      */
     getLayerConfig(): LayerConfig {
@@ -112,7 +112,7 @@ export class DeclarativePlugin implements WorldPlugin {
 
     /**
      * Determines how a single GeoEntity should be represented on the Cesium globe.
-     * 
+     *
      * @param entity - The entity to render.
      * @returns The Cesium-specific rendering options.
      */

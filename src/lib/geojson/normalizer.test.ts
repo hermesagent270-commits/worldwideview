@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
-import { normalizeToGeoJson } from "./normalizer";
 import fc from "fast-check";
+import { normalizeToGeoJson } from "./normalizer";
 
 describe("normalizeToGeoJson", () => {
   test("passes through a valid FeatureCollection", () => {

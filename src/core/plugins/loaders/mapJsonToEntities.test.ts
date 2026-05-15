@@ -35,7 +35,9 @@ describe("mapJsonToEntities", () => {
 
     test("handles asNumber and parseTimestamp edge cases", () => {
         const data = [
-            { id: 1, lat: 10, lon: 20, speed: null, alt: "Infinity", time: "invalid-date" }
+            {
+ id: 1, lat: 10, lon: 20, speed: null, alt: "Infinity", time: "invalid-date"
+}
         ];
 
         const entities = mapJsonToEntities(data, {

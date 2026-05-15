@@ -1,6 +1,6 @@
 /**
  * @file InstalledPluginsLoader.ts
- * @description Scans the database for previously installed marketplace plugins, 
+ * @description Scans the database for previously installed marketplace plugins,
  * parses their stored manifests, and registers them with the PluginManager.
  */
 
@@ -11,11 +11,11 @@ import { prisma } from "@/lib/db";
 
 /**
  * Loads all marketplace-installed plugins from the persistent database store.
- * This is a critical bootstrap phase for the "Local" and "Cloud" editions, 
- * ensuring that user-installed layers are restored across server restarts 
- * and browser refreshes. It handles the full hydration cycle: DB fetch -> 
+ * This is a critical bootstrap phase for the "Local" and "Cloud" editions,
+ * ensuring that user-installed layers are restored across server restarts
+ * and browser refreshes. It handles the full hydration cycle: DB fetch ->
  * manifest parse -> validation -> PluginManager registration.
- * 
+ *
  * @returns A promise resolving to the number of successfully hydrated plugins.
  */
 export async function loadInstalledPlugins(): Promise<number> {
@@ -32,9 +32,9 @@ export async function loadInstalledPlugins(): Promise<number> {
                 const result = validateManifest(manifest);
                 if (!result.valid) {
                     console.error(
-                        `[InstalledPlugins] ❌ MANIFEST VALIDATION FAILED for "${record.pluginId}"\n` +
-                        `Errors: ${result.errors.join(", ")}\n` +
-                        `Evaluated Payload:\n${JSON.stringify(manifest, null, 2)}`
+                        `[InstalledPlugins] ❌ MANIFEST VALIDATION FAILED for "${record.pluginId}"\n`
+                        + `Errors: ${result.errors.join(", ")}\n`
+                        + `Evaluated Payload:\n${JSON.stringify(manifest, null, 2)}`
                     );
                     continue;
                 }
@@ -61,10 +61,10 @@ export async function loadInstalledPlugins(): Promise<number> {
 
 /**
  * Sanitizes and parses a stored configuration string into a PluginManifest.
- * This acts as an adapter layer, ensuring that legacy database records or 
- * records missing explicit IDs are coerced into the correct runtime manifest 
+ * This acts as an adapter layer, ensuring that legacy database records or
+ * records missing explicit IDs are coerced into the correct runtime manifest
  * format before being passed to the validation engine.
- * 
+ *
  * @param pluginId - The unique ID of the plugin from the database record key.
  * @param config - The stringified JSON configuration blob stored in the database.
  * @returns The parsed and coerced PluginManifest, or null if the JSON is malformed.

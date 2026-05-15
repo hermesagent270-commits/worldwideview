@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import type { Viewer as CesiumViewer } from "cesium";
-import { Cartesian3, EasingFunction, Ellipsoid, Math as CesiumMath, Transforms, Matrix4 } from "cesium";
+import {
+ Cartesian3, EasingFunction, Ellipsoid, Math as CesiumMath, Transforms, Matrix4
+} from "cesium";
 import { dataBus } from "@/core/data/DataBus";
 import { showSearchPin } from "./searchPinAnimation";
 
@@ -24,7 +26,9 @@ export function useCameraActions(viewer: CesiumViewer | null, isReady: boolean) 
             viewer.camera.lookAtTransform(Matrix4.IDENTITY);
         });
 
-        const unsubGoTo = dataBus.on("cameraGoTo", ({ lat, lon, alt, distance, maxPitch, heading }) => {
+        const unsubGoTo = dataBus.on("cameraGoTo", ({
+ lat, lon, alt, distance, maxPitch, heading
+}) => {
             // Add a slight delay to avoid any immediate state-change cancellations from React
             setTimeout(() => {
                 if (!viewer || viewer.isDestroyed()) return;
@@ -83,7 +87,7 @@ export function useCameraActions(viewer: CesiumViewer | null, isReady: boolean) 
 
                     orientation = {
                         heading: headingRad,
-                        pitch: pitch,
+                        pitch,
                         roll: 0
                     };
                 } else {
@@ -101,8 +105,8 @@ export function useCameraActions(viewer: CesiumViewer | null, isReady: boolean) 
                     Cartesian3.normalize(up, up);
 
                     orientation = {
-                        direction: direction,
-                        up: up,
+                        direction,
+                        up,
                     };
                 }
 
@@ -114,7 +118,7 @@ export function useCameraActions(viewer: CesiumViewer | null, isReady: boolean) 
                     // We must convert the WGS84 destination into the target's local coordinate frame.
                     const invTransform = Matrix4.inverseTransformation(viewer.camera.transform, new Matrix4());
                     finalDestination = Matrix4.multiplyByPoint(invTransform, destination, new Cartesian3());
-                    
+
                     if (orientation && orientation.direction) {
                         finalOrientation = {
                             direction: Matrix4.multiplyByPointAsVector(invTransform, orientation.direction, new Cartesian3()),
@@ -142,4 +146,3 @@ export function useCameraActions(viewer: CesiumViewer | null, isReady: boolean) 
         };
     }, [viewer, isReady]);
 }
-

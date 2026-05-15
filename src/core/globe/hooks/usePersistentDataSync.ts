@@ -33,12 +33,12 @@ export function usePersistentDataSync() {
             }
         } else {
             fetch("/api/user/favorites")
-                .then(res => {
+                .then((res) => {
                     if (res.status === 401) return []; // Unauthenticated, safe to ignore
                     if (res.ok) return res.json();
                     throw new Error("Failed to load favorites");
                 })
-                .then(data => {
+                .then((data) => {
                     if (Array.isArray(data)) {
                         const mappedFavorites = data.map((item: any) => ({
                             id: item.entityId, // Restore entity property matching
@@ -50,7 +50,7 @@ export function usePersistentDataSync() {
                         initFavorites(mappedFavorites);
                     }
                 })
-                .catch(err => console.error("[GlobeView] Favorites fetch error:", err));
+                .catch((err) => console.error("[GlobeView] Favorites fetch error:", err));
         }
     }, [initFavorites]);
 }

@@ -1,4 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import {
+ describe, it, expect, beforeEach
+} from 'vitest';
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createGlobeSlice, GlobeSlice } from './globeSlice';
 
@@ -25,7 +27,7 @@ describe('globeSlice', () => {
     it('updates camera position atomically', () => {
         store.getState().setCameraPosition(45, -90, 1000);
         const state = store.getState();
-        
+
         expect(state.cameraLat).toBe(45);
         expect(state.cameraLon).toBe(-90);
         expect(state.cameraAlt).toBe(1000);
@@ -37,7 +39,7 @@ describe('globeSlice', () => {
         // Then set without orientation
         store.getState().setCameraPosition(50, -80, 2000);
         const state = store.getState();
-        
+
         expect(state.cameraHeading).toBe(0);
         expect(state.cameraPitch).toBe(-90);
         expect(state.cameraRoll).toBe(0);
@@ -46,7 +48,7 @@ describe('globeSlice', () => {
     it('updates custom orientation when provided', () => {
         store.getState().setCameraPosition(45, -90, 1000, 180, -30, 45);
         const state = store.getState();
-        
+
         expect(state.cameraHeading).toBe(180);
         expect(state.cameraPitch).toBe(-30);
         expect(state.cameraRoll).toBe(45);
@@ -55,7 +57,7 @@ describe('globeSlice', () => {
     it('toggles animation state', () => {
         store.getState().setAnimating(true);
         expect(store.getState().isAnimating).toBe(true);
-        
+
         store.getState().setAnimating(false);
         expect(store.getState().isAnimating).toBe(false);
     });

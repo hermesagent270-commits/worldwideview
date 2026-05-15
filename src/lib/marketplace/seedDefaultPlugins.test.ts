@@ -1,4 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+ describe, it, expect, vi, beforeEach
+} from "vitest";
+
+import { seedDefaultPlugins } from "./seedDefaultPlugins";
+import { DEFAULT_PLUGIN_IDS } from "./defaultPlugins";
 
 // ---------------------------------------------------------------------------
 // Mocks — must be declared before importing the module under test
@@ -39,9 +44,6 @@ vi.mock("@/core/edition", () => ({ get isDemo() { return mockIsDemo; } }));
 // Mock global fetch for marketplace API calls
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
-
-import { seedDefaultPlugins } from "./seedDefaultPlugins";
-import { DEFAULT_PLUGIN_IDS } from "./defaultPlugins";
 
 // ---------------------------------------------------------------------------
 // Helpers

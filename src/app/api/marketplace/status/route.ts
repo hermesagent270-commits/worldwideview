@@ -44,8 +44,7 @@ export async function GET(request: Request) {
             const authError = await validateMarketplaceAuth(request);
             canManagePlugins = authError === null;
         }
-        
+
         return withCors(NextResponse.json({ plugins: [], canManagePlugins }), request);
     }
 }
-
