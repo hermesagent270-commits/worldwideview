@@ -155,6 +155,7 @@ Read the relevant rule file when working in that domain:
 | `continuous-improvement` | When to create/update rules, skills, or workflows | `.agents/rules/continuous-improvement.md` |
 | `context-and-memory` | How to orient and maintain project context between sessions | `.agents/rules/context-and-memory.md` |
 | `troubleshooting-and-debugging` | Resolving plugin latency, namespace collisions, or deployment issues | `.agents/rules/troubleshooting-and-debugging.md` |
+| `e2e-testing` | Guidelines and architecture for the Playwright End-to-End (E2E) testing infrastructure | `.agents/rules/e2e-testing.md` |
 
 ---
 
