@@ -144,8 +144,20 @@ label: label || "Camera Stream",
             // For random third-party iframe providers, proxy their HTML to bypass X-Frame-Options/CSP restrictions.
             // We exclude major platforms (YouTube, Twitch, Vimeo) because they officially support embedding
             // and their complex players might break if HTML is proxied.
-            if (!embedUrl.includes("youtube.com") && !embedUrl.includes("youtu.be")
-                && !embedUrl.includes("twitch.tv") && !embedUrl.includes("vimeo.com")) {
+            const majorPlatformHosts = ["youtube.com", "youtu.be", "twitch.tv", "vimeo.com"];
+            let isMajorPlatformHost = false;
+            try {
+                const { hostname } = new URL(embedUrl);
+                const normalizedHost = hostname.toLowerCase();
+                isMajorPlatformHost = majorPlatformHosts.some(
+                    (allowedHost) => normalizedHost === allowedHost || normalizedHost.endsWith(`.${allowedHost}`),
+                );
+            } catch {
+                // If URL parsing fails, treat as untrusted and proxy.
+                isMajorPlatformHost = false;
+            }
+
+            if (!isMajorPlatformHost) {
                 embedUrl = getProxiedIframeUrl(embedUrl);
             }
 
