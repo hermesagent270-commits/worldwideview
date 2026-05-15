@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as client from "openid-client";
 import { encryptCredential } from "@/lib/auth/encryption";
-import db from "@/lib/db";
+import { prisma as db } from "@/lib/db";
 export async function GET(req: NextRequest) {
     const isHttps = req.nextUrl.protocol === "https:";
     const cookiePrefix = isHttps ? "__Host-" : "";
@@ -25,12 +25,11 @@ export async function GET(req: NextRequest) {
         authorization_endpoint: new URL("/oauth/authorize", issuer).toString(),
         token_endpoint: new URL("/api/tickets/exchange", issuer).toString(),
     };
-    const config = { client_id: "local-app" };
+    const config = { server, clientId: "local-app" };
     
     try {
-        const tokens = await client.processAuthCodeResponse(
-            server,
-            config,
+        const tokens = await client.authorizationCodeGrant(
+            config as any,
             new URL(req.url),
             { expectedState: stateCookie, pkceCodeVerifier: verifierCookie }
         );

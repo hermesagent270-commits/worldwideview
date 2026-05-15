@@ -10,7 +10,7 @@ vi.mock("openid-client", () => ({
     discoveryRequest: vi.fn(),
     processAuthorizationResponse: vi.fn(),
     validateAuthResponse: vi.fn(),
-    processAuthCodeResponse: vi.fn()
+    authorizationCodeGrant: vi.fn()
 }));
 
 describe("PKCE Flow", () => {

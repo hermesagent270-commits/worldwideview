@@ -39,6 +39,17 @@ Frontend runs at `http://localhost:3000`.
 - **Type-Level Contract Testing**: When defining shared TypeScript interfaces/contracts (e.g., in `wwv-plugin-sdk`), you MUST use `expectTypeOf` from `vitest` to assert the actual contract shapes at compile-time instead of writing literal-value identity runtime assertions. You must also enforce `@ts-expect-error` negative type tests to ensure missing or invalid fields trigger compilation errors.
 - **Key test files**: `rateLimit.test.ts`, `edition.test.ts`, `demoAdmin.test.ts`, `DeclarativePlugin.test.ts`, `cors.test.ts`, `repository.test.ts`, `marketplaceToken.test.ts`
 
+### E2E Testing (Playwright)
+
+WorldWideView uses Playwright for End-to-End browser testing to verify the complete UI integration including NextAuth.
+
+- **Run**: `pnpm run test:e2e` (Ensure your database is running before executing)
+- **Auth Bypass**: Playwright uses a `global.setup.ts` to directly insert a test user into the database and simulate a UI login to capture a `storageState.json` cookie file. This allows all tests to run pre-authenticated without bypassing production security logic.
+- **Database Access in Setup**: Because Playwright setup scripts run in a vanilla Node context, importing Next.js backend utilities like `src/lib/db.ts` will crash with `next/headers` resolution errors. You MUST instantiate `PrismaClient` directly using `@prisma/adapter-pg` in any Playwright `setup` or `teardown` scripts.
+- **Component Synchronization**: Do not use arbitrary timeouts. Tests MUST wait for the application boot sequence to finish by waiting for the `[data-testid="app-ready"]` marker on the `AppShell` to be attached.
+- **Stable Selectors**: Always use `data-testid` properties (e.g. `data-testid="panel-toggle-left"`) for interacting with UI components in E2E tests rather than fragile CSS classes or dynamic text.
+- **Worktree Port Conflicts**: If you are testing in a git worktree, configure `playwright.config.ts` to spawn the `webServer` on an alternative port (e.g. `3001`) to avoid colliding with other running worktrees.
+
 ## Security Headers
 
 Configured in `next.config.ts` `headers()`:

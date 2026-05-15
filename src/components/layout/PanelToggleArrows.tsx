@@ -48,6 +48,7 @@ export function PanelToggleArrows() {
                 className={`panel-toggle-btn panel-toggle-btn--left ${isLeftOpen ? "panel-toggle-btn--open" : ""} ${isMobile ? "panel-toggle-btn--mobile" : ""}`}
                 onClick={handleLeftToggle}
                 title="Toggle Layers Panel"
+                data-testid="panel-toggle-left"
             >
                 {isLeftOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
             </button>
@@ -57,6 +58,7 @@ export function PanelToggleArrows() {
                 className={`panel-toggle-btn panel-toggle-btn--right ${isRightOpen ? "panel-toggle-btn--open" : ""} ${isMobile ? "panel-toggle-btn--mobile" : ""} ${isMobile && mobileRightPanelGlow ? "panel-toggle-btn--glow" : ""}`}
                 onClick={handleRightToggle}
                 title="Toggle Data Configuration"
+                data-testid="panel-toggle-right"
             >
                 {isRightOpen ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
 

@@ -169,7 +169,7 @@ export function AppShell() {
     ].filter(Boolean).join(" ");
 
     return (
-        <div className={rootClasses}>
+        <div className={rootClasses} data-testid={!isBooting ? "app-ready" : undefined}>
             <BootOverlay visible={boot.phase === "loading"} />
 
             <div className="app-shell__globe">

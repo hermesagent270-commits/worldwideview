@@ -128,3 +128,8 @@ skills-lock.json
 /wwv-seeders-private/
 /wwv-test/
 worldwideview.code-workspace
+
+# Playwright
+/playwright-report/
+/test-results/
+/playwright/.auth/
