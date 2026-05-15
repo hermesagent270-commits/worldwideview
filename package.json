@@ -1,6 +1,6 @@
 {
   "name": "worldwideview",
-  "version": "2.12.1",
+  "version": "2.14.1",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.15.4",
@@ -8,7 +8,7 @@
     "setup": "node scripts/setup.mjs",
     "test-worktree": "node scripts/test-worktree.mjs",
     "clean": "node -e \"const fs=require('fs');fs.rmSync('.next',{recursive:true,force:true})\"",
-    "dev": "concurrently \"pnpm run dev:plugins\" \"next dev\"",
+    "dev": "node scripts/dev.mjs",
     "dev:all": "concurrently -n \"dev,backends\" -c \"magenta,blue\" \"pnpm dev\" \"pnpm dev:backends\"",
     "dev:backends": "docker compose --profile engine up wwv-data-engine wwv-redis",
     "dev:plugins": "node scripts/watch-local-plugins.mjs",
@@ -22,6 +22,7 @@
     "test:mutate": "stryker run",
     "lint": "eslint .",
     "db:reset": "npx prisma migrate reset --force",
+    "db:prune": "node scripts/db-prune.mjs",
     "generate": "prisma generate"
   },
   "dependencies": {
@@ -80,6 +81,7 @@
     "fast-check": "^4.8.0",
     "jsdom": "^28.1.0",
     "rollup-plugin-external-globals": "^0.13.0",
+    "tree-kill": "^1.2.2",
     "tsx": "^4.21.0",
     "typescript": "^5",
     "vite": "^8.0.12",

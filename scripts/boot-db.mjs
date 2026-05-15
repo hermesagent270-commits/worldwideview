@@ -9,6 +9,7 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 
 // Load environment variables manually since dotenv might not be installed globally
 /**
@@ -45,6 +46,83 @@ if (skipLocalDb) {
   console.log('⏭️ Skipping local PostgreSQL startup (WWV_SKIP_LOCAL_DB is set).');
   process.exit(0);
 }
+
+// Deterministic Port Assignment
+const cwd = process.cwd();
+const folderName = path.basename(cwd);
+let port = 5432; // Default for main repo
+
+if (folderName !== 'worldwideview') {
+  const hash = crypto.createHash('sha256').update(cwd).digest('hex');
+  const portOffset = parseInt(hash.substring(0, 4), 16) % 1000;
+  port = 5433 + portOffset;
+}
+
+process.env.WWV_DB_PORT = port.toString();
+console.log(`🔌 Assigned deterministic database port: ${port}`);
+
+// Robust rewrite of DATABASE_URL in .env
+const envPath = path.resolve(cwd, '.env');
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf8');
+  const lines = envContent.split(/\r?\n/);
+  
+  const targetUrl = `DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:${port}/worldwideview?schema=public"`;
+  let foundTargetActive = false;
+  let linesModified = false;
+  
+  const newLines = lines.map(line => {
+    // Check if line is an active DATABASE_URL
+    if (/^\s*DATABASE_URL\s*=/.test(line)) {
+      if (line.trim() === targetUrl) {
+        foundTargetActive = true;
+        return line;
+      } else {
+        console.warn(`⚠️  [Telemetry] Commenting out conflicting DATABASE_URL: ${line.trim()}`);
+        linesModified = true;
+        return `# ${line}`;
+      }
+    }
+    return line;
+  });
+  
+  if (!foundTargetActive) {
+    console.log(`🔌 [Telemetry] Injecting correct local DATABASE_URL for port ${port}.`);
+    newLines.push(``);
+    newLines.push(`# Dynamically injected by boot-db.mjs for worktree`);
+    newLines.push(targetUrl);
+    linesModified = true;
+  }
+  
+  if (linesModified) {
+    const newContent = newLines.join('\n');
+    
+    // File write with retries and telemetry
+    const maxRetries = 3;
+    let attempt = 0;
+    while (attempt < maxRetries) {
+      try {
+        fs.writeFileSync(envPath, newContent, 'utf8');
+        break; // Success
+      } catch (err) {
+        attempt++;
+        if (err.code === 'EBUSY' || err.code === 'EPERM' || err.message.includes('os error 32')) {
+          console.warn(`⚠️  [Telemetry] File lock encountered on .env (attempt ${attempt}/${maxRetries}). Retrying in 100ms...`);
+          if (attempt >= maxRetries) {
+            console.error('❌ Failed to write .env after multiple attempts due to file locks.');
+            throw err;
+          }
+          // Synchronous sleep since boot-db.mjs isn't currently inside an async IIFE
+          const start = Date.now();
+          while (Date.now() - start < 100) {}
+        } else {
+          throw err;
+        }
+      }
+    }
+  }
+}
+
 
 console.log('🚀 Checking local PostgreSQL database...');
 
