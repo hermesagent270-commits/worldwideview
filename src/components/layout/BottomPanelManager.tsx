@@ -28,6 +28,7 @@ export function BottomPanelManager() {
 
     useEffect(() => {
         if (activeBottomPanel) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setMountedPanel(activeBottomPanel);
         } else {
             // Keep the panel mounted for the duration of the CSS exit transition (400ms)

@@ -61,6 +61,7 @@ export function useImageryManager(viewer: CesiumViewer | null, viewerReady: bool
             for (let i = 0; i < primitives.length; i++) {
                 const p = primitives.get(i);
                 // Find the Google tileset — skip any tagged as OSM buildings
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 if (p instanceof Cesium3DTileset && !(p as any)._wwvOsmBuildings) {
                     foundTileset = p;
                     break;
@@ -136,6 +137,7 @@ export function useImageryManager(viewer: CesiumViewer | null, viewerReady: bool
                     tileset.destroy();
                     return;
                 }
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (tileset as any)._wwvOsmBuildings = true;
                 tileset.maximumScreenSpaceError = 16;
                 tileset.style = new Cesium3DTileStyle({
@@ -144,6 +146,7 @@ export function useImageryManager(viewer: CesiumViewer | null, viewerReady: bool
                 viewer.scene.primitives.add(tileset);
                 osmBuildingsRef.current = tileset;
             }).catch((err) => {
+                // eslint-disable-next-line no-console
                 console.warn("[useImageryManager] Failed to load OSM 3D Buildings:", err);
             });
             return () => { cancelled = true; };

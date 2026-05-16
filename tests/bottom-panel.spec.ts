@@ -9,8 +9,10 @@ test.describe('Bottom Panel System', () => {
         
         // Log console messages from the browser
         page.on('console', msg => {
+            // eslint-disable-next-line no-console
             console.log(`[Browser Console] ${msg.type()}: ${msg.text()}`);
             if (msg.type() === 'error') {
+                // eslint-disable-next-line no-console
                 console.log(`[Browser Error] ${msg.location().url}:${msg.location().lineNumber}`);
             }
         });
@@ -20,8 +22,10 @@ test.describe('Bottom Panel System', () => {
         try {
             await installBtn.waitFor({ state: 'visible', timeout: 5000 });
             await installBtn.click();
+            // eslint-disable-next-line no-console
             console.log('Clicked "Install Selected" in unverified plugin dialog.');
         } catch (e) {
+            // eslint-disable-next-line no-console
             console.log('Unverified plugin dialog did not appear.');
         }
 
@@ -34,8 +38,10 @@ test.describe('Bottom Panel System', () => {
         const isToggledOn = await toggleBtn.evaluate(node => node.classList.contains('layer-item__toggle--on'));
         if (!isToggledOn) {
             await toggleBtn.click();
+            // eslint-disable-next-line no-console
             console.log('Toggled plugin ON');
         } else {
+            // eslint-disable-next-line no-console
             console.log('Plugin was already ON');
         }
 
