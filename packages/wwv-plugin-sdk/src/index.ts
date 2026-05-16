@@ -305,6 +305,8 @@ export type DataBusEvents = {
     cameraFaceTowards: { lat: number; lon: number; alt: number };
     cameraGoTo: { lat: number; lon: number; alt: number; distance?: number; maxPitch?: number; heading?: number };
     globeReady: Record<string, never>;
+    pluginError: { pluginId?: string; message: string; error?: Error };
+    layerLoadingChanged: { pluginId: string; loading: boolean };
 };
 
 export * from "./viteGlobals";

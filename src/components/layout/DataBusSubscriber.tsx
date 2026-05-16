@@ -26,6 +26,8 @@ export function DataBusSubscriber() {
     const setEntityCount = useStore((s) => s.setEntityCount);
     const clearEntities = useStore((s) => s.clearEntities);
     const removeLayer = useStore((s) => s.removeLayer);
+    const setLayerLoading = useStore((s) => s.setLayerLoading);
+    const showErrorToast = useStore((s) => s.showErrorToast);
     const cacheMaxAge = useStore((s) => s.dataConfig.cacheMaxAge);
 
     useEffect(() => {
@@ -74,13 +76,29 @@ export function DataBusSubscriber() {
             }, 0);
         });
 
+        const unsubLoading = dataBus.on("layerLoadingChanged", ({ pluginId, loading }) => {
+            setTimeout(() => {
+                setLayerLoading(pluginId, loading);
+            }, 0);
+        });
+
+        const unsubError = dataBus.on("pluginError", ({ message }) => {
+            setTimeout(() => {
+                if (showErrorToast) {
+                    showErrorToast(message);
+                }
+            }, 0);
+        });
+
         return () => {
             unsubReg();
             unsubUnreg();
             unsubData();
             unsubToggle();
+            unsubLoading();
+            unsubError();
         };
-    }, [setPollingInterval, setEntities, setEntityCount, clearEntities, removeLayer]);
+    }, [setPollingInterval, setEntities, setEntityCount, clearEntities, removeLayer, setLayerLoading, showErrorToast]);
 
     return null;
 }

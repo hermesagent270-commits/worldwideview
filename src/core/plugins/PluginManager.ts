@@ -60,7 +60,7 @@ class PluginManager {
             } catch (err) {
                 console.error(`[PluginManager] Failed to create dynamic plugin ${plugin.id}:`, err);
                 const toastStr = `Failed to load ${plugin.name}`;
-                useStore.getState().showErrorToast(toastStr);
+                dataBus.emit("pluginError", { pluginId: plugin.id, message: toastStr });
             }
         });
 
@@ -140,10 +140,7 @@ class PluginManager {
             onError: (error) => {
                 console.error(`[Plugin:${plugin.id}]`, error);
                 trackEvent("plugin-error", { plugin: plugin.id, error: error.message });
-                const store = useStore.getState();
-                if (store.showErrorToast) {
-                    store.showErrorToast(`[${plugin.name || plugin.id}] ${error.message}`);
-                }
+                dataBus.emit("pluginError", { pluginId: plugin.id, message: `[${plugin.name || plugin.id}] ${error.message}`, error });
             },
             getPluginSettings: (pluginId) => useStore.getState().dataConfig.pluginSettings[pluginId] as ReturnType<typeof useStore.getState>["dataConfig"]["pluginSettings"][string],
             isPlaybackMode: () => useStore.getState().isPlaybackMode,
@@ -180,7 +177,7 @@ class PluginManager {
                     const entities = await plugin.fetch(managed.context.timeRange);
                     this.handleDataUpdate(plugin.id, entities);
                 } catch (err: any) {
-                    useStore.getState().setLayerLoading(plugin.id, false);
+                    dataBus.emit("layerLoadingChanged", { pluginId: plugin.id, loading: false });
                     managed.context.onError(err instanceof Error ? err : new Error(String(err)));
                     throw err;
                 }
@@ -211,7 +208,7 @@ class PluginManager {
         managed.enabled = true;
 
         // Signal that data is loading
-        useStore.getState().setLayerLoading(pluginId, true);
+        dataBus.emit("layerLoadingChanged", { pluginId, loading: true });
 
         // Try to load from cache immediately so UI feels responsive
         let cached = cacheLayer.get(pluginId);
@@ -262,7 +259,7 @@ class PluginManager {
         this.disablePlugin(pluginId);
         this.plugins.delete(pluginId);
         cacheLayer.invalidate(pluginId);
-        useStore.getState().removeLayer(pluginId);
+        dataBus.emit("pluginUnregistered", { pluginId });
     }
 
     /**
@@ -439,7 +436,7 @@ class PluginManager {
         dataBus.emit("dataUpdated", { pluginId, entities });
 
         // Clear loading indicator once first data arrives
-        useStore.getState().setLayerLoading(pluginId, false);
+        dataBus.emit("layerLoadingChanged", { pluginId, loading: false });
     }
 }
 

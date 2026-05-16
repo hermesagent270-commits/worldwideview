@@ -1,7 +1,11 @@
 "use strict";
-// ─── WorldWideView Plugin SDK ─────────────────────────────────
-// The public API for building WorldWideView plugins.
-// Import from "@worldwideview/wwv-plugin-sdk" in your plugin.
+/**
+ * @file index.ts
+ * @description Core SDK for WorldWideView plugin development.
+ * Defines the foundational types, interfaces, and utilities required
+ * to build data seeders, visualizers, and UI extensions.
+ * @module @worldwideview/wwv-plugin-sdk
+ */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -61,3 +65,5 @@ function createSvgIconUrl(Icon, opts = {}) {
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(wrappedSvg)}`;
 }
 __exportStar(require("./viteGlobals"), exports);
+// ─── Auth Contracts ──────────────────────────────────────────
+__exportStar(require("./auth-contracts"), exports);
