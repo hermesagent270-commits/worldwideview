@@ -1,4 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
+ describe, it, expect, vi, beforeEach
+} from 'vitest';
+
+import { initPrimitiveCollections, getCollections, renderEntities } from './EntityRenderer';
+import * as primitiveOps from './primitiveOps';
 
 // jsdom doesn't provide matchMedia; renderSingleEntity uses it for default point size.
 Object.defineProperty(window, 'matchMedia', {
@@ -65,9 +70,6 @@ vi.mock('./StackManager', () => ({
     calculateGridSizeDegrees: vi.fn(() => 1),
 }));
 
-import { initPrimitiveCollections, getCollections, renderEntities } from './EntityRenderer';
-import * as primitiveOps from './primitiveOps';
-
 function createViewer() {
     return {
         scene: {
@@ -125,7 +127,9 @@ describe('EntityRenderer — defer-clone in renderSingleEntity (P1)', () => {
         const v = createViewer();
         initPrimitiveCollections(v as never);
         const options = { iconUrl: 'icon.png', type: 'billboard' };
-        const entity = { id: 'e1', longitude: 0, latitude: 0, altitude: 0, properties: {} };
+        const entity = {
+ id: 'e1', longitude: 0, latitude: 0, altitude: 0, properties: {}
+};
 
         renderEntities(v as never, [{ entity: entity as never, options: options as never }], new Map());
 
@@ -138,7 +142,9 @@ describe('EntityRenderer — defer-clone in renderSingleEntity (P1)', () => {
         const v = createViewer();
         initPrimitiveCollections(v as never);
         const options = { color: '#abc' }; // no iconUrl, type !== "model"
-        const entity = { id: 'e2', longitude: 0, latitude: 0, altitude: 0, properties: {} };
+        const entity = {
+ id: 'e2', longitude: 0, latitude: 0, altitude: 0, properties: {}
+};
 
         renderEntities(v as never, [{ entity: entity as never, options: options as never }], new Map());
 
@@ -154,7 +160,9 @@ describe('EntityRenderer — defer-clone in renderSingleEntity (P1)', () => {
         const v = createViewer();
         initPrimitiveCollections(v as never);
         const options = { type: 'model', modelUrl: 'plane.glb' };
-        const entity = { id: 'e3', longitude: 0, latitude: 0, altitude: 0, properties: {} };
+        const entity = {
+ id: 'e3', longitude: 0, latitude: 0, altitude: 0, properties: {}
+};
 
         renderEntities(v as never, [{ entity: entity as never, options: options as never }], new Map());
 

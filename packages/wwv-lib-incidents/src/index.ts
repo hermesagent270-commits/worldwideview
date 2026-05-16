@@ -75,9 +75,7 @@ export abstract class BaseIncidentPlugin implements WorldPlugin {
             type: "billboard", 
             iconUrl: this.iconUrls[cacheKey], 
             color,
-            size,
-            outlineColor: "#000000", 
-            outlineWidth: 1,
+            iconScale: size / 30,
             labelText: entity.label || undefined,
             labelFont: "11px JetBrains Mono, monospace" // Adds optional label standard
         };

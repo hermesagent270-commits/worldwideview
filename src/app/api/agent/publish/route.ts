@@ -50,11 +50,11 @@ function isAgentAction(v: unknown): v is AgentAction {
     if (!v || typeof v !== "object") return false;
     const a = (v as { action?: unknown }).action;
     return (
-        a === "fly_to" ||
-        a === "face_towards" ||
-        a === "layer_toggle" ||
-        a === "highlight_layer" ||
-        a === "select_entity" ||
-        a === "ping"
+        a === "fly_to"
+        || a === "face_towards"
+        || a === "layer_toggle"
+        || a === "highlight_layer"
+        || a === "select_entity"
+        || a === "ping"
     );
 }

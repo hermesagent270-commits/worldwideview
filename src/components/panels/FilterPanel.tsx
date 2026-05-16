@@ -8,10 +8,12 @@
 import { useState } from "react";
 import { useStore } from "@/core/state/store";
 import { pluginManager } from "@/core/plugins/PluginManager";
-import { TextFilter, SelectFilter, RangeFilter, BooleanFilter, FilterControl } from "./FilterControls";
 import { PluginIcon } from "@/components/common/PluginIcon";
 import type { FilterDefinition, FilterValue } from "@/core/plugins/PluginTypes";
 import { trackEvent } from "@/lib/analytics";
+import {
+ TextFilter, SelectFilter, RangeFilter, BooleanFilter, FilterControl
+} from "./FilterControls";
 
 /**
  * @component FilterSection
@@ -32,57 +34,60 @@ export function FilterSection() {
 
     if (enabledPlugins.length === 0) {
         return (
-            <div style={{ fontSize: 12, color: "var(--text-muted)", fontStyle: "italic", padding: "var(--space-sm) 0" }}>
-                Enable a layer to see its filters.
-            </div>
+          <div style={{
+ fontSize: 12, color: "var(--text-muted)", fontStyle: "italic", padding: "var(--space-sm) 0"
+}}
+          >
+            Enable a layer to see its filters.
+          </div>
         );
     }
 
     return (
-        <>
-            {enabledPlugins.map((managed) => {
+      <>
+        {enabledPlugins.map((managed) => {
                 const pluginId = managed.plugin.id;
                 const defs = managed.plugin.getFilterDefinitions?.() || [];
                 const activeCount = Object.keys(filters[pluginId] || {}).length;
                 const isCollapsed = collapsed[pluginId] ?? false;
 
                 return (
-                    <div key={pluginId} className="filter-section">
-                        <button
-                            className="filter-section__header"
-                            onClick={() => setCollapsed((c) => ({ ...c, [pluginId]: !c[pluginId] }))}
-                        >
-                            <span className="filter-section__icon">
-                                <PluginIcon icon={managed.plugin.icon} size={14} />
-                            </span>
-                            <span className="filter-section__name">{managed.plugin.name}</span>
-                            {activeCount > 0 && <span className="filter-badge">{activeCount}</span>}
-                            <span className={`filter-section__chevron ${isCollapsed ? "" : "filter-section__chevron--open"}`}>▸</span>
-                        </button>
+                  <div key={pluginId} className="filter-section">
+                    <button
+                      className="filter-section__header"
+                      onClick={() => setCollapsed((c) => ({ ...c, [pluginId]: !c[pluginId] }))}
+                    >
+                      <span className="filter-section__icon">
+                        <PluginIcon icon={managed.plugin.icon} size={14} />
+                      </span>
+                      <span className="filter-section__name">{managed.plugin.name}</span>
+                      {activeCount > 0 && <span className="filter-badge">{activeCount}</span>}
+                      <span className={`filter-section__chevron ${isCollapsed ? "" : "filter-section__chevron--open"}`}>▸</span>
+                    </button>
 
-                        {!isCollapsed && (
-                            <div className="filter-section__body">
-                                {defs.map((def) => (
-                                    <FilterControl
-                                        key={def.id}
-                                        def={def}
-                                        value={filters[pluginId]?.[def.id]}
-                                        onChange={(v) => { setFilter(pluginId, def.id, v); trackEvent("filter-change", { plugin: pluginId, filter: def.id }); }}
-                                    />
+                    {!isCollapsed && (
+                      <div className="filter-section__body">
+                        {defs.map((def) => (
+                          <FilterControl
+                            key={def.id}
+                            def={def}
+                            value={filters[pluginId]?.[def.id]}
+                            onChange={(v) => { setFilter(pluginId, def.id, v); trackEvent("filter-change", { plugin: pluginId, filter: def.id }); }}
+                          />
                                 ))}
-                                {activeCount > 0 && (
-                                    <button
-                                        className="filter-clear-btn"
-                                        onClick={() => { clearFilters(pluginId); trackEvent("filter-clear", { plugin: pluginId }); }}
-                                    >
-                                        Clear Filters
-                                    </button>
+                        {activeCount > 0 && (
+                        <button
+                          className="filter-clear-btn"
+                          onClick={() => { clearFilters(pluginId); trackEvent("filter-clear", { plugin: pluginId }); }}
+                        >
+                          Clear Filters
+                        </button>
                                 )}
-                            </div>
+                      </div>
                         )}
-                    </div>
+                  </div>
                 );
             })}
-        </>
+      </>
     );
 }

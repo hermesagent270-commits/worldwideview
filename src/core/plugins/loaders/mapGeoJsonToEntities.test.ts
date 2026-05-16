@@ -8,7 +8,9 @@ describe("mapGeoJsonToEntities", () => {
                 {
                     id: "feat-1",
                     geometry: { type: "Point", coordinates: [174, -36, 10] },
-                    properties: { speed: 100, heading: 90, time: "2026-05-14T00:00:00Z", label: "Test" }
+                    properties: {
+ speed: 100, heading: 90, time: "2026-05-14T00:00:00Z", label: "Test"
+}
                 }
             ]
         };

@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import {
+ describe, it, expect, beforeEach, vi
+} from 'vitest';
 import { createStore, type StoreApi } from 'zustand/vanilla';
-import { createTimelineSlice, TimelineSlice } from './timelineSlice';
 import type { TimeWindow } from '@/core/plugins/PluginTypes';
+import { createTimelineSlice, TimelineSlice } from './timelineSlice';
 
 describe('timelineSlice', () => {
     let store: StoreApi<TimelineSlice>;
@@ -10,7 +12,7 @@ describe('timelineSlice', () => {
         // Freeze time for consistent tests
         vi.useFakeTimers();
         vi.setSystemTime(new Date('2026-05-13T12:00:00Z'));
-        
+
         store = createStore<TimelineSlice>((set, get, api) => createTimelineSlice(set as any, get as any, api as any));
     });
 
@@ -21,7 +23,7 @@ describe('timelineSlice', () => {
         expect(state.playbackSpeed).toBe(1);
         expect(state.isPlaybackMode).toBe(false);
         expect(state.timelineAvailability).toEqual({});
-        
+
         // timeRange should be 24h behind current time
         const expectedStart = new Date(Date.now() - 86400000);
         expect(state.timeRange.start.getTime()).toBe(expectedStart.getTime());
@@ -31,7 +33,7 @@ describe('timelineSlice', () => {
     it('updates time window and dynamically recalculates time range', () => {
         store.getState().setTimeWindow('1h' as TimeWindow);
         const state = store.getState();
-        
+
         expect(state.timeWindow).toBe('1h');
         const expectedStart = new Date(Date.now() - 3600000); // 1 hour
         expect(state.timeRange.start.getTime()).toBe(expectedStart.getTime());
@@ -52,13 +54,13 @@ describe('timelineSlice', () => {
     it('sets playback states', () => {
         store.getState().setPlaying(true);
         expect(store.getState().isPlaying).toBe(true);
-        
+
         store.getState().setPlaybackSpeed(5);
         expect(store.getState().playbackSpeed).toBe(5);
-        
+
         store.getState().setPlaybackMode(true);
         expect(store.getState().isPlaybackMode).toBe(true);
-        
+
         store.getState().setPlaybackTime(10000);
         expect(store.getState().playbackTime).toBe(10000);
     });
@@ -66,7 +68,7 @@ describe('timelineSlice', () => {
     it('sets timeline availability for plugins', () => {
         const availability = [{ start: 100, end: 200 }];
         store.getState().setTimelineAvailability('plugin-a', availability);
-        
+
         expect(store.getState().timelineAvailability['plugin-a']).toEqual(availability);
     });
 });

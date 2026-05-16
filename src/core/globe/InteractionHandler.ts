@@ -35,7 +35,7 @@ export function setupInteractionHandlers(
     if (!viewer || viewer.isDestroyed() || !viewer.scene) {
         return () => { };
     }
-    const canvas = viewer.scene.canvas;
+    const {canvas} = viewer.scene;
     const handler = new ScreenSpaceEventHandler(canvas);
 
     /** Currently expanded stack id (only one at a time). */
@@ -113,7 +113,7 @@ export function setupInteractionHandlers(
 
             if (!viewer || viewer.isDestroyed()) return;
             if (viewer.scene.mode === SceneMode.MORPHING) return;
-            
+
             if (isDragging) return;
 
             latestHoverRequestId++;

@@ -23,7 +23,7 @@ export function useCameraSync(
         viewer.camera.percentageChanged = CAMERA_PERCENTAGE_CHANGED;
 
         const updateStore = () => {
-            const camera = viewer.camera;
+            const {camera} = viewer;
             if (!camera || !camera.position) return;
 
             const cartographic = Cartographic.fromCartesian(camera.position);
@@ -86,4 +86,3 @@ export function useCameraSync(
         };
     }, [viewer, isReady, setFps]);
 }
-

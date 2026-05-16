@@ -16,9 +16,7 @@ export function PanelToggleArrows() {
     const toggleConfigPanel = useStore((s) => s.toggleConfigPanel);
     const setOpenMobilePanel = useStore((s) => s.setOpenMobilePanel);
 
-    const filterCount = useStore((s) =>
-        Object.values(s.filters).reduce((sum, pf) => sum + Object.keys(pf).length, 0)
-    );
+    const filterCount = useStore((s) => Object.values(s.filters).reduce((sum, pf) => sum + Object.keys(pf).length, 0));
 
     const handleLeftToggle = () => {
         if (isMobile) {
@@ -62,13 +60,12 @@ export function PanelToggleArrows() {
             >
                 {isRightOpen ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
 
-                {filterCount > 0 && !isRightOpen && (
-                    <span className="filter-badge filter-badge--toggle">
-                        {filterCount}
-                    </span>
+          {filterCount > 0 && !isRightOpen && (
+          <span className="filter-badge filter-badge--toggle">
+            {filterCount}
+          </span>
                 )}
-            </button>
-        </>
+        </button>
+      </>
     );
 }
-

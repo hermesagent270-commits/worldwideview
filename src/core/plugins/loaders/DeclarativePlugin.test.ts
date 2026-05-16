@@ -1,4 +1,6 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import {
+ describe, test, expect, vi, beforeEach
+} from "vitest";
 import { DeclarativePlugin } from "./DeclarativePlugin";
 import type { PluginManifest } from "../PluginManifest";
 
@@ -59,8 +61,12 @@ const geojsonResponse = {
 const jsonResponse = {
     data: {
         results: [
-            { uid: "s1", lat: -36.8, lon: 174.7, title: "Ship A", knots: 12 },
-            { uid: "s2", lat: -37.1, lon: 175.3, title: "Ship B", knots: 8 },
+            {
+ uid: "s1", lat: -36.8, lon: 174.7, title: "Ship A", knots: 12
+},
+            {
+ uid: "s2", lat: -37.1, lon: 175.3, title: "Ship B", knots: 8
+},
         ],
     },
 };
@@ -217,7 +223,7 @@ describe("DeclarativePlugin", () => {
             ok: true,
             json: () => Promise.resolve({ features: [] }),
         }));
-        
+
         const originalEnv = process.env;
         process.env = { ...originalEnv, API_KEY: "secret123" };
 
@@ -246,7 +252,7 @@ describe("DeclarativePlugin", () => {
             ok: true,
             json: () => Promise.resolve({ features: [] }),
         }));
-        
+
         const originalEnv = process.env;
         process.env = { ...originalEnv };
         delete process.env.MISSING_KEY;
@@ -260,14 +266,14 @@ describe("DeclarativePlugin", () => {
                 auth: { type: "query", key: "token", envVar: "MISSING_KEY" }
             }
         }));
-        
+
         await plugin.fetch({ start: new Date(), end: new Date() });
-        
+
         expect(fetch).toHaveBeenCalledWith(
             "https://api.example.com/data",
             expect.any(Object)
         );
-        
+
         process.env = originalEnv;
     });
 
@@ -276,7 +282,7 @@ describe("DeclarativePlugin", () => {
             ok: true,
             json: () => Promise.resolve({ features: [] }),
         }));
-        
+
         const originalEnv = process.env;
         process.env = { ...originalEnv, HEADER_KEY: "bearer 123" };
 
@@ -289,18 +295,18 @@ describe("DeclarativePlugin", () => {
                 auth: { type: "header", key: "Authorization", envVar: "HEADER_KEY" }
             }
         }));
-        
+
         await plugin.fetch({ start: new Date(), end: new Date() });
-        
+
         expect(fetch).toHaveBeenCalledWith(
             "https://api.example.com/data",
             expect.objectContaining({
                 headers: expect.objectContaining({
-                    "Authorization": "bearer 123"
+                    Authorization: "bearer 123"
                 })
             })
         );
-        
+
         process.env = originalEnv;
     });
 
@@ -319,9 +325,9 @@ describe("DeclarativePlugin", () => {
                 body: { query: "test" }
             }
         }));
-        
+
         await plugin.fetch({ start: new Date(), end: new Date() });
-        
+
         expect(fetch).toHaveBeenCalledWith(
             "https://api.example.com/data",
             expect.objectContaining({
@@ -340,7 +346,7 @@ describe("DeclarativePlugin", () => {
         const plugin = new DeclarativePlugin(makeManifest({
             fieldMapping: undefined
         }));
-        
+
         const result = await plugin.fetch({ start: new Date(), end: new Date() });
         expect(result).toEqual([]);
     });

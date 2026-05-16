@@ -3,7 +3,7 @@
 /**
  * @file HlsPlayer.tsx
  * @description specialized player for HTTP Live Streaming (.m3u8).
- * Leverages native Safari/iOS support and falls back to dynamic hls.js 
+ * Leverages native Safari/iOS support and falls back to dynamic hls.js
  * loading for other environments.
  * @module src/components/video
  */
@@ -19,7 +19,7 @@ interface HlsPlayerProps {
 /**
  * @component HlsPlayer
  * @description A high-performance HLS playback engine.
- * 
+ *
  * @param {HlsPlayerProps} props - Component properties.
  * @param {string} props.src - The HLS (.m3u8) source URL.
  * @param {() => void} [props.onReady] - Callback triggered when playback begins.
@@ -95,9 +95,9 @@ export const HlsPlayer: React.FC<HlsPlayerProps> = ({ src, onReady, onError }) =
     }, [src, onReady, onError, cleanup]);
 
     return (
-        <video
-            ref={videoRef}
-            style={{
+      <video
+        ref={videoRef}
+        style={{
                 position: "absolute",
                 inset: 0,
                 width: "100%",
@@ -105,10 +105,10 @@ export const HlsPlayer: React.FC<HlsPlayerProps> = ({ src, onReady, onError }) =
                 objectFit: "contain",
                 backgroundColor: "black",
             }}
-            autoPlay
-            muted
-            playsInline
-            controls
-        />
+        autoPlay
+        muted
+        playsInline
+        controls
+      />
     );
 };

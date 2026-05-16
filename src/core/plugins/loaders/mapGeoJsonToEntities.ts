@@ -15,7 +15,7 @@ interface GeoJsonFeature {
 
 /**
  * Maps a GeoJSON response (FeatureCollection or individual Feature) to an array of `GeoEntity` objects.
- * 
+ *
  * @param data - The raw GeoJSON response.
  * @param mapping - The field mapping configuration for non-geometry fields.
  * @param pluginId - The ID of the plugin performing the mapping.

@@ -1,3 +1,10 @@
+/**
+ * @file index.ts
+ * @description Core SDK for WorldWideView plugin development.
+ * Defines the foundational types, interfaces, and utilities required
+ * to build data seeders, visualizers, and UI extensions.
+ * @module @worldwideview/wwv-plugin-sdk
+ */
 import type { ComponentType } from "react";
 /** Standard SVG icon size (px) used by createSvgIconUrl when no size is given. */
 export declare const DEFAULT_ICON_SIZE = 32;
@@ -24,16 +31,30 @@ export interface TimeRange {
     end: Date;
 }
 export type TimeWindow = "1h" | "6h" | "24h" | "48h" | "7d";
+/**
+ * @interface GeoEntity
+ * @description The primary data primitive representing a geospatial object.
+ */
 export interface GeoEntity {
+    /** Globally unique identifier for this specific entity instance. */
     id: string;
+    /** The ID of the plugin that owns this entity. */
     pluginId: string;
+    /** WGS84 Latitude. */
     latitude: number;
+    /** WGS84 Longitude. */
     longitude: number;
+    /** Altitude in meters above ellipsoid (optional). */
     altitude?: number;
+    /** Heading/Rotation in degrees (optional). */
     heading?: number;
+    /** Speed in knots or meters/sec depending on domain (optional). */
     speed?: number;
+    /** The moment this data was captured. */
     timestamp: Date;
+    /** Short display string for labels. */
     label?: string;
+    /** Arbitrary metadata associated with the entity. */
     properties: Record<string, unknown>;
 }
 export interface WsStreamPayload {
@@ -164,6 +185,11 @@ export type FilterValue = {
     type: "boolean";
     value: boolean;
 };
+/**
+ * @interface WorldPlugin
+ * @description The core lifecycle interface for all WorldWideView extensions.
+ * Every plugin (built-in or marketplace) must implement this interface.
+ */
 export interface WorldPlugin {
     id: string;
     name: string;
@@ -203,6 +229,15 @@ export interface WorldPlugin {
         viewer: any;
         enabled: boolean;
     }>;
+    /**
+     * Returns a React component to be rendered inside the Bottom Panel when this plugin's
+     * dock button is selected. The panel is resizable and can be expanded to fullscreen.
+     * If not provided, the plugin will not appear in the bottom dock.
+     */
+    getBottomPanelComponent?(): ComponentType<{
+        pluginId: string;
+        enabled: boolean;
+    }>;
     requiresConfiguration?(settings: unknown): boolean;
     /** Map raw websocket payload into GeoEntity array. Optional existingEntities is provided so plugins can merge state (e.g. historical trails). */
     mapWebsocketPayload?(payload: any, existingEntities?: GeoEntity[]): GeoEntity[];
@@ -212,6 +247,16 @@ export type DataBusEvents = {
     pluginRegistered: {
         pluginId: string;
         defaultInterval: number;
+    };
+    pluginUnregistered: {
+        pluginId: string;
+    };
+    dynamicPluginCreate: {
+        plugin: WorldPlugin;
+        autoEnable?: boolean;
+    };
+    dynamicPluginRemove: {
+        pluginId: string;
     };
     dataUpdated: {
         pluginId: string;
@@ -244,6 +289,16 @@ export type DataBusEvents = {
         heading?: number;
     };
     globeReady: Record<string, never>;
+    pluginError: {
+        pluginId?: string;
+        message: string;
+        error?: Error;
+    };
+    layerLoadingChanged: {
+        pluginId: string;
+        loading: boolean;
+    };
 };
 export * from "./viteGlobals";
+export * from "./auth-contracts";
 //# sourceMappingURL=index.d.ts.map

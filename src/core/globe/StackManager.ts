@@ -1,5 +1,7 @@
 import type { AnimatableItem } from "./EntityRenderer";
-import { type StackState, type EntityStack, type SpiderOffset, COLLAPSE_PADDING_PX } from "./StackTypes";
+import {
+ type StackState, type EntityStack, type SpiderOffset, COLLAPSE_PADDING_PX
+} from "./StackTypes";
 import { assignRingOffsets } from "./StackLayout";
 import { calculateGridSizeDegrees, computeGroups, countGroupedEntities } from "./StackClustering";
 
@@ -86,8 +88,12 @@ function applyGroups(groups: Map<string, AnimatableItem[]>): void {
             assignRingOffsets(existing, spiderOffsets);
         } else {
             const stack: EntityStack = {
-                id: key, hubItem: items[0], children: items,
-                state: "collapsed", stateStartMs: Date.now(), outerRadius: 0,
+                id: key,
+hubItem: items[0],
+children: items,
+                state: "collapsed",
+stateStartMs: Date.now(),
+outerRadius: 0,
             };
             assignRingOffsets(stack, spiderOffsets);
             stacks.set(key, stack);
@@ -117,7 +123,7 @@ export function collapseStack(stackId: string): void {
 /** Find the stack that contains a given entity id. */
 export function findStackByEntityId(entityId: string): EntityStack | undefined {
     for (const s of stacks.values()) {
-        if (s.children.some(c => c.entity.id === entityId)) return s;
+        if (s.children.some((c) => c.entity.id === entityId)) return s;
     }
     return undefined;
 }

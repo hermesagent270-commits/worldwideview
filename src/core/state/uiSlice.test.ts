@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import {
+ describe, it, expect, beforeEach, vi
+} from 'vitest';
 import { createStore, type StoreApi } from 'zustand/vanilla';
-import { createUISlice, UISlice, FloatingStream } from './uiSlice';
 import type { GeoEntity } from '@/core/plugins/PluginTypes';
+import { createUISlice, UISlice, FloatingStream } from './uiSlice';
 
 // Mock the analytics module to prevent actual tracking during tests
 vi.mock('@/lib/analytics', () => ({
@@ -61,7 +63,7 @@ describe('uiSlice', () => {
     it('toggles themes cyclically and updates DOM/localStorage', () => {
         // Start with black
         store.getState().setTheme('black');
-        
+
         store.getState().toggleTheme();
         expect(store.getState().theme).toBe('light');
         expect(document.documentElement.getAttribute('data-theme')).toBe('light');
@@ -85,7 +87,7 @@ describe('uiSlice', () => {
 
     it('handles setting selected entity and related UI panels', () => {
         const mockEntity = { id: 'e1', pluginId: 'test' } as GeoEntity;
-        
+
         // When setting entity, right sidebar and config should open
         store.getState().setSelectedEntity(mockEntity);
         let state = store.getState();
@@ -107,7 +109,7 @@ describe('uiSlice', () => {
     it('sets hovered entity and position', () => {
         const mockEntity = { id: 'e2', pluginId: 'test' } as GeoEntity;
         store.getState().setHoveredEntity(mockEntity, { x: 100, y: 200 });
-        
+
         const state = store.getState();
         expect(state.hoveredEntity).toEqual(mockEntity);
         expect(state.hoveredScreenPosition).toEqual({ x: 100, y: 200 });

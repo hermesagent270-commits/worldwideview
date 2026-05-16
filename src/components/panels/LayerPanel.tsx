@@ -2,26 +2,28 @@
 
 /**
  * @file LayerPanel.tsx
- * @description Primary left-sidebar panel for managing data sources, imagery, 
+ * @description Primary left-sidebar panel for managing data sources, imagery,
  * favorites, and plugin installations.
  * @module src/components/panels
  */
 
 import { useState } from "react";
-import { CircuitBoard, Download, DownloadCloud, Globe2, Puzzle, Search, Star } from "lucide-react";
+import {
+ CircuitBoard, Download, DownloadCloud, Globe2, Puzzle, Search, Star
+} from "lucide-react";
 
 import { useStore } from "@/core/state/store";
 import { useIsMobile } from "@/core/hooks/useIsMobile";
 import { useResizablePanel } from "@/core/hooks/useResizablePanel";
 import { pluginManager } from "@/core/plugins/PluginManager";
+import { ImportPanel } from "@/plugins/geojson/ImportPanel";
+import { DiscordIcon } from "@/components/common/DiscordIcon";
+import { trackEvent } from "@/lib/analytics";
 import { ImageryPicker } from "./ImageryPicker";
 import { LayerItem } from "./LayerItem";
 import { FavoritesTab } from "./FavoritesTab";
-import { ImportPanel } from "@/plugins/geojson/ImportPanel";
 import { PluginsTab } from "./PluginsTab";
 import "@/plugins/geojson/geojson-importer.css";
-import { DiscordIcon } from "@/components/common/DiscordIcon";
-import { trackEvent } from "@/lib/analytics";
 
 import "./LayerPanel.css"
 
@@ -53,14 +55,12 @@ export function LayerPanel() {
 
     const buttonWidth = "100%"
 
-    
-    
     allPlugins.forEach((managed) => {
         if (
-            !query ||
-            managed.plugin.name.toLowerCase().includes(query) ||
-            managed.plugin.description?.toLowerCase().includes(query) ||
-            managed.plugin.id.toLowerCase().includes(query)
+            !query
+            || managed.plugin.name.toLowerCase().includes(query)
+            || managed.plugin.description?.toLowerCase().includes(query)
+            || managed.plugin.id.toLowerCase().includes(query)
         ) {
             const cat = managed.plugin.category;
             if (!grouped[cat]) grouped[cat] = [];
@@ -117,15 +117,15 @@ export function LayerPanel() {
     const fontSize = "13px";
 
     return (
-        <aside
-            className={`sidebar sidebar--left glass-panel ${isMobile ? "sidebar--mobile" : ""} ${(isMobile ? openMobilePanel === "left" : leftSidebarOpen) ? "" : "sidebar--closed"}`}
-            style={{ width: isMobile ? undefined : width }}
-        >
-            {/* Drag Handle */}
-            {!isMobile && (
-                <div
-                    onMouseDown={startResizing}
-                    style={{
+      <aside
+        className={`sidebar sidebar--left glass-panel ${isMobile ? "sidebar--mobile" : ""} ${(isMobile ? openMobilePanel === "left" : leftSidebarOpen) ? "" : "sidebar--closed"}`}
+        style={{ width: isMobile ? undefined : width }}
+      >
+        {/* Drag Handle */}
+        {!isMobile && (
+        <div
+          onMouseDown={startResizing}
+          style={{
                         position: 'absolute',
                         top: 0,
                         right: -4,
@@ -135,76 +135,77 @@ export function LayerPanel() {
                         zIndex: 10,
                         backgroundColor: 'transparent'
                     }}
-                />
+        />
             )}
-            <div className="sidebar__title">Data Sources</div>
+        <div className="sidebar__title">Data Sources</div>
 
-            <div
-                className="panel-tabs"
-                onWheel={(e) => {
+        <div
+          className="panel-tabs"
+          onWheel={(e) => {
                     e.currentTarget.scrollLeft += e.deltaY;
                 }}
-            >
-                <button
-                    className={`panel-tab ${activeTab === "layers" ? "panel-tab--active" : ""}`}
-                    onClick={() => { setActiveTab("layers"); trackEvent("panel-tab-switch", { tab: "layers" }); }}
-                    title="Data Layers"
-                    style={{width: buttonWidth}}
-                >
-                    <CircuitBoard size="20" style={{margin: 5, maxHeight: "20%"}}></CircuitBoard>
-                </button>
-                <button
-                    className={`panel-tab ${activeTab === "imagery" ? "panel-tab--active" : ""}`}
-                    onClick={() => { setActiveTab("imagery"); trackEvent("panel-tab-switch", { tab: "imagery" }); }}
-                    title="Imagery"
-                    style={{width: buttonWidth}}
-                >
-                    <Globe2 size="20" style={{margin: 5, maxHeight: "20%"}}></Globe2>
-                </button>
-                <button
-                    className={`panel-tab ${activeTab === "favorites" ? "panel-tab--active" : ""}`}
-                    onClick={() => { setActiveTab("favorites"); trackEvent("panel-tab-switch", { tab: "favorites" }); }}
-                    title="Favorites"
-                    style={{width: buttonWidth}}
-                >
-                    <Star size="20" style={{margin: 5, maxHeight: "20%"}}></Star>
-                </button>
-                <button
-                    className={`panel-tab ${activeTab === "import" ? "panel-tab--active" : ""}`}
-                    onClick={() => { setActiveTab("import"); trackEvent("panel-tab-switch", { tab: "import" }); }}
-                    title="Import"
-                    style={{width: buttonWidth}}
-                >
-                    <DownloadCloud size="20" style={{margin: 5,maxHeight: "20%"}}></DownloadCloud>
-                </button>
-                <button
-                    className={`panel-tab ${activeTab === "plugins" ? "panel-tab--active" : ""}`}
-                    onClick={() => { setActiveTab("plugins"); trackEvent("panel-tab-switch", { tab: "plugins" }); }}
-                    title="Plugins"
-                    style={{width: buttonWidth}}
-                >
-                    <Puzzle size="20" style={{margin: 5,maxHeight: "20%"}}></Puzzle>
-                </button>
-            </div>
+        >
+          <button
+            className={`panel-tab ${activeTab === "layers" ? "panel-tab--active" : ""}`}
+            onClick={() => { setActiveTab("layers"); trackEvent("panel-tab-switch", { tab: "layers" }); }}
+            title="Data Layers"
+            style={{width: buttonWidth}}
+          >
+            <CircuitBoard size="20" style={{margin: 5, maxHeight: "20%"}} />
+          </button>
+          <button
+            className={`panel-tab ${activeTab === "imagery" ? "panel-tab--active" : ""}`}
+            onClick={() => { setActiveTab("imagery"); trackEvent("panel-tab-switch", { tab: "imagery" }); }}
+            title="Imagery"
+            style={{width: buttonWidth}}
+          >
+            <Globe2 size="20" style={{margin: 5, maxHeight: "20%"}} />
+          </button>
+          <button
+            className={`panel-tab ${activeTab === "favorites" ? "panel-tab--active" : ""}`}
+            onClick={() => { setActiveTab("favorites"); trackEvent("panel-tab-switch", { tab: "favorites" }); }}
+            title="Favorites"
+            style={{width: buttonWidth}}
+          >
+            <Star size="20" style={{margin: 5, maxHeight: "20%"}} />
+          </button>
+          <button
+            className={`panel-tab ${activeTab === "import" ? "panel-tab--active" : ""}`}
+            onClick={() => { setActiveTab("import"); trackEvent("panel-tab-switch", { tab: "import" }); }}
+            title="Import"
+            style={{width: buttonWidth}}
+          >
+            <DownloadCloud size="20" style={{margin: 5,maxHeight: "20%"}} />
+          </button>
+          <button
+            className={`panel-tab ${activeTab === "plugins" ? "panel-tab--active" : ""}`}
+            onClick={() => { setActiveTab("plugins"); trackEvent("panel-tab-switch", { tab: "plugins" }); }}
+            title="Plugins"
+            style={{width: buttonWidth}}
+          >
+            <Puzzle size="20" style={{margin: 5,maxHeight: "20%"}} />
+          </button>
+        </div>
 
-            {activeTab === "layers" && (
-                <div className="layers-tab-content">
-                    <div style={{ padding: "0 var(--space-md) var(--space-md) var(--space-md)" }}>
-                        <div style={{
+        {activeTab === "layers" && (
+          <div className="layers-tab-content">
+            <div style={{ padding: "0 var(--space-md) var(--space-md) var(--space-md)" }}>
+              <div style={{
                             display: "flex",
                             alignItems: "center",
                             background: "var(--bg-layer-2)",
                             border: "1px solid var(--border-subtle)",
                             borderRadius: "var(--radius-sm)",
                             padding: "0 var(--space-sm)",
-                        }}>
-                            <Search size={14} style={{ color: "var(--text-muted)", marginRight: 8 }} />
-                            <input
-                                type="text"
-                                placeholder="Search layers..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                style={{
+                        }}
+              >
+                <Search size={14} style={{ color: "var(--text-muted)", marginRight: 8 }} />
+                <input
+                  type="text"
+                  placeholder="Search layers..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
                                     flex: 1,
                                     background: "transparent",
                                     border: "none",
@@ -213,14 +214,14 @@ export function LayerPanel() {
                                     padding: "var(--space-sm) 0",
                                     outline: "none"
                                 }}
-                            />
-                        </div>
-                    </div>
-                    <div className="layers-tab-content__list">
-                        {Object.entries(grouped).map(([category, plugins]) => (
-                            <div key={category} style={{ marginBottom: "var(--space-lg)" }}>
-                                <div
-                                    style={{
+                />
+              </div>
+            </div>
+            <div className="layers-tab-content__list">
+              {Object.entries(grouped).map(([category, plugins]) => (
+                <div key={category} style={{ marginBottom: "var(--space-lg)" }}>
+                  <div
+                    style={{
                                         fontSize: 10,
                                         fontWeight: 600,
                                         letterSpacing: "0.08em",
@@ -229,24 +230,24 @@ export function LayerPanel() {
                                         marginBottom: "var(--space-sm)",
                                         paddingLeft: "var(--space-md)",
                                     }}
-                                >
-                                    {categoryLabels[category] || category}
-                                </div>
-                                {plugins.map((managed) => {
+                  >
+                    {categoryLabels[category] || category}
+                  </div>
+                  {plugins.map((managed) => {
                                     const isEnabled = layers[managed.plugin.id]?.enabled || false;
                                     const isLoading = layers[managed.plugin.id]?.loading || false;
                                     const count = (entitiesByPlugin[managed.plugin.id] || []).length;
 
                                     return (
-                                        <LayerItem
-                                            key={managed.plugin.id}
-                                            plugin={managed.plugin}
-                                            isEnabled={isEnabled}
-                                            isLoading={isLoading}
-                                            entityCount={count}
-                                            isSelected={highlightLayerId === managed.plugin.id}
-                                            onToggle={() => handleToggle(managed.plugin.id)}
-                                            onSelect={() => {
+                                      <LayerItem
+                                        key={managed.plugin.id}
+                                        plugin={managed.plugin}
+                                        isEnabled={isEnabled}
+                                        isLoading={isLoading}
+                                        entityCount={count}
+                                        isSelected={highlightLayerId === managed.plugin.id}
+                                        onToggle={() => handleToggle(managed.plugin.id)}
+                                        onSelect={() => {
                                                 const newId = highlightLayerId === managed.plugin.id ? null : managed.plugin.id;
                                                 setHighlightLayerId(newId);
                                                 if (newId) {
@@ -255,42 +256,42 @@ export function LayerPanel() {
                                                     setActiveConfigTab("intel");
                                                 }
                                             }}
-                                        />
+                                      />
                                     );
                                 })}
-                            </div>
-                        ))}
-                    </div>
-                    <a
-                        href="https://discord.gg/k3F2N4eKnr"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="discord-sidebar-link"
-                        onClick={() => trackEvent("discord-link-click")}
-                        style={{width: "100%", height: "42px"}}
-                    >
-                        <DiscordIcon size={18} />
-                        <span>Join our Discord</span>
-                    </a>
                 </div>
+                        ))}
+            </div>
+            <a
+              href="https://discord.gg/k3F2N4eKnr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="discord-sidebar-link"
+              onClick={() => trackEvent("discord-link-click")}
+              style={{width: "100%", height: "42px"}}
+            >
+              <DiscordIcon size={18} />
+              <span>Join our Discord</span>
+            </a>
+          </div>
             )}
 
-            {activeTab === "imagery" && (
-                <ImageryPicker />
+        {activeTab === "imagery" && (
+          <ImageryPicker />
             )}
 
-            {activeTab === "favorites" && (
-                <FavoritesTab />
+        {activeTab === "favorites" && (
+          <FavoritesTab />
             )}
 
-            {activeTab === "import" && (
-                <ImportPanel />
+        {activeTab === "import" && (
+          <ImportPanel />
             )}
 
-            {activeTab === "plugins" && (
-                <PluginsTab />
+        {activeTab === "plugins" && (
+          <PluginsTab />
             )}
 
-        </aside>
+      </aside>
     );
 }

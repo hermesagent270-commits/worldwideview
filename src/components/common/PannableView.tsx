@@ -1,6 +1,6 @@
 /**
  * @file PannableView.tsx
- * @description A high-performance 2D navigation container providing panning and 
+ * @description A high-performance 2D navigation container providing panning and
  * pinch-zoom capabilities for inner content.
  * @module src/components/common
  */
@@ -26,7 +26,7 @@ const ZOOM_STEP = 0.15;
  * @component PannableView
  * @description Wraps content in a 2D viewport that supports infinite panning and multi-touch zoom.
  * Ideal for secondary maps, floor plans, or large interactive diagrams.
- * 
+ *
  * @param {PannableViewProps} props - Component properties.
  */
 export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
@@ -38,7 +38,7 @@ export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
     const activePointers = useRef<Map<number, { x: number; y: number }>>(new Map());
     const initialPinchDistance = useRef<number | null>(null);
     const initialPinchZoom = useRef<number>(1);
-    
+
     const containerRef = useRef<HTMLDivElement>(null);
 
     const clampPan = useCallback((x: number, y: number, z: number) => {
@@ -82,7 +82,7 @@ export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
     const handlePointerDown = useCallback((e: React.PointerEvent) => {
         e.preventDefault();
         (e.target as HTMLElement).setPointerCapture(e.pointerId);
-        
+
         activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
         if (activePointers.current.size === 1) {
@@ -97,7 +97,7 @@ export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
             setIsPanning(false); // disable single pan flag
             initialPinchDistance.current = getPointersDistance(activePointers.current);
             initialPinchZoom.current = zoom;
-            
+
             const center = getPointersCenter(activePointers.current);
             dragStart.current = center;
             panStart.current = { ...pan };
@@ -106,7 +106,7 @@ export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
 
     const handlePointerMove = useCallback((e: React.PointerEvent) => {
         if (!activePointers.current.has(e.pointerId)) return;
-        
+
         activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
         if (activePointers.current.size === 1 && isPanning && containerRef.current) {
@@ -121,12 +121,12 @@ export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
             const currentDistance = getPointersDistance(activePointers.current);
             const scale = currentDistance / initialPinchDistance.current;
             const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, initialPinchZoom.current * scale));
-            
+
             const center = getPointersCenter(activePointers.current);
             const rect = containerRef.current.getBoundingClientRect();
             const dx = (((center.x - dragStart.current.x) / rect.width) * 100) / newZoom;
             const dy = (((center.y - dragStart.current.y) / rect.height) * 100) / newZoom;
-            
+
             setZoom(newZoom);
             if (newZoom <= 1) {
                 setPan({ x: 0, y: 0 });
@@ -138,11 +138,11 @@ export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
 
     const handlePointerUp = useCallback((e: React.PointerEvent) => {
         activePointers.current.delete(e.pointerId);
-        
+
         if (activePointers.current.size < 2) {
             initialPinchDistance.current = null;
         }
-        
+
         if (activePointers.current.size === 1) {
              const remainingPointer = Array.from(activePointers.current.values())[0];
              dragStart.current = { x: remainingPointer.x, y: remainingPointer.y };
@@ -157,7 +157,7 @@ export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
                  return currentZoom;
              });
         }
-        
+
         if (activePointers.current.size === 0) {
             setIsPanning(false);
         }
@@ -172,14 +172,14 @@ export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
     const isZoomed = zoom > 1.01;
 
     return (
-        <div
-            ref={containerRef}
-            onWheel={handleWheel}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-            style={{
+      <div
+        ref={containerRef}
+        onWheel={handleWheel}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        style={{
                 width: "100%",
                 height: "100%",
                 overflow: "hidden",
@@ -188,9 +188,9 @@ export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
                 position: "relative",
                 userSelect: "none",
             }}
-        >
-            <div
-                style={{
+      >
+        <div
+          style={{
                     width: "100%",
                     height: "100%",
                     transform: `scale(${zoom}) translate(${pan.x}%, ${pan.y}%)`,
@@ -200,13 +200,13 @@ export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
                     // If zoom > 1, we capture drags, so we may need pointer-events: none on children to avoid them eating the drag
                     pointerEvents: isZoomed ? "none" : "auto",
                 }}
-            >
-                {children}
-            </div>
+        >
+          {children}
+        </div>
 
-            {/* Zoom level indicator */}
-            {isZoomed && (
-                <div style={{
+        {/* Zoom level indicator */}
+        {isZoomed && (
+        <div style={{
                     position: "absolute",
                     bottom: 8,
                     left: 8,
@@ -219,17 +219,19 @@ export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
                     borderRadius: "var(--radius-sm)",
                     border: "1px solid var(--border-subtle)",
                     pointerEvents: "none",
-                }}>
-                    {zoom.toFixed(1)}×
-                </div>
+                }}
+        >
+          {zoom.toFixed(1)}
+          ×
+        </div>
             )}
 
-            {/* Reset button */}
-            {isZoomed && (
-                <button
-                    onClick={handleReset}
-                    title="Reset zoom"
-                    style={{
+        {/* Reset button */}
+        {isZoomed && (
+        <button
+          onClick={handleReset}
+          title="Reset zoom"
+          style={{
                         position: "absolute",
                         bottom: 8,
                         right: 8,
@@ -245,19 +247,18 @@ export const PannableView: React.FC<PannableViewProps> = ({ children }) => {
                         alignItems: "center",
                         justifyContent: "center",
                     }}
-                    onMouseEnter={(e) => {
+          onMouseEnter={(e) => {
                         e.currentTarget.style.color = "var(--text-primary)";
                         e.currentTarget.style.background = "var(--bg-glass-hover)";
                     }}
-                    onMouseLeave={(e) => {
+          onMouseLeave={(e) => {
                         e.currentTarget.style.color = "var(--text-secondary)";
                         e.currentTarget.style.background = "var(--bg-glass)";
                     }}
-                >
-                    <RotateCcw size={12} />
-                </button>
+        >
+          <RotateCcw size={12} />
+        </button>
             )}
-        </div>
+      </div>
     );
 };
-

@@ -29,9 +29,9 @@ export async function GET(req: NextRequest) {
 
     try {
         const upstream = await fetch(targetUrl, {
-            headers: { 
+            headers: {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+                Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
                 "Accept-Language": "en-US,en;q=0.5",
             },
             signal: AbortSignal.timeout(MAX_IFRAME_DURATION_MS),
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
         }
 
         const contentType = upstream.headers.get("content-type") || "text/html";
-        
+
         // If it's not HTML, just proxy the stream directly (fallback)
         if (!contentType.includes("text/html")) {
             return new Response(upstream.body as ReadableStream, {

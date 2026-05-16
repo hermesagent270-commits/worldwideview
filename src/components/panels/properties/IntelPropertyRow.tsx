@@ -1,6 +1,6 @@
 /**
  * @file IntelPropertyRow.tsx
- * @description Base layout component for displaying key-value property rows 
+ * @description Base layout component for displaying key-value property rows
  * within entity information panels.
  * @module src/components/panels/properties
  */
@@ -30,19 +30,24 @@ export function IntelPropertyRow({
 }: IntelPropertyRowProps) {
     if (isColumn) {
         return (
-            <div className={`${classNamePrefix}__prop`} style={{ flexDirection: "column", alignItems: "flex-start", gap: "var(--space-xs)" }}>
-                <span className={`${classNamePrefix}__prop-key`}>{label}</span>
-                <div className={`${classNamePrefix}__prop-value`} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "4px", width: "100%" }}>
-                    {children}
-                </div>
+          <div className={`${classNamePrefix}__prop`} style={{ flexDirection: "column", alignItems: "flex-start", gap: "var(--space-xs)" }}>
+            <span className={`${classNamePrefix}__prop-key`}>{label}</span>
+            <div
+              className={`${classNamePrefix}__prop-value`}
+              style={{
+ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "4px", width: "100%"
+}}
+            >
+              {children}
             </div>
+          </div>
         );
     }
 
     return (
-        <div className={`${classNamePrefix}__prop`}>
-            <span className={`${classNamePrefix}__prop-key`}>{label}</span>
-            <span className={`${classNamePrefix}__prop-value`}>{children}</span>
-        </div>
+      <div className={`${classNamePrefix}__prop`}>
+        <span className={`${classNamePrefix}__prop-key`}>{label}</span>
+        <span className={`${classNamePrefix}__prop-value`}>{children}</span>
+      </div>
     );
 }

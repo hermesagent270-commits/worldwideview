@@ -1,5 +1,7 @@
 "use client";
 
+import { useStore } from "@/core/state/store";
+
 export interface CapturedLog {
     level: "log" | "warn" | "error" | "info" | "debug";
     message: string;
@@ -19,7 +21,7 @@ const originalDebug = console.debug;
 
 export function initLogCatcher() {
     if (typeof window === "undefined" || isInitialized) return;
-    
+
     const levels = [
         { name: "log" as const, original: originalLog },
         { name: "warn" as const, original: originalWarn },
@@ -27,15 +29,15 @@ export function initLogCatcher() {
         { name: "info" as const, original: originalInfo },
         { name: "debug" as const, original: originalDebug }
     ];
-    
+
     levels.forEach(({ name, original }) => {
         console[name] = (...args: any[]) => {
             // Forward to original console
             original.apply(console, args);
-            
+
             try {
-                // Stringify arguments safely, aggressively optimizing performance 
-                const message = args.map(arg => {
+                // Stringify arguments safely, aggressively optimizing performance
+                const message = args.map((arg) => {
                     if (typeof arg === "string") return arg;
                     if (arg instanceof Error) {
                         return `${arg.name || 'Error'}: ${arg.message}\n${arg.stack || ''}`;
@@ -52,23 +54,23 @@ export function initLogCatcher() {
                                 }
                                 return value;
                             });
-                            return str.length > 500 ? str.slice(0, 500) + "..." : str;
+                            return str.length > 500 ? `${str.slice(0, 500)}...` : str;
                         } catch {
                             return "[Complex Object]";
                         }
                     }
                     return String(arg);
                 }).join(" ");
-                
+
                 // Cap the maximum length of any single log to 1000 chars to avoid memory leaks
-                const finalMessage = message.length > 1000 ? message.slice(0, 1000) + "..." : message;
-                
+                const finalMessage = message.length > 1000 ? `${message.slice(0, 1000)}...` : message;
+
                 capturedLogs.push({
                     level: name,
                     message: finalMessage,
                     timestamp: new Date().toISOString()
                 });
-                
+
                 if (capturedLogs.length > MAX_LOGS) {
                     capturedLogs.shift();
                 }
@@ -77,7 +79,7 @@ export function initLogCatcher() {
             }
         };
     });
-    
+
     isInitialized = true;
 }
 

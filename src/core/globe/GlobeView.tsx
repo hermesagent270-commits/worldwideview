@@ -1,27 +1,26 @@
 "use client";
+
 // @refresh reset
 
 import React, { useEffect, useRef, useMemo } from "react";
-import { Ion, buildModuleUrl, Entity as CesiumEntity, Transforms, Matrix4, Cartesian3, HeadingPitchRoll, Math as CesiumMath } from "cesium";
+import {
+ Ion, buildModuleUrl, Entity as CesiumEntity, Transforms, Matrix4, Cartesian3, HeadingPitchRoll, Math as CesiumMath
+} from "cesium";
 import { Viewer } from "resium";
 import { useStore } from "@/core/state/store";
 import { pluginManager } from "@/core/plugins/PluginManager";
 import type { GeoEntity, CesiumEntityOptions } from "@/core/plugins/PluginTypes";
 import { applyFilters } from "@/core/filters/filterEngine";
+import { dataBus } from "@/core/data/DataBus";
+import { PluginErrorBoundary } from "@/components/common/PluginErrorBoundary";
 import { subscribeToCameraPresets } from "./CameraController";
 import { setupInteractionHandlers } from "./InteractionHandler";
 import { useBorders } from "./useBorders";
-import { dataBus } from "@/core/data/DataBus";
 
 import { handleEntitySelection, cleanupTrail } from "./SelectionHandler";
 import { useImageryManager } from "./useImageryManager";
 import { getCachedRenderOptions } from "./renderOptionsCache";
 import type { AnimatableItem } from "./EntityRenderer";
-import { PluginErrorBoundary } from "@/components/common/PluginErrorBoundary";
-
-/** Stable references */
-const CONTEXT_OPTIONS = { requestWebgl2: true, webgl: { antialias: true } } as const;
-const VIEWER_STYLE = { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 } as const;
 
 // New Hooks
 import { useCameraActions } from "./hooks/useCameraActions";
@@ -34,6 +33,12 @@ import { useSatelliteFrustum } from "./hooks/useSatelliteFrustum";
 import { useTrailRendering } from "./hooks/useTrailRendering";
 import { useViewerInitialization } from "./hooks/useViewerInitialization";
 import { usePersistentDataSync } from "./hooks/usePersistentDataSync";
+
+/** Stable references */
+const CONTEXT_OPTIONS = { requestWebgl2: true, webgl: { antialias: true } } as const;
+const VIEWER_STYLE = {
+ position: "absolute", top: 0, left: 0, right: 0, bottom: 0
+} as const;
 
 if (typeof window !== "undefined") {
     (window as any).CESIUM_BASE_URL = '/cesium/';
@@ -51,18 +56,22 @@ export default function GlobeView() {
     const entitiesByPlugin = useStore((s) => s.entitiesByPlugin);
     const layers = useStore((s) => s.layers);
     const selectedEntity = useStore((s) => s.selectedEntity);
-    const showLabels = layers["borders"]?.enabled ?? false;
+    const showLabels = layers.borders?.enabled ?? false;
     const showFps = useStore((s) => s.mapConfig.showFps);
     const resolutionScale = useStore((s) => s.mapConfig.resolutionScale);
     const antiAliasing = useStore((s) => s.mapConfig.antiAliasing);
     const maxScreenSpaceError = useStore((s) => s.mapConfig.maxScreenSpaceError);
     const shadowsEnabled = useStore((s) => s.mapConfig.shadowsEnabled);
     const enableLightingConfig = useStore((s) => s.mapConfig.enableLighting);
-    const dayNightLayerEnabled = layers["daynight"]?.enabled ?? false;
+    const dayNightLayerEnabled = layers.daynight?.enabled ?? false;
     const enableLighting = enableLightingConfig || dayNightLayerEnabled;
     const sceneSettings = useMemo(() => ({
-        showFps, resolutionScale, antiAliasing, maxScreenSpaceError,
-        shadowsEnabled, enableLighting,
+        showFps,
+resolutionScale,
+antiAliasing,
+maxScreenSpaceError,
+        shadowsEnabled,
+enableLighting,
     }), [showFps, resolutionScale, antiAliasing, maxScreenSpaceError, shadowsEnabled, enableLighting]);
     const filters = useStore((s) => s.filters);
     const pluginSettings = useStore((s) => s.dataConfig.pluginSettings);
@@ -90,7 +99,7 @@ export default function GlobeView() {
             const active = filters[pluginId] || {};
             applyFilters(entities, defs, active).forEach((entity) => {
                 const originalOptions = getCachedRenderOptions(managed.plugin, entity);
-                
+
                 // Apply color overrides
                 let options = originalOptions;
                 if (originalOptions.color && colorOverrides && colorOverrides[originalOptions.color]) {
@@ -116,8 +125,8 @@ export default function GlobeView() {
     useTrailRendering(viewerRef.current, viewerReady, animatablesMapRef);
     useSatelliteFrustum(viewerRef.current, viewerReady, selectedEntity, animatablesMapRef);
 
-    const cameraLayerEnabled = layers["camera"]?.enabled ?? false;
-    const cameraEntities = entitiesByPlugin["camera"] || [];
+    const cameraLayerEnabled = layers.camera?.enabled ?? false;
+    const cameraEntities = entitiesByPlugin.camera || [];
     useFrustumRendering(viewerRef.current, viewerReady, cameraEntities, cameraLayerEnabled);
 
     useEffect(() => {
@@ -147,7 +156,7 @@ export default function GlobeView() {
 
         if (lockedEntityId && selectionEntityRef.current) {
             viewer.trackedEntity = undefined; // Force unbind native tracker entirely!
-            
+
             // Re-sync local offset from World position on the very first frame to prevent deep space jumping.
             // Then continuously apply the difference on subsequent frames so the user can orbit manually.
             trackingListener = viewer.scene.preRender.addEventListener(() => {
@@ -163,7 +172,7 @@ export default function GlobeView() {
                 if (isFirstFrame) {
                     const invTransform = Matrix4.inverseTransformation(transform, new Matrix4());
                     const localPos = Matrix4.multiplyByPoint(invTransform, viewer.camera.positionWC, new Cartesian3());
-                    
+
                     // Force the camera direction to point perfectly at the origin (the plane)
                     const localDir = Cartesian3.normalize(Cartesian3.negate(localPos, new Cartesian3()), new Cartesian3());
 
@@ -223,17 +232,17 @@ export default function GlobeView() {
 
     const PluginGlobeComponents = useMemo(() => {
         const components: React.ReactNode[] = [];
-        pluginManager.getAllPlugins().forEach(managed => {
+        pluginManager.getAllPlugins().forEach((managed) => {
             if (!managed.plugin.getGlobeComponent) return;
-            
+
             try {
                 const Comp = managed.plugin.getGlobeComponent();
                 const enabled = layers[managed.plugin.id]?.enabled ?? false;
-                
+
                 components.push(
-                    <PluginErrorBoundary key={managed.plugin.id} pluginId={managed.plugin.id}>
-                        <Comp viewer={viewerRef.current} enabled={enabled} />
-                    </PluginErrorBoundary>
+                  <PluginErrorBoundary key={managed.plugin.id} pluginId={managed.plugin.id}>
+                    <Comp viewer={viewerRef.current} enabled={enabled} />
+                  </PluginErrorBoundary>
                 );
             } catch (err) {
                 console.error(`[GlobeView] Synchronous error initializing plugin component ${managed.plugin.id}:`, err);
@@ -244,21 +253,28 @@ export default function GlobeView() {
     }, [layers, viewerReady]);
 
     return (
-        <Viewer
-            full
-            ref={(e) => {
+      <Viewer
+        full
+        ref={(e) => {
                 const el = e?.cesiumElement;
                 if (el && el !== viewerRef.current && !el.isDestroyed()) handleViewerReady(el);
             }}
-            animation={false} baseLayerPicker={false} fullscreenButton={false}
-            geocoder={false} homeButton={false} infoBox={false}
-            navigationHelpButton={false} sceneModePicker={false}
-            selectionIndicator={false} timeline={false} vrButton={false}
-            baseLayer={false}
-            contextOptions={CONTEXT_OPTIONS}
-            style={VIEWER_STYLE}
-        >
-            {viewerReady && PluginGlobeComponents}
-        </Viewer>
+        animation={false}
+        baseLayerPicker={false}
+        fullscreenButton={false}
+        geocoder={false}
+        homeButton={false}
+        infoBox={false}
+        navigationHelpButton={false}
+        sceneModePicker={false}
+        selectionIndicator={false}
+        timeline={false}
+        vrButton={false}
+        baseLayer={false}
+        contextOptions={CONTEXT_OPTIONS}
+        style={VIEWER_STYLE}
+      >
+        {viewerReady && PluginGlobeComponents}
+      </Viewer>
     );
 }

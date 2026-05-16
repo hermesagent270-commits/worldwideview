@@ -7,7 +7,9 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+ useState, useEffect, useRef, useCallback
+} from "react";
 import { X } from "lucide-react";
 
 /**
@@ -38,7 +40,7 @@ interface FloatingWindowProps {
  * @component FloatingWindow
  * @description A floating, interactive container used for data streams and secondary tools.
  * Implements a custom drag-and-resize engine compatible with both desktop and mobile.
- * 
+ *
  * @param {FloatingWindowProps} props - Component properties.
  */
 export const FloatingWindow: React.FC<FloatingWindowProps> = ({
@@ -85,7 +87,7 @@ export const FloatingWindow: React.FC<FloatingWindowProps> = ({
         } else if (isResizing) {
             const deltaX = e.clientX - dragStart.current.x;
             const deltaY = e.clientY - dragStart.current.y;
-            setSize(prev => ({
+            setSize((prev) => ({
                 width: Math.max(minWidth, prev.width + deltaX),
                 height: Math.max(minHeight, prev.height + deltaY),
             }));
@@ -138,7 +140,7 @@ export const FloatingWindow: React.FC<FloatingWindowProps> = ({
         } else if (isResizing) {
             const deltaX = touch.clientX - dragStart.current.x;
             const deltaY = touch.clientY - dragStart.current.y;
-            setSize(prev => ({
+            setSize((prev) => ({
                 width: Math.max(minWidth, prev.width + deltaX),
                 height: Math.max(minHeight, prev.height + deltaY),
             }));
@@ -170,9 +172,9 @@ export const FloatingWindow: React.FC<FloatingWindowProps> = ({
     }, [isDragging, isResizing, handleTouchMove, handleTouchEnd]);
 
     return (
-        <div
-            ref={windowRef}
-            style={{
+      <div
+        ref={windowRef}
+        style={{
                 position: "fixed",
                 left: pos.x,
                 top: pos.y,
@@ -190,10 +192,10 @@ export const FloatingWindow: React.FC<FloatingWindowProps> = ({
                 color: "white",
                 touchAction: "none", // prevent browser gestures on the window itself
             }}
-        >
-            {/* Header / Title Bar */}
-            <div
-                style={{
+      >
+        {/* Header / Title Bar */}
+        <div
+          style={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
@@ -204,17 +206,20 @@ export const FloatingWindow: React.FC<FloatingWindowProps> = ({
                     userSelect: "none",
                     touchAction: "none",
                 }}
-                onMouseDown={handleMouseDown}
-                onTouchStart={handleTouchStartDrag}
-            >
-                <span style={{ fontSize: "12px", fontWeight: 600, color: "rgba(255, 255, 255, 0.8)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {title}
-                </span>
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStartDrag}
+        >
+          <span style={{
+ fontSize: "12px", fontWeight: 600, color: "rgba(255, 255, 255, 0.8)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
+}}
+          >
+            {title}
+          </span>
 
-                <div className="window-controls" style={{ display: "flex", gap: "8px" }}>
-                    <button
-                        onClick={onClose}
-                        style={{
+          <div className="window-controls" style={{ display: "flex", gap: "8px" }}>
+            <button
+              onClick={onClose}
+              style={{
                             background: "none",
                             border: "none",
                             color: "rgba(255, 255, 255, 0.4)",
@@ -226,28 +231,28 @@ export const FloatingWindow: React.FC<FloatingWindowProps> = ({
                             borderRadius: "4px",
                             transition: "all 0.2s"
                         }}
-                        onMouseEnter={(e) => {
+              onMouseEnter={(e) => {
                             e.currentTarget.style.color = "#ef4444";
                             e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
                         }}
-                        onMouseLeave={(e) => {
+              onMouseLeave={(e) => {
                             e.currentTarget.style.color = "rgba(255, 255, 255, 0.4)";
                             e.currentTarget.style.backgroundColor = "transparent";
                         }}
-                    >
-                        <X size={14} />
-                    </button>
-                </div>
-            </div>
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </div>
 
-            {/* Content Area */}
-            <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-                {children}
-            </div>
+        {/* Content Area */}
+        <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+          {children}
+        </div>
 
-            {/* Resize Handle */}
-            <div
-                style={{
+        {/* Resize Handle */}
+        <div
+          style={{
                     position: "absolute",
                     bottom: 0,
                     right: 0,
@@ -261,11 +266,14 @@ export const FloatingWindow: React.FC<FloatingWindowProps> = ({
                     padding: "4px",
                     touchAction: "none",
                 }}
-                onMouseDown={handleResizeMouseDown}
-                onTouchStart={handleTouchStartResize}
-            >
-                <div style={{ width: "6px", height: "6px", backgroundColor: "rgba(255, 255, 255, 0.3)", borderRadius: "1px" }} />
-            </div>
+          onMouseDown={handleResizeMouseDown}
+          onTouchStart={handleTouchStartResize}
+        >
+          <div style={{
+ width: "6px", height: "6px", backgroundColor: "rgba(255, 255, 255, 0.3)", borderRadius: "1px"
+}}
+          />
         </div>
+      </div>
     );
 };

@@ -27,80 +27,85 @@ export function ImportModal({ onClose }: ImportModalProps) {
     } = useGeoJsonImport(onClose);
 
     return (
-        <div className="geojson-modal-overlay" onClick={onClose}>
-            <div
-                className="geojson-modal glass-panel"
-                onClick={(e) => e.stopPropagation()}
+      <div className="geojson-modal-overlay" onClick={onClose}>
+        <div
+          className="geojson-modal glass-panel"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="geojson-modal__header">
+            <h3>Import GeoJSON</h3>
+            <button
+              type="button"
+              className="geojson-modal__close"
+              onClick={onClose}
+              aria-label="Close"
             >
-                <div className="geojson-modal__header">
-                    <h3>Import GeoJSON</h3>
-                    <button
-                        className="geojson-modal__close"
-                        onClick={onClose}
-                        aria-label="Close"
-                    >
-                        <X size={18} />
-                    </button>
-                </div>
+              <X size={18} />
+            </button>
+          </div>
 
-                <MethodTabs method={method} onChange={(m) => {
+          <MethodTabs
+            method={method}
+            onChange={(m) => {
                     setMethod(m);
                     setPreview(null);
                     setError(null);
-                }} />
+                }}
+          />
 
-                <div className="geojson-modal__body">
-                    {method === "file" && (
-                        <FileDropZone
-                            dragging={dragging}
-                            fileRef={fileRef}
-                            onDrop={handleDrop}
-                            onDragOver={() => setDragging(true)}
-                            onDragLeave={() => setDragging(false)}
-                            onFileSelect={handleFile}
-                        />
+          <div className="geojson-modal__body">
+            {method === "file" && (
+            <FileDropZone
+              dragging={dragging}
+              fileRef={fileRef}
+              onDrop={handleDrop}
+              onDragOver={() => setDragging(true)}
+              onDragLeave={() => setDragging(false)}
+              onFileSelect={handleFile}
+            />
                     )}
 
-                    {(method === "paste" || method === "custom") && (
-                        <TextInputArea
-                            method={method}
-                            value={textInput}
-                            onChange={setTextInput}
-                            onParse={() => processInput(textInput)}
-                        />
+            {(method === "paste" || method === "custom") && (
+              <TextInputArea
+                method={method}
+                value={textInput}
+                onChange={setTextInput}
+                onParse={() => processInput(textInput)}
+              />
                     )}
 
-                    {error && <div className="geojson-error">{error}</div>}
+            {error && <div className="geojson-error">{error}</div>}
 
-                    {preview && (
-                        <PreviewInfo preview={preview} />
+            {preview && (
+              <PreviewInfo preview={preview} />
                     )}
 
-                    {preview && (
-                        <MetadataForm
-                            name={name}
-                            description={description}
-                            color={color}
-                            onNameChange={setName}
-                            onDescriptionChange={setDescription}
-                            onColorChange={setColor}
-                        />
+            {preview && (
+              <MetadataForm
+                name={name}
+                description={description}
+                color={color}
+                onNameChange={setName}
+                onDescriptionChange={setDescription}
+                onColorChange={setColor}
+              />
                     )}
-                </div>
+          </div>
 
-                <div className="geojson-modal__footer">
-                    <button className="geojson-btn geojson-btn--secondary" onClick={onClose}>
-                        Cancel
-                    </button>
-                    <button
-                        className="geojson-btn geojson-btn--primary"
-                        disabled={!preview}
-                        onClick={handleConfirm}
-                    >
-                        Import Layer
-                    </button>
-                </div>
-            </div>
+          <div className="geojson-modal__footer">
+            <button type="button" className="geojson-btn geojson-btn--secondary" onClick={onClose}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="geojson-btn geojson-btn--primary"
+              disabled={!preview}
+              onClick={handleConfirm}
+            >
+              Import Layer
+            </button>
+          </div>
         </div>
+      </div>
     );
 }

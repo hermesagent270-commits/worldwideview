@@ -19,8 +19,6 @@ export async function POST(request: Request) {
         );
     }
 
-
-
     const rateLimited = marketplaceApiLimiter.check(getClientIp(request));
     if (rateLimited) return withCors(rateLimited, request);
 
@@ -59,4 +57,3 @@ export async function POST(request: Request) {
         );
     }
 }
-

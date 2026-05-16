@@ -1,10 +1,12 @@
 import { useCallback, useRef, useState } from "react";
 import type { Viewer as CesiumViewer } from "cesium";
-import { Cartesian3, CameraEventType, KeyboardEventModifier, createGooglePhotorealistic3DTileset, GoogleMaps } from "cesium";
+import {
+ Cartesian3, CameraEventType, KeyboardEventModifier, createGooglePhotorealistic3DTileset, GoogleMaps
+} from "cesium";
 import { dataBus } from "@/core/data/DataBus";
-import { initPrimitiveCollections } from "../EntityRenderer";
 import { getUserApiKey } from "@/lib/userApiKeys";
 import { useStore } from "@/core/state/store";
+import { initPrimitiveCollections } from "../EntityRenderer";
 
 export function useViewerInitialization(sceneSettings: any) {
     const viewerRef = useRef<CesiumViewer | null>(null);
@@ -47,7 +49,7 @@ export function useViewerInitialization(sceneSettings: any) {
             console.error("[Cesium Render Error] Render loop crashed! Exception:");
             console.error(error);
         });
-        
+
         // Initial Camera Position (Sync)
         viewer.camera.setView({ destination: Cartesian3.fromDegrees(0, 20, 10000000) });
 
@@ -74,9 +76,9 @@ export function useViewerInitialization(sceneSettings: any) {
             const envKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
             const userGoogleKey = getUserApiKey("google_maps");
             const activeKey = (userGoogleKey && userGoogleKey.length >= 20) ? userGoogleKey : envKey;
-            
+
             let googleLoaded = false;
-            
+
             if (activeKey && activeKey.length >= 20) {
                 GoogleMaps.defaultApiKey = activeKey;
                 try {
@@ -91,7 +93,7 @@ export function useViewerInitialization(sceneSettings: any) {
                     }
 
                     tileset.maximumScreenSpaceError = sceneSettings.maxScreenSpaceError;
-                    (tileset as any).maximumMemoryUsage = 2048; 
+                    (tileset as any).maximumMemoryUsage = 2048;
                     viewer.scene.primitives.add(tileset);
 
                     const removeListener = tileset.initialTilesLoaded.addEventListener(() => {

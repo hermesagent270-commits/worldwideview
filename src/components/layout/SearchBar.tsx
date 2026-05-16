@@ -2,16 +2,16 @@
 
 /**
  * @file SearchBar.tsx
- * @description Integrated search component providing geocoding, entity lookup, 
+ * @description Integrated search component providing geocoding, entity lookup,
  * and history functionality with a high-performance dropdown interface.
  * @module src/components/layout
  */
 
 import { useState, useEffect, useRef } from "react";
 import { Search, MapPin } from "lucide-react";
+import { useIsMobile } from "@/core/hooks/useIsMobile";
 import { useSearch } from "./useSearch";
 import type { SearchResult, SearchSection } from "./useSearch";
-import { useIsMobile } from "@/core/hooks/useIsMobile";
 
 /**
  * @function HighlightMatch
@@ -29,11 +29,9 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
 
     const parts = text.split(new RegExp(`(${safeQuery})`, 'gi'));
     return (
-        <>
-            {parts.map((part, i) => 
-                part.toLowerCase() === safeQuery.toLowerCase() ? <strong key={i} style={{ color: "var(--accent-cyan)", fontWeight: 700 }}>{part}</strong> : part
-            )}
-        </>
+      <>
+        {parts.map((part, i) => (part.toLowerCase() === safeQuery.toLowerCase() ? <strong key={i} style={{ color: "var(--accent-cyan)", fontWeight: 700 }}>{part}</strong> : part))}
+      </>
     );
 }
 
@@ -100,20 +98,25 @@ export function SearchBar() {
     }, [selectedIndex, isOpen]);
 
     return (
-        <div className="search-bar" ref={containerRef} style={{ position: "relative", width: "100%", maxWidth: "250px" }}>
-            <div className="search-bar__input-wrapper" style={{ display: "flex", alignItems: "center", background: "rgba(255, 255, 255, 0.05)", borderRadius: "var(--radius-md)", padding: "4px 8px", border: "1px solid var(--border-subtle)", width: "100%" }}>
-                <Search size={16} color="var(--text-muted)" style={{ marginRight: "8px", flexShrink: 0 }} />
-                <input
-                    type="text"
-                    value={query}
-                    onChange={(e) => {
+      <div className="search-bar" ref={containerRef} style={{ position: "relative", width: "100%", maxWidth: "250px" }}>
+        <div
+          className="search-bar__input-wrapper"
+          style={{
+ display: "flex", alignItems: "center", background: "rgba(255, 255, 255, 0.05)", borderRadius: "var(--radius-md)", padding: "4px 8px", border: "1px solid var(--border-subtle)", width: "100%"
+}}
+        >
+          <Search size={16} color="var(--text-muted)" style={{ marginRight: "8px", flexShrink: 0 }} />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => {
                         setQuery(e.target.value);
                         setIsOpen(true);
                     }}
-                    onFocus={() => setIsOpen(true)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Search places, addresses, flights..."
-                    style={{
+            onFocus={() => setIsOpen(true)}
+            onKeyDown={handleKeyDown}
+            placeholder="Search places, addresses, flights..."
+            style={{
                         background: "transparent",
                         border: "none",
                         color: "var(--text-main)",
@@ -122,14 +125,14 @@ export function SearchBar() {
                         minWidth: "120px",
                         fontSize: "0.9rem"
                     }}
-                />
-            </div>
+          />
+        </div>
 
-            {isOpen && sections.length > 0 && (
-                <div
-                    ref={dropdownRef}
-                    className="search-bar__dropdown glass-panel"
-                    style={{
+        {isOpen && sections.length > 0 && (
+          <div
+            ref={dropdownRef}
+            className="search-bar__dropdown glass-panel"
+            style={{
                         position: "absolute",
                         top: "calc(100% + 8px)",
                         left: 0,
@@ -145,23 +148,28 @@ export function SearchBar() {
                         gap: "12px",
                         padding: "12px"
                     }}
+          >
+            {sections.map((section) => (
+              <div key={section.title} className="search-section">
+                <div
+                  className="search-section__header"
+                  style={{
+ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-muted)", marginBottom: "6px"
+}}
                 >
-                    {sections.map((section) => (
-                        <div key={section.title} className="search-section">
-                            <div className="search-section__header" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-muted)", marginBottom: "6px" }}>
-                                {section.icon}
-                                {section.title}
-                            </div>
-                            <div className="search-section__results" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                                {section.results.map((result) => {
+                  {section.icon}
+                  {section.title}
+                </div>
+                <div className="search-section__results" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                  {section.results.map((result) => {
                                     const isSelected = flatResults[selectedIndex]?.id === result.id;
                                     return (
-                                        <button
-                                            key={result.id}
-                                            className="search-result-item"
-                                            onClick={() => handleSelect(result)}
-                                            data-selected={isSelected}
-                                            style={{
+                                      <button
+                                        key={result.id}
+                                        className="search-result-item"
+                                        onClick={() => handleSelect(result)}
+                                        data-selected={isSelected}
+                                        style={{
                                                 display: "flex",
                                                 flexDirection: "column",
                                                 justifyContent: "center",
@@ -176,26 +184,34 @@ export function SearchBar() {
                                                 textAlign: "left",
                                                 width: "100%"
                                             }}
-                                            onMouseEnter={() => setSelectedIndex(flatResults.findIndex(r => r.id === result.id))}
+                                        onMouseEnter={() => setSelectedIndex(flatResults.findIndex((r) => r.id === result.id))}
+                                      >
+                                        <span style={{
+ fontWeight: 500, fontSize: "0.85rem", width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
+}}
                                         >
-                                            <span style={{ fontWeight: 500, fontSize: "0.85rem", width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                                <HighlightMatch text={result.label} query={query} />
-                                            </span>
-                                            {result.subLabel && (
-                                                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                                    <HighlightMatch text={result.subLabel} query={query} />
-                                                </span>
+                                          <HighlightMatch text={result.label} query={query} />
+                                        </span>
+                                        {result.subLabel && (
+                                        <span style={{
+ fontSize: "0.75rem", color: "var(--text-muted)", width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
+}}
+                                        >
+                                          <HighlightMatch text={result.subLabel} query={query} />
+                                        </span>
                                             )}
-                                        </button>
+                                      </button>
                                     );
                                 })}
-                            </div>
-                        </div>
-                    ))}
                 </div>
+              </div>
+                    ))}
+          </div>
             )}
-            {isOpen && query.trim() && sections.length === 0 && (
-                <div className="search-bar__dropdown glass-panel" style={{
+        {isOpen && query.trim() && sections.length === 0 && (
+        <div
+          className="search-bar__dropdown glass-panel"
+          style={{
                     position: "absolute",
                     top: "calc(100% + 8px)",
                     left: 0,
@@ -208,10 +224,11 @@ export function SearchBar() {
                     textAlign: "center",
                     color: "var(--text-muted)",
                     fontSize: "0.85rem"
-                }}>
-                    No results found.
-                </div>
-            )}
+                }}
+        >
+          No results found.
         </div>
+            )}
+      </div>
     );
 }

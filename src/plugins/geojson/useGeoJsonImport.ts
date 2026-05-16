@@ -1,10 +1,12 @@
-import { useState, useCallback, useRef, type DragEvent } from "react";
+import {
+ useState, useCallback, useRef, type DragEvent
+} from "react";
 import { normalizeToGeoJson, type NormalizeResult, type ConvertOptions } from "@/lib/geojson";
-import { useStore } from "@/core/state/store";
-import { pluginManager } from "@/core/plugins/PluginManager";
-import { pluginRegistry } from "@/core/plugins/PluginRegistry";
-import { createGeoJsonPlugin, pickLayerColor } from "./GeoJsonImporterPlugin";
+
+import { dataBus } from "@/core/data/DataBus";
 import { trackEvent } from "@/lib/analytics";
+import { useGeoJsonStore } from "./geojsonStore";
+import { createGeoJsonPlugin, pickLayerColor } from "./GeoJsonImporterPlugin";
 import type { ImportMethod } from "./types";
 
 export function useGeoJsonImport(onClose: () => void) {
@@ -12,16 +14,13 @@ export function useGeoJsonImport(onClose: () => void) {
     const [textInput, setTextInput] = useState("");
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
-    const [color, setColor] = useState(() =>
-        pickLayerColor(useStore.getState().importedLayers.length),
-    );
+    const [color, setColor] = useState(() => pickLayerColor(useGeoJsonStore.getState().importedLayers.length),);
     const [preview, setPreview] = useState<NormalizeResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [dragging, setDragging] = useState(false);
     const fileRef = useRef<HTMLInputElement>(null);
 
-    const addLayer = useStore((s) => s.addImportedLayer);
-    const initLayer = useStore((s) => s.initLayer);
+    const addLayer = useGeoJsonStore((s) => s.addImportedLayer);
 
     const processInput = useCallback(
         (raw: string, options?: ConvertOptions) => {
@@ -73,7 +72,7 @@ export function useGeoJsonImport(onClose: () => void) {
             featureCollection: preview.collection,
         });
 
-        // 2. Register dynamic plugin
+        // 2. Register dynamic plugin via DataBus
         const plugin = createGeoJsonPlugin({
             id: layerId,
             name: layerName,
@@ -82,28 +81,33 @@ export function useGeoJsonImport(onClose: () => void) {
             featureCollection: preview.collection,
         });
 
-        pluginRegistry.register(plugin);
-        await pluginManager.registerPlugin(plugin);
-        initLayer(plugin.id);
-
-        // 3. Auto-enable
-        pluginManager.enablePlugin(plugin.id);
-        useStore.getState().setLayerEnabled(plugin.id, true);
+        dataBus.emit("dynamicPluginCreate", { plugin, autoEnable: true });
 
         trackEvent("geojson-import", { featureCount: preview.collection.features.length });
         onClose();
     };
 
     return {
-        method, setMethod,
-        textInput, setTextInput,
-        name, setName,
-        description, setDescription,
-        color, setColor,
-        preview, setPreview,
-        error, setError,
-        dragging, setDragging,
+        method,
+setMethod,
+        textInput,
+setTextInput,
+        name,
+setName,
+        description,
+setDescription,
+        color,
+setColor,
+        preview,
+setPreview,
+        error,
+setError,
+        dragging,
+setDragging,
         fileRef,
-        processInput, handleFile, handleDrop, handleConfirm
+        processInput,
+handleFile,
+handleDrop,
+handleConfirm
     };
 }

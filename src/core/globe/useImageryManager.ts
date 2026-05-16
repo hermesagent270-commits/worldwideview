@@ -50,7 +50,7 @@ export function useImageryManager(viewer: CesiumViewer | null, viewerReady: bool
 
             // Toggle Google 3D Tileset visibility if it exists
             // Or find it in primitives
-            const primitives = viewer.scene.primitives;
+            const {primitives} = viewer.scene;
             let foundTileset: Cesium3DTileset | null = null;
 
             for (let i = 0; i < primitives.length; i++) {
@@ -66,7 +66,7 @@ export function useImageryManager(viewer: CesiumViewer | null, viewerReady: bool
                 foundTileset.show = isGoogle3D;
             }
 
-            // If we are in Google 3D mode, we usually hide the globe surface 
+            // If we are in Google 3D mode, we usually hide the globe surface
             // to avoid z-fighting or showing low-res imagery underneath
             viewer.scene.globe.show = !isGoogle3D;
 

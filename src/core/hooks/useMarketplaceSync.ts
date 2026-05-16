@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import {
+ useEffect, useRef, useState, useCallback
+} from "react";
 import { pluginManager } from "@/core/plugins/PluginManager";
 import { useStore } from "@/core/state/store";
 import type { PluginManifest } from "@/core/plugins/PluginManifest";
@@ -187,5 +189,7 @@ export function useMarketplaceSync(hostReady: boolean) {
         return () => window.removeEventListener("focus", handleFocus);
     }, [syncPlugins, hostReady]);
 
-    return { syncPlugins, needsReload, pendingUnverified, approveSelected, denyAll };
+    return {
+ syncPlugins, needsReload, pendingUnverified, approveSelected, denyAll
+};
 }

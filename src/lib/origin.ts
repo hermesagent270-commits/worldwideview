@@ -12,32 +12,20 @@ export function getRequestOrigin(request: NextRequest): string {
     const host = request.headers.get("host");
     const nextUrlOrigin = request.nextUrl.origin;
 
-    console.log("[Origin Debug] Headers & Env:", {
-        envOrigin,
-        forwardedHost,
-        forwardedProto,
-        host,
-        nextUrlOrigin,
-        requestUrl: request.url,
-    });
-
     let finalOrigin = nextUrlOrigin;
 
     // In multi-tenant or proxied environments, the actual requested host must take precedence
     // over a hardcoded env string, otherwise subdomain isolation and local proxies will break.
     if (forwardedHost) {
         const resolved = `${forwardedProto}://${forwardedHost}`;
-        console.log(`[Origin Debug] Resolving to forwardedHost: ${resolved}`);
         finalOrigin = resolved;
     } else if (host && !host.includes("0.0.0.0")) {
         const resolved = `${forwardedProto}://${host}`;
-        console.log(`[Origin Debug] Resolving to host header: ${resolved}`);
         finalOrigin = resolved;
     } else if (envOrigin) {
-        console.log(`[Origin Debug] Resolving to envOrigin: ${envOrigin}`);
         finalOrigin = envOrigin;
     } else {
-        console.log(`[Origin Debug] Falling back to NextUrl origin: ${nextUrlOrigin}`);
+        finalOrigin = nextUrlOrigin;
     }
 
     // Safety net: Browsers will instantly block 0.0.0.0. Replace with localhost.

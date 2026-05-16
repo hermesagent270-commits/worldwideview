@@ -27,10 +27,10 @@ export async function loginAction(formData: FormData): Promise<LoginResult> {
             email,
             password,
         });
-        
+
         if (error) return { success: false, error: error.message };
         return { success: true };
-    } else {
+    }
         try {
             await signIn("credentials", {
                 email,
@@ -49,5 +49,4 @@ export async function loginAction(formData: FormData): Promise<LoginResult> {
             }
             throw error;
         }
-    }
 }

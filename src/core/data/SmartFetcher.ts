@@ -1,14 +1,13 @@
 /**
- * SmartFetcher 
+ * SmartFetcher
  * Encapsulates a robust, tiered fetching strategy to bypass CORS and handle large payloads.
- * 
+ *
  * Strategy:
  * 1. Direct fetch (Browser GET)
  * 2. Public Proxy check (Browser HEAD via corsproxy)
  *    -> If < 1MB, Public Proxy GET
  *    -> If > 1MB or check fails, Local Server Proxy GET
  */
-
 
 export class SmartFetcher {
     /**

@@ -26,9 +26,9 @@ export async function safeFetch(urlStr: string, options: FetchOptions = {}): Pro
     if (!validateOrigin(urlStr)) {
         throw new Error("SSRF Error: Invalid protocol. Only HTTPS is allowed.");
     }
-    
+
     const url = new URL(urlStr);
-    
+
     if (isPrivateIP(url.hostname)) {
         throw new Error("SSRF Error: Private IP provided in URL.");
     }
@@ -57,10 +57,10 @@ export async function safeFetch(urlStr: string, options: FetchOptions = {}): Pro
 
     const maxSize = options.maxSize || 5 * 1024 * 1024;
     const timeout = options.timeout || 10000;
-    
+
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
-    
+
     try {
         const fetchOptions: any = {
             ...options,
@@ -69,7 +69,7 @@ export async function safeFetch(urlStr: string, options: FetchOptions = {}): Pro
             signal: controller.signal
         };
         const response = await fetch(urlStr, fetchOptions);
-        
+
         if (response.body) {
             let totalSize = 0;
             const reader = response.body.getReader();
@@ -96,13 +96,13 @@ export async function safeFetch(urlStr: string, options: FetchOptions = {}): Pro
                     reader.cancel();
                 }
             });
-            
+
             return new Response(stream, {
                 status: response.status,
                 headers: response.headers as any
             });
         }
-        
+
         return response as unknown as Response;
     } finally {
         clearTimeout(id);

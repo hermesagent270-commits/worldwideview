@@ -12,8 +12,8 @@ import {
     Matrix4,
 } from "cesium";
 import type { Scene } from "cesium";
-import type { AnimatableItem } from "./EntityRenderer";
 import type { GeoEntity, CesiumEntityOptions } from "@/core/plugins/PluginTypes";
+import type { AnimatableItem } from "./EntityRenderer";
 
 /** Track pending model loads to prevent duplicate async loads for the same entity */
 const pendingLoads = new Set<string>();
@@ -90,8 +90,13 @@ export function updateModelTransform(
     scratchHPR.heading = CesiumMath.toRadians((heading || 0) + offset);
     scratchHPR.pitch = 0;
     scratchHPR.roll = 0;
-    Transforms.headingPitchRollToFixedFrame(position, scratchHPR,
-        undefined, undefined, scratchMatrix);
+    Transforms.headingPitchRollToFixedFrame(
+position,
+scratchHPR,
+        undefined,
+undefined,
+scratchMatrix
+);
 
     const scale = item.options.modelScale || 1.0;
     Matrix4.multiplyByUniformScale(scratchMatrix, scale, scratchMatrix);

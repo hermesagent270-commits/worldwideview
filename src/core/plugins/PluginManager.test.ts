@@ -1,4 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import {
+ describe, it, expect, beforeEach, afterEach, vi
+} from "vitest";
+
+import { dataBus } from "@/core/data/DataBus";
+import { cacheLayer } from "@/core/data/CacheLayer";
+import type { GeoEntity, WorldPlugin } from "@/core/plugins/PluginTypes";
+import { loadPluginFromManifest } from "./loadPluginFromManifest";
+import { pluginManager } from "./PluginManager";
 
 /**
  * PluginManager is the orchestrator everything else routes through —
@@ -42,12 +50,6 @@ vi.mock("@/core/data/engineManifest", () => ({
 vi.mock("./loadPluginFromManifest", () => ({
     loadPluginFromManifest: vi.fn(),
 }));
-
-import { pluginManager } from "./PluginManager";
-import { dataBus } from "@/core/data/DataBus";
-import { cacheLayer } from "@/core/data/CacheLayer";
-import { loadPluginFromManifest } from "./loadPluginFromManifest";
-import type { GeoEntity, WorldPlugin } from "@/core/plugins/PluginTypes";
 
 function makePlugin(overrides: Partial<WorldPlugin> = {}): WorldPlugin {
     return {
@@ -262,9 +264,7 @@ describe("PluginManager.togglePlugin", () => {
         // togglePlugin is sync but calls async enablePlugin; wait for
         // the state flip to land.
         pluginManager.togglePlugin("tg-1");
-        await vi.waitFor(() =>
-            expect(pluginManager.getPlugin("tg-1")?.enabled).toBe(true),
-        );
+        await vi.waitFor(() => expect(pluginManager.getPlugin("tg-1")?.enabled).toBe(true),);
 
         // Second toggle should flip it off — disablePlugin is sync, so
         // no waitFor needed.

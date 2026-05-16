@@ -20,14 +20,14 @@ export async function encryptCredential(plainText: string): Promise<EncryptedCre
         const salt = crypto.randomBytes(16);
         crypto.pbkdf2(MASTER_KEY, salt, ITERATIONS, KEY_LENGTH, DIGEST, (err, key) => {
             if (err) return reject(err);
-            
+
             const nonce = crypto.randomBytes(12);
             const cipher = crypto.createCipheriv(ALGORITHM, key, nonce);
-            
+
             let ciphertext = cipher.update(plainText, "utf8", "base64");
             ciphertext += cipher.final("base64");
             const authTag = cipher.getAuthTag().toString("base64");
-            
+
             resolve({
                 version: "v1",
                 salt: salt.toString("base64"),
@@ -43,24 +43,24 @@ export async function decryptCredential(cred: EncryptedCredential): Promise<stri
         if (cred.version !== "v1") {
             return reject(new Error("Unsupported version"));
         }
-        
+
         const salt = Buffer.from(cred.salt, "base64");
         const nonce = Buffer.from(cred.nonce, "base64");
         const payloadParts = cred.ciphertext.split(".");
         if (payloadParts.length !== 2) {
             return reject(new Error("Invalid ciphertext payload"));
         }
-        
+
         const ciphertext = payloadParts[0];
         const authTag = Buffer.from(payloadParts[1], "base64");
-        
+
         crypto.pbkdf2(MASTER_KEY, salt, ITERATIONS, KEY_LENGTH, DIGEST, (err, key) => {
             if (err) return reject(err);
-            
+
             try {
                 const decipher = crypto.createDecipheriv(ALGORITHM, key, nonce);
                 decipher.setAuthTag(authTag);
-                
+
                 let plainText = decipher.update(ciphertext, "base64", "utf8");
                 plainText += decipher.final("utf8");
                 resolve(plainText);

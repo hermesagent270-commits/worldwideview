@@ -4,8 +4,7 @@ import { localEngineHasPlugin } from "./engineManifest";
 
 const CLOUD_ENGINE_URL = "wss://dataenginev2.worldwideview.dev/stream";
 
-const RAW_ENGINE_URL =
-  process.env.NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL || CLOUD_ENGINE_URL;
+const RAW_ENGINE_URL = process.env.NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL || CLOUD_ENGINE_URL;
 
 /** Normalize a base URL into a valid WebSocket stream URL. */
 function toWsStreamUrl(url: string): string {
@@ -13,7 +12,7 @@ function toWsStreamUrl(url: string): string {
     .replace(/^https:\/\//, "wss://")
     .replace(/^http:\/\//, "ws://");
   if (!normalized.endsWith("/stream")) {
-    normalized = normalized.replace(/\/+$/, "") + "/stream";
+    normalized = `${normalized.replace(/\/+$/, "")}/stream`;
   }
   return normalized;
 }

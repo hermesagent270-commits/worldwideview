@@ -1,12 +1,14 @@
 // @vitest-environment node
-import { describe, it, expect, beforeEach } from "vitest";
+import {
+ describe, it, expect, beforeEach
+} from "vitest";
+
+import { issueMarketplaceToken, verifyMarketplaceToken } from "./marketplaceToken";
 
 // Set a test secret before importing the module
 beforeEach(() => {
     process.env.AUTH_SECRET = "test-secret-at-least-32-chars-long!!";
 });
-
-import { issueMarketplaceToken, verifyMarketplaceToken } from "./marketplaceToken";
 
 const TEST_USER_ID = "user-123-abc";
 
@@ -103,12 +105,12 @@ describe("marketplaceToken", () => {
             const { revokeMarketplaceToken } = await import("./marketplaceToken");
             const token = await issueMarketplaceToken(TEST_USER_ID);
             const payload = await verifyMarketplaceToken(token);
-            
+
             expect(payload.jti).toBeDefined();
-            
+
             // Revoke it
             revokeMarketplaceToken(payload.jti!);
-            
+
             // Now it should throw
             await expect(verifyMarketplaceToken(token)).rejects.toThrow("revoked");
         });

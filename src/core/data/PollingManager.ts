@@ -124,7 +124,7 @@ class PollingManager {
         if (task.errorCount === 0) return task.intervalMs;
         // Exponential backoff: interval * 2^errorCount, capped at maxBackoff
         const backoff = Math.min(
-            task.intervalMs * Math.pow(2, task.errorCount),
+            task.intervalMs * 2**task.errorCount,
             task.maxBackoff
         );
         return backoff;

@@ -43,9 +43,7 @@ export function TimelineSync() {
                             setTimelineAvailability(pluginId, data.availability);
                         }
                     })
-                    .catch((err) =>
-                        console.error(`[TimelineSync] Availability fetch failed for ${pluginId}`, err)
-                    );
+                    .catch((err) => console.error(`[TimelineSync] Availability fetch failed for ${pluginId}`, err));
             }
         };
 

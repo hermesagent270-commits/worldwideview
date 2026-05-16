@@ -67,119 +67,119 @@ export function GraphicsSettings() {
     };
 
     return (
-        <div className="gfx-settings">
-            {/* Resolution Scale */}
-            <div className="gfx-settings__row">
-                <span className="gfx-settings__label">Resolution</span>
-                <select
-                    className="gfx-settings__select"
-                    value={mapConfig.resolutionScale}
-                    onChange={(e) => {
+      <div className="gfx-settings">
+        {/* Resolution Scale */}
+        <div className="gfx-settings__row">
+          <span className="gfx-settings__label">Resolution</span>
+          <select
+            className="gfx-settings__select"
+            value={mapConfig.resolutionScale}
+            onChange={(e) => {
                         const v = parseFloat(e.target.value);
                         update({ resolutionScale: v });
                         trackEvent("graphics-setting", { key: "resolutionScale", value: v });
                     }}
-                >
-                    {RESOLUTION_OPTIONS.map((o) => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
+          >
+            {RESOLUTION_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
                     ))}
-                </select>
-            </div>
+          </select>
+        </div>
 
-            {/* Anti-Aliasing Algorithm */}
-            <div className="gfx-settings__row">
-                <span className="gfx-settings__label">Anti-Aliasing</span>
-                <select
-                    className="gfx-settings__select"
-                    value={mapConfig.antiAliasing}
-                    onChange={(e) => {
+        {/* Anti-Aliasing Algorithm */}
+        <div className="gfx-settings__row">
+          <span className="gfx-settings__label">Anti-Aliasing</span>
+          <select
+            className="gfx-settings__select"
+            value={mapConfig.antiAliasing}
+            onChange={(e) => {
                         const v = e.target.value as any;
                         update({ antiAliasing: v });
                         trackEvent("graphics-setting", { key: "antiAliasing", value: v });
                     }}
-                >
-                    {AA_OPTIONS.map((o) => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
+          >
+            {AA_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
                     ))}
-                </select>
-            </div>
+          </select>
+        </div>
 
-            {/* Tile Detail (LOD) */}
-            <div className="gfx-settings__row">
-                <span className="gfx-settings__label">Tile Detail</span>
-                <div className="gfx-settings__slider-wrap">
-                    <input
-                        type="range"
-                        className="gfx-settings__slider"
-                        min={1}
-                        max={64}
-                        step={1}
-                        value={mapConfig.maxScreenSpaceError}
-                        onChange={(e) => {
+        {/* Tile Detail (LOD) */}
+        <div className="gfx-settings__row">
+          <span className="gfx-settings__label">Tile Detail</span>
+          <div className="gfx-settings__slider-wrap">
+            <input
+              type="range"
+              className="gfx-settings__slider"
+              min={1}
+              max={64}
+              step={1}
+              value={mapConfig.maxScreenSpaceError}
+              onChange={(e) => {
                             const v = parseInt(e.target.value, 10);
                             update({ maxScreenSpaceError: v });
                         }}
-                        onPointerUp={() => trackEvent("graphics-setting", {
+              onPointerUp={() => trackEvent("graphics-setting", {
                             key: "maxScreenSpaceError",
                             value: mapConfig.maxScreenSpaceError,
                         })}
-                    />
-                    <span className="gfx-settings__slider-value">{mapConfig.maxScreenSpaceError}</span>
-                </div>
-            </div>
+            />
+            <span className="gfx-settings__slider-value">{mapConfig.maxScreenSpaceError}</span>
+          </div>
+        </div>
 
-            {/* Shadows */}
-            <div className="gfx-settings__row">
-                <span className="gfx-settings__label">Shadows</span>
-                <button
-                    className={`gfx-toggle ${mapConfig.shadowsEnabled ? "gfx-toggle--on" : ""}`}
-                    onClick={() => toggle("shadowsEnabled", mapConfig.shadowsEnabled)}
-                    aria-label="Toggle Shadows"
-                />
-            </div>
+        {/* Shadows */}
+        <div className="gfx-settings__row">
+          <span className="gfx-settings__label">Shadows</span>
+          <button
+            className={`gfx-toggle ${mapConfig.shadowsEnabled ? "gfx-toggle--on" : ""}`}
+            onClick={() => toggle("shadowsEnabled", mapConfig.shadowsEnabled)}
+            aria-label="Toggle Shadows"
+          />
+        </div>
 
-            {/* Lighting */}
-            <div className="gfx-settings__row">
-                <span className="gfx-settings__label">Globe Lighting</span>
-                <button
-                    className={`gfx-toggle ${mapConfig.enableLighting ? "gfx-toggle--on" : ""}`}
-                    onClick={() => toggle("enableLighting", mapConfig.enableLighting)}
-                    aria-label="Toggle Globe Lighting"
-                />
-            </div>
+        {/* Lighting */}
+        <div className="gfx-settings__row">
+          <span className="gfx-settings__label">Globe Lighting</span>
+          <button
+            className={`gfx-toggle ${mapConfig.enableLighting ? "gfx-toggle--on" : ""}`}
+            onClick={() => toggle("enableLighting", mapConfig.enableLighting)}
+            aria-label="Toggle Globe Lighting"
+          />
+        </div>
 
-            {/* 3D Buildings */}
-            <div className="gfx-settings__row">
-                <span className="gfx-settings__label">3D Buildings</span>
-                <button
-                    className={`gfx-toggle ${mapConfig.showOsmBuildings ? "gfx-toggle--on" : ""}`}
-                    onClick={() => toggle("showOsmBuildings", mapConfig.showOsmBuildings)}
-                    aria-label="Toggle 3D Buildings"
-                />
-            </div>
+        {/* 3D Buildings */}
+        <div className="gfx-settings__row">
+          <span className="gfx-settings__label">3D Buildings</span>
+          <button
+            className={`gfx-toggle ${mapConfig.showOsmBuildings ? "gfx-toggle--on" : ""}`}
+            onClick={() => toggle("showOsmBuildings", mapConfig.showOsmBuildings)}
+            aria-label="Toggle 3D Buildings"
+          />
+        </div>
 
-            {/* Show FPS */}
-            <div className="gfx-settings__row">
-                <span className="gfx-settings__label">Show FPS</span>
-                <button
-                    className={`gfx-toggle ${mapConfig.showFps ? "gfx-toggle--on" : ""}`}
-                    onClick={() => toggle("showFps", mapConfig.showFps)}
-                    aria-label="Toggle FPS Counter"
-                />
-            </div>
-            {/* Reset Defaults */}
-            <div className="gfx-settings__row" style={{ marginTop: "var(--space-md)" }}>
-                <button
-                    className="btn"
-                    style={{ width: "100%", height: 32 }}
-                    onClick={() => {
+        {/* Show FPS */}
+        <div className="gfx-settings__row">
+          <span className="gfx-settings__label">Show FPS</span>
+          <button
+            className={`gfx-toggle ${mapConfig.showFps ? "gfx-toggle--on" : ""}`}
+            onClick={() => toggle("showFps", mapConfig.showFps)}
+            aria-label="Toggle FPS Counter"
+          />
+        </div>
+        {/* Reset Defaults */}
+        <div className="gfx-settings__row" style={{ marginTop: "var(--space-md)" }}>
+          <button
+            className="btn"
+            style={{ width: "100%", height: 32 }}
+            onClick={() => {
                         update({ ...DEFAULT_GRAPHICS });
                         trackEvent("graphics-setting-reset");
                     }}
-                >
-                    Reset to Defaults
-                </button>
-            </div>
+          >
+            Reset to Defaults
+          </button>
         </div>
+      </div>
     );
 }

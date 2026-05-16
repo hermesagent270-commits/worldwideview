@@ -11,12 +11,12 @@ export function useResizablePanel(initialWidth: number, minWidth: number, maxWid
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!isResizing.current) return;
-            
+
             let newWidth = direction === 'left' ? e.clientX : window.innerWidth - e.clientX;
-            
+
             if (newWidth < minWidth) newWidth = minWidth;
             if (newWidth > maxWidth) newWidth = maxWidth;
-            
+
             setWidth(newWidth);
             document.documentElement.style.setProperty(`--${direction}-sidebar-width`, `${newWidth}px`);
         };

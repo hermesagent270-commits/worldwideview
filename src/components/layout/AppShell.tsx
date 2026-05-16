@@ -1,7 +1,7 @@
 /**
  * @file AppShell.tsx
  * @description The root layout and orchestration component for WorldWideView.
- * Responsible for platform initialization, plugin registration, global state hydration, 
+ * Responsible for platform initialization, plugin registration, global state hydration,
  * and managing the transition from boot sequence to interactive state.
  * @module src/components/layout
  */
@@ -9,7 +9,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Header } from "./Header";
 import { LayerPanel } from "@/components/panels/LayerPanel";
 import { EntityInfoCard } from "@/components/panels/EntityInfoCard";
 import { DataConfigPanel } from "@/components/panels/DataConfig";
@@ -24,13 +23,10 @@ import { dataBus } from "@/core/data/DataBus";
 import { PanelToggleArrows } from "@/components/layout/PanelToggleArrows";
 import { FloatingVideoManager } from "@/components/video/FloatingVideoManager";
 import { BootOverlay } from "@/components/common/BootOverlay";
+import { Timeline } from "@/components/timeline/Timeline";
 import { useBootSequence } from "@/core/hooks/useBootSequence";
 import { useIsMobile } from "@/core/hooks/useIsMobile";
 import { useMarketplaceSync } from "@/core/hooks/useMarketplaceSync";
-import { DataBusSubscriber } from "./DataBusSubscriber";
-import { AgentBusSubscriber } from "./AgentBusSubscriber";
-import { MobileHudBar } from "./MobileHudBar";
-import { MobileCameraStats } from "./MobileCameraStats";
 import dynamic from "next/dynamic";
 import { trackEvent } from "@/lib/analytics";
 import ReloadToast from "@/components/ui/ReloadToast";
@@ -41,6 +37,11 @@ import { isDemo } from "@/core/edition";
 
 import { injectHostGlobals } from "@/core/plugins/hostGlobals";
 import { initLogCatcher } from "@/lib/logCatcher";
+import { MobileCameraStats } from "./MobileCameraStats";
+import { MobileHudBar } from "./MobileHudBar";
+import { AgentBusSubscriber } from "./AgentBusSubscriber";
+import { DataBusSubscriber } from "./DataBusSubscriber";
+import { Header } from "./Header";
 
 const GlobeView = dynamic(() => import("@/core/globe/GlobeView"), {
     ssr: false,
@@ -48,8 +49,8 @@ const GlobeView = dynamic(() => import("@/core/globe/GlobeView"), {
 
 /**
  * @component AppShell
- * @description The primary application wrapper. 
- * 
+ * @description The primary application wrapper.
+ *
  * Orchestrates the following:
  * 1. Theme hydration from localStorage.
  * 2. Injection of host globals for dynamic ES module plugins.
@@ -63,7 +64,9 @@ export function AppShell() {
     const isMobile = useIsMobile();
     const bootStartRef = useRef(Date.now());
     const [hostReady, setHostReady] = useState(false);
-    const { needsReload, pendingUnverified, approveSelected, denyAll } = useMarketplaceSync(hostReady);
+    const {
+ needsReload, pendingUnverified, approveSelected, denyAll
+} = useMarketplaceSync(hostReady);
     const setTheme = useStore((s) => s.setTheme);
 
     // Hydrate theme on mount
@@ -73,7 +76,7 @@ export function AppShell() {
             if (storedTheme === "light" || storedTheme === "dark") {
                 setTheme(storedTheme);
             }
-        } catch (e) {}
+        } catch { /* ignore hydration errors */ }
     }, [setTheme]);
 
     useEffect(() => {
@@ -101,13 +104,11 @@ export function AppShell() {
             const demoDefaultPlugins = new Set<string>();
             if (isDemo) {
                 const envVar = process.env.NEXT_PUBLIC_DEMO_DEFAULT_PLUGINS || "";
-                envVar.split(",").forEach(s => {
+                envVar.split(",").forEach((s) => {
                     const clean = s.trim();
                     if (clean) demoDefaultPlugins.add(clean);
                 });
             }
-
-
 
             await pluginManager.init();
 
@@ -176,30 +177,30 @@ export function AppShell() {
                 <GlobeView />
             </div>
 
-            <TimelineSync />
-            <DataBusSubscriber />
-            <AgentBusSubscriber />
+        <TimelineSync />
+        <DataBusSubscriber />
+        <AgentBusSubscriber />
 
-            <Header />
-            {isMobile && <MobileHudBar />}
-            {isMobile && <MobileCameraStats />}
-            <PanelToggleArrows />
-            <LayerPanel />
-            <DataConfigPanel />
-            {!isMobile && <CameraStatsPanel />}
-            <EntityInfoCard />
-            <BottomPanelManager />
-            <FloatingVideoManager />
-            {needsReload && <ReloadToast />}
-            <ErrorToast />
-            <FeedbackDialog />
-            {pendingUnverified.length > 0 && (
-                <UnverifiedPluginBatchDialog
-                    manifests={pendingUnverified}
-                    onApproveSelected={approveSelected}
-                    onDenyAll={denyAll}
-                />
+        <Header />
+        {isMobile && <MobileHudBar />}
+        {isMobile && <MobileCameraStats />}
+        <PanelToggleArrows />
+        <LayerPanel />
+        <DataConfigPanel />
+        {!isMobile && <CameraStatsPanel />}
+        <EntityInfoCard />
+        <Timeline />
+        <FloatingVideoManager />
+        {needsReload && <ReloadToast />}
+        <ErrorToast />
+        <FeedbackDialog />
+        {pendingUnverified.length > 0 && (
+        <UnverifiedPluginBatchDialog
+          manifests={pendingUnverified}
+          onApproveSelected={approveSelected}
+          onDenyAll={denyAll}
+        />
             )}
-        </div>
+      </div>
     );
 }

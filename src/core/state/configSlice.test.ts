@@ -1,4 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import {
+ describe, it, expect, beforeEach, vi
+} from 'vitest';
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createConfigSlice, ConfigSlice } from './configSlice';
 
@@ -12,7 +14,7 @@ describe('configSlice', () => {
             setItem: vi.fn(),
             clear: vi.fn(),
         });
-        
+
         store = createStore<ConfigSlice>((set, get, api) => createConfigSlice(set as any, get as any, api as any));
     });
 
@@ -25,7 +27,7 @@ describe('configSlice', () => {
     it('updates data config', () => {
         store.getState().updateDataConfig({ cacheEnabled: false, maxConcurrentRequests: 10 });
         const state = store.getState();
-        
+
         expect(state.dataConfig.cacheEnabled).toBe(false);
         expect(state.dataConfig.maxConcurrentRequests).toBe(10);
         // Ensure other properties are untouched
@@ -35,7 +37,7 @@ describe('configSlice', () => {
     it('updates map config and syncs baseLayerId to localStorage', () => {
         store.getState().updateMapConfig({ showFps: true, baseLayerId: 'satellite' });
         const state = store.getState();
-        
+
         expect(state.mapConfig.showFps).toBe(true);
         expect(state.mapConfig.baseLayerId).toBe('satellite');
         // Ensure localStorage was called
@@ -44,14 +46,14 @@ describe('configSlice', () => {
 
     it('updates map config without baseLayerId does not touch localStorage', () => {
         store.getState().updateMapConfig({ showFps: true });
-        
+
         expect(localStorage.setItem).not.toHaveBeenCalled();
     });
 
     it('sets polling interval for a plugin', () => {
         store.getState().setPollingInterval('plugin-a', 5000);
         const state = store.getState();
-        
+
         expect(state.dataConfig.pollingIntervals['plugin-a']).toBe(5000);
     });
 
@@ -59,10 +61,10 @@ describe('configSlice', () => {
         // Initial set
         store.getState().updatePluginSettings('plugin-a', { param1: 'value1' });
         expect(store.getState().dataConfig.pluginSettings['plugin-a']).toEqual({ param1: 'value1' });
-        
+
         // Update set (should merge)
         store.getState().updatePluginSettings('plugin-a', { param2: 'value2' });
-        expect(store.getState().dataConfig.pluginSettings['plugin-a']).toEqual({ 
+        expect(store.getState().dataConfig.pluginSettings['plugin-a']).toEqual({
             param1: 'value1',
             param2: 'value2'
         });

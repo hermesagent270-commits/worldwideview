@@ -43,13 +43,9 @@ function validateGeometry(geom: GeoJsonGeometry): boolean {
       return (geom.coordinates as number[][]).every(isValidCoordinate);
     case "Polygon":
     case "MultiLineString":
-      return (geom.coordinates as number[][][]).every((ring) =>
-        ring.every(isValidCoordinate)
-      );
+      return (geom.coordinates as number[][][]).every((ring) => ring.every(isValidCoordinate));
     case "MultiPolygon":
-      return (geom.coordinates as number[][][][]).every((polygon) =>
-        polygon.every((ring) => ring.every(isValidCoordinate))
-      );
+      return (geom.coordinates as number[][][][]).every((polygon) => polygon.every((ring) => ring.every(isValidCoordinate)));
     default:
       return false;
   }
@@ -136,8 +132,8 @@ export function normalizeToGeoJson(
   }
 
   throw new Error(
-    "Unrecognized format. Expected GeoJSON (FeatureCollection, Feature, " +
-    "Geometry) or an array of objects with lat/lon fields.",
+    "Unrecognized format. Expected GeoJSON (FeatureCollection, Feature, "
+    + "Geometry) or an array of objects with lat/lon fields.",
   );
 }
 

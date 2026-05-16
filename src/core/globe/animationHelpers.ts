@@ -5,7 +5,9 @@
  * These are the per-entity processing functions used by the
  * batched animation loop.
  */
-import { Cartesian3, Color, Math as CesiumMath, Ellipsoid } from "cesium";
+import {
+ Cartesian3, Color, Math as CesiumMath, Ellipsoid
+} from "cesium";
 import type { AnimatableItem } from "./EntityRenderer";
 
 /** Returns a touch-friendly default point size: larger on mobile. */

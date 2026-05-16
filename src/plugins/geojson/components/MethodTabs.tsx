@@ -8,17 +8,18 @@ export function MethodTabs({ method, onChange }: { method: ImportMethod; onChang
         ["custom", FileJson, "Custom JSON"],
     ];
     return (
-        <div className="geojson-modal__tabs">
-            {tabs.map(([key, Icon, label]) => (
-                <button
-                    key={key}
-                    className={`geojson-tab ${method === key ? "geojson-tab--active" : ""}`}
-                    onClick={() => onChange(key)}
-                >
-                    <Icon size={14} />
-                    {label}
-                </button>
+      <div className="geojson-modal__tabs">
+        {tabs.map(([key, Icon, label]) => (
+          <button
+            type="button"
+            key={key}
+            className={`geojson-tab ${method === key ? "geojson-tab--active" : ""}`}
+            onClick={() => onChange(key)}
+          >
+            <Icon size={14} />
+            {label}
+          </button>
             ))}
-        </div>
+      </div>
     );
 }

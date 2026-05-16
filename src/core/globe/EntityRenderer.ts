@@ -10,11 +10,15 @@ import {
     scratchPosition, getEntityColor, getCachedColor,
     markAnimatablesDirty, getStableAnimatables,
 } from "./renderCaches";
-import { updateExistingItem, createNewItem, cleanupRemovedEntities, getDefaultDotIcon } from "./primitiveOps";
+import {
+ updateExistingItem, createNewItem, cleanupRemovedEntities, getDefaultDotIcon
+} from "./primitiveOps";
 import { rebuildStacks, calculateGridSizeDegrees } from "./StackManager";
 
 // Re-export for existing consumers
-export { getEntityColor, getCachedColor, markAnimatablesDirty, getStableAnimatables } from "./renderCaches";
+export {
+ getEntityColor, getCachedColor, markAnimatablesDirty, getStableAnimatables
+} from "./renderCaches";
 
 export interface AnimatableItem {
     primitive: any;
@@ -31,10 +35,10 @@ export interface AnimatableItem {
     _modelPromoted?: boolean;
     /** Set by AnimationLoop - true if hidden by mathematical horizon culling */
     _occluded?: boolean;
-    polylinePrimitive?: any;      // Reference to the trail polyline in the collection
+    polylinePrimitive?: any; // Reference to the trail polyline in the collection
     trailPositions?: Cartesian3[]; // Cached position array to avoid GC pressure
-    _lastHistoryTs?: number;     // Timestamp of the latest history point processed
-    promotedModel?: any;         // Reference to 3D model when promoted
+    _lastHistoryTs?: number; // Timestamp of the latest history point processed
+    promotedModel?: any; // Reference to 3D model when promoted
 }
 
 /** Global render kickstarter for deeply nested async operations. */
@@ -69,7 +73,9 @@ export function initPrimitiveCollections(viewer: CesiumViewer): void {
     const polylines = new PolylineCollection();
     viewer.scene.primitives.add(polylines);
 
-    collectionsByViewer.set(viewer, { points, billboards, labels, polylines });
+    collectionsByViewer.set(viewer, {
+ points, billboards, labels, polylines
+});
 
     globalRequestRender = () => {
         if (viewer && !viewer.isDestroyed()) {
@@ -91,9 +97,13 @@ export function createLabel(item: AnimatableItem, labels: LabelCollection): void
         position: item.posRef,
         text: item.options.labelText,
         font: item.options.labelFont || "12px Inter, sans-serif",
-        fillColor: Color.WHITE, outlineColor: Color.BLACK, outlineWidth: 2,
-        verticalOrigin: VerticalOrigin.BOTTOM, pixelOffset: { x: 0, y: -12 } as any,
-        show: true, id: clickId,
+        fillColor: Color.WHITE,
+outlineColor: Color.BLACK,
+outlineWidth: 2,
+        verticalOrigin: VerticalOrigin.BOTTOM,
+pixelOffset: { x: 0, y: -12 } as any,
+        show: true,
+id: clickId,
         // WARNING: Do NOT use heightReference: HeightReference.CLAMP_TO_GROUND here.
         // It causes severe lag/performance drops with thousands of dynamic entities.
         disableDepthTestDistance: item.options.disableDepthTestDistance ?? Number.POSITIVE_INFINITY,
@@ -115,8 +125,10 @@ export function removeLabel(item: AnimatableItem, labels: LabelCollection): void
 function renderSingleEntity(
     { entity, options }: { entity: GeoEntity; options: CesiumEntityOptions },
     existingMap: Map<string, AnimatableItem>,
-    points: PointPrimitiveCollection, billboards: BillboardCollection,
-    labels: LabelCollection, currentIds: Set<string>
+    points: PointPrimitiveCollection,
+billboards: BillboardCollection,
+    labels: LabelCollection,
+currentIds: Set<string>
 ) {
     currentIds.add(entity.id);
     Cartesian3.fromDegrees(entity.longitude, entity.latitude, entity.altitude || 0, Ellipsoid.WGS84, scratchPosition);
@@ -137,7 +149,7 @@ function renderSingleEntity(
         };
         (effectiveOptions as any)._isAutoSVG = true;
     }
-    
+
     const clickId = { _wwvEntity: entity };
     let item = existingMap.get(entity.id);
 
@@ -162,7 +174,9 @@ export async function renderEntitiesChunked(
     existingMap: Map<string, AnimatableItem>,
     onChunkProcessed?: () => void
 ): Promise<AnimatableItem[]> {
-    const { points, billboards, labels, polylines } = getCollections(viewer);
+    const {
+ points, billboards, labels, polylines
+} = getCollections(viewer);
     if (!points || !billboards || !labels) return getStableAnimatables(existingMap);
     const currentIds = new Set<string>();
     const completed = await globalChunkedProcessor.processChunked(visibleEntities, 500, (chunk) => {
@@ -197,7 +211,9 @@ export function renderEntities(
     existingMap: Map<string, AnimatableItem>
 ): AnimatableItem[] {
     globalChunkedProcessor.cancel();
-    const { points, billboards, labels, polylines } = getCollections(viewer);
+    const {
+ points, billboards, labels, polylines
+} = getCollections(viewer);
     if (!points || !billboards || !labels) return getStableAnimatables(existingMap);
     const currentIds = new Set<string>();
     for (const item of visibleEntities) renderSingleEntity(item, existingMap, points, billboards, labels, currentIds);

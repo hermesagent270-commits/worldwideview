@@ -2,10 +2,11 @@ import { useEffect, useRef } from "react";
 import type { Viewer as CesiumViewer } from "cesium";
 import { Cartographic, Cartesian3 } from "cesium";
 import type { GeoEntity, CesiumEntityOptions } from "@/core/plugins/PluginTypes";
-import { renderEntities, renderEntitiesChunked, AnimatableItem, getCollections } from "../EntityRenderer";
+import {
+ renderEntities, renderEntitiesChunked, AnimatableItem, getCollections
+} from "../EntityRenderer";
 import { createUpdateLoop } from "../AnimationLoop";
 import { rebuildStacks, calculateGridSizeDegrees } from "../StackManager";
-
 
 export function useEntityRendering(
     viewer: CesiumViewer | null,
@@ -28,13 +29,13 @@ export function useEntityRendering(
     // Handle scene settings updates separately to avoid tearing down the animation loop
     useEffect(() => {
         if (!viewer || !isReady || viewer.isDestroyed()) return;
-        
+
         viewer.scene.debugShowFramesPerSecond = sceneSettings.showFps;
         viewer.resolutionScale = sceneSettings.resolutionScale;
 
         // Apply Anti-Aliasing Mode
         viewer.scene.postProcessStages.fxaa.enabled = sceneSettings.antiAliasing === "fxaa";
-        
+
         switch (sceneSettings.antiAliasing) {
             case "none":
             case "fxaa":
@@ -83,9 +84,9 @@ export function useEntityRendering(
             cachedAnimatablesRef.current,
             hoveredEntityIdRef
         );
-        
+
         // Root Cause Fix: Attach physics loop to clock.onTick instead of scene.preUpdate.
-        // By forcing this to index 0, physics calculates the *current* frame's position 
+        // By forcing this to index 0, physics calculates the *current* frame's position
         // BEFORE Cesium's Camera Tracking (which also runs on clock.onTick) asks for it.
         // This eliminates the 1-frame lag that caused brutal plane jittering against the camera.
         viewer.clock.onTick.addEventListener(updatePositions);
@@ -114,11 +115,11 @@ export function useEntityRendering(
         // Camera distance-based dynamic clustering
         let lastAltitude = 0;
         if (viewer.camera && viewer.camera.positionCartographic) lastAltitude = Math.max(0, viewer.camera.positionCartographic.height);
-        
+
         const R_WGS84 = 6356752.0;
         const handlePreUpdateClustering = () => {
             if (viewer.isDestroyed() || !viewer.camera) return;
-            
+
             let altitude = 0;
             if (viewer.camera.positionCartographic) {
                 altitude = Math.max(0, viewer.camera.positionCartographic.height);

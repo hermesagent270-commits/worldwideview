@@ -33,7 +33,7 @@ export class RateLimiter {
             return null;
         }
 
-        entry.count++;
+        entry.count += 1;
         if (entry.count > this.maxRequests) {
             const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
             return NextResponse.json(
@@ -70,8 +70,8 @@ export class RateLimiter {
  */
 export function getClientIp(request: Request): string {
     return (
-        request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-        request.headers.get("x-real-ip") ||
-        "unknown"
+        request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+        || request.headers.get("x-real-ip")
+        || "unknown"
     );
 }

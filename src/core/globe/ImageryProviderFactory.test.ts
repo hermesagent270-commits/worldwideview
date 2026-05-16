@@ -1,4 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+ describe, it, expect, vi, beforeEach
+} from "vitest";
+
+import { IonImageryProvider } from "cesium";
+import { createImageryProvider, createOsmProvider } from "./ImageryProviderFactory";
 
 // Mock cesium before importing the module under test
 vi.mock("cesium", () => {
@@ -29,9 +34,6 @@ vi.mock("cesium", () => {
         BingMapsStyle: { AERIAL: "Aerial", AERIAL_WITH_LABELS: "AerialWithLabels", ROAD: "Road" },
     };
 });
-
-import { IonImageryProvider } from "cesium";
-import { createImageryProvider, createOsmProvider } from "./ImageryProviderFactory";
 
 beforeEach(() => {
     vi.clearAllMocks();

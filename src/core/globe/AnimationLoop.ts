@@ -1,10 +1,14 @@
 import { Cartesian3, Color, Ellipsoid } from "cesium";
 import type { Viewer as CesiumViewer } from "cesium";
 import { useStore } from "@/core/state/store";
-import { createLabel, removeLabel, getCollections, type AnimatableItem } from "./EntityRenderer";
+import {
+ createLabel, removeLabel, getCollections, type AnimatableItem
+} from "./EntityRenderer";
 import { tickStackAnimation } from "./stackAnimation";
 import { updateModelTransform } from "./ModelManager";
-import { isAnyStackExpanded, isEntityInExpandedStack, getEntityTargetPosition, isEntityClustered, getStackStateVersion } from "./StackManager";
+import {
+ isAnyStackExpanded, isEntityInExpandedStack, getEntityTargetPosition, isEntityClustered, getStackStateVersion
+} from "./StackManager";
 import {
     HIGHLIGHT_COLOR_SELECTED,
     extrapolatePosition,
@@ -42,7 +46,7 @@ function ensureBuckets(animatables: AnimatableItem[]): AnimationBuckets {
     const dynamic: AnimatableItem[] = [];
     const staticBatch: AnimatableItem[] = [];
     for (let i = 0; i < animatables.length; i++) {
-        const speed = animatables[i].entity.speed;
+        const {speed} = animatables[i].entity;
         (speed !== undefined && speed > 0) ? dynamic.push(animatables[i]) : staticBatch.push(animatables[i]);
     }
     cachedBuckets = { dynamic, staticBatch };
@@ -77,24 +81,24 @@ export function createUpdateLoop(
         const nowPerf = performance.now();
         const deltaPerf = nowPerf - lastPerfTime;
         lastPerfTime = nowPerf;
-        
+
         let nowMs: number;
         if (state.isPlaybackMode) {
             const storeTimeMs = state.currentTime.getTime();
-            
+
             // If the store time jumped (user scrubbing) or we lost sync:
             if (Math.abs(smoothedSimMs - storeTimeMs) > 100) {
                 smoothedSimMs = storeTimeMs;
             } else if (state.isPlaying) {
                 smoothedSimMs += deltaPerf * state.playbackSpeed;
-                
+
                 if (smoothedSimMs >= state.timeRange.end.getTime()) {
                     smoothedSimMs = state.timeRange.end.getTime();
                     state.setPlaying(false);
                 }
             }
             nowMs = smoothedSimMs;
-            
+
             // Throttle store updates to ~15fps (66ms) so React UI re-renders don't overload CPU
             if (state.isPlaying && (nowPerf - lastStoreUpdatePerf > 66)) {
                 lastStoreUpdatePerf = nowPerf;
@@ -102,7 +106,7 @@ export function createUpdateLoop(
             }
         } else {
             // Protect against Date.now() 15ms coarse OS resolution jitter!
-            // We use high-res continuous timeline mapping, but re-anchor 
+            // We use high-res continuous timeline mapping, but re-anchor
             // if the system clock drifts significantly over long standby periods.
             const systemNow = Date.now();
             const perfNowUnix = performanceOrigin + nowPerf;
@@ -141,7 +145,7 @@ export function createUpdateLoop(
         const anyExpanded = isAnyStackExpanded();
 
         let forceFullPass = false;
-        
+
         const currentStackVersion = getStackStateVersion();
         if (currentStackVersion !== prevStackVersion) {
             forceFullPass = true;
@@ -169,7 +173,7 @@ export function createUpdateLoop(
             }
         } else {
             for (let i = 0; i < staticBatch.length; i++) {
-                const id = staticBatch[i].entity.id;
+                const {id} = staticBatch[i].entity;
                 if (id === selectedId || id === hoveredId || id === prevSelectedId || id === prevHoveredId) {
                     const isFaded = anyExpanded && !isEntityInExpandedStack(id);
                     processEntity(staticBatch[i], camPos, Dh, nowMs, selectedId, hoveredId, labelsCollection, false, i, isFaded);
@@ -187,9 +191,16 @@ export function createUpdateLoop(
 }
 
 function processEntity(
-    item: AnimatableItem, camPos: Cartesian3, Dh: number, nowMs: number,
-    selectedId: string | null, hoveredId: string | null, labelsCollection: any, isDynamic: boolean,
-    entityIndex: number, isFaded: boolean
+    item: AnimatableItem,
+camPos: Cartesian3,
+Dh: number,
+nowMs: number,
+    selectedId: string | null,
+hoveredId: string | null,
+labelsCollection: any,
+isDynamic: boolean,
+    entityIndex: number,
+isFaded: boolean
 ): void {
     const { primitive, entity, posRef } = item;
     if (!primitive || primitive.isDestroyed?.()) return;
@@ -265,6 +276,6 @@ function processEntity(
 function hideLabel(item: AnimatableItem, labelsCollection: any): void {
     if (!item.labelPrimitive || item.labelPrimitive.isDestroyed?.()) return;
     if (item.labelPrimitive.show !== false) item.labelPrimitive.show = false;
-    // We intentionally do NOT call removeLabel here. Let Cesium use the 'show' boolean 
-    // to skip rendering, which is O(1). 
+    // We intentionally do NOT call removeLabel here. Let Cesium use the 'show' boolean
+    // to skip rendering, which is O(1).
 }

@@ -69,7 +69,6 @@ export abstract class BaseAviationPlugin implements WorldPlugin {
         return {
             type: "model", 
             iconUrl: this.iconUrl, 
-            size: isAirborne ? 8 : 5,
             modelUrl: this.modelUrl, 
             modelScale: 2.56, 
             modelMinPixelSize: 16, 

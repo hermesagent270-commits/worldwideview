@@ -3,7 +3,7 @@
 /**
  * @file ErrorToast.tsx
  * @description Global error notification component.
- * Displays critical system errors or validation failures in a 
+ * Displays critical system errors or validation failures in a
  * non-blocking overlay with auto-dismiss functionality.
  * @module src/components/ui
  */
@@ -34,22 +34,22 @@ export default function ErrorToast() {
     if (!errorToastMessage) return null;
 
     return (
-        <div className={styles.overlay}>
-            <div className={styles.toast}>
-                <div className={styles.iconWrapper}>
-                    <AlertTriangle color="#ef4444" size={20} />
-                </div>
-                <div className={styles.message}>
-                    {errorToastMessage}
-                </div>
-                <button
-                    className={styles.dismiss}
-                    onClick={clearErrorToast}
-                    aria-label="Dismiss Error"
-                >
-                    <X size={16} />
-                </button>
-            </div>
+      <div className={styles.overlay}>
+        <div className={styles.toast}>
+          <div className={styles.iconWrapper}>
+            <AlertTriangle color="#ef4444" size={20} />
+          </div>
+          <div className={styles.message}>
+            {errorToastMessage}
+          </div>
+          <button
+            className={styles.dismiss}
+            onClick={clearErrorToast}
+            aria-label="Dismiss Error"
+          >
+            <X size={16} />
+          </button>
         </div>
+      </div>
     );
 }

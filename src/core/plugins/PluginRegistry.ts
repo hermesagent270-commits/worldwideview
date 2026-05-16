@@ -11,10 +11,10 @@ class PluginRegistry {
 
     /**
      * Registers a new plugin in the registry if it does not already exist.
-     * This is the entry point for both built-in and marketplace plugins to enter 
-     * the system. It prevents namespace collisions by enforcing unique IDs, 
+     * This is the entry point for both built-in and marketplace plugins to enter
+     * the system. It prevents namespace collisions by enforcing unique IDs,
      * ensuring that the PluginManager and UI have a stable map of available sources.
-     * 
+     *
      * @param plugin - The WorldPlugin instance to be registered.
      */
     register(plugin: WorldPlugin): void {
@@ -27,10 +27,10 @@ class PluginRegistry {
 
     /**
      * Retrieves a registered plugin by its unique identifier.
-     * Use this method to access specific plugin metadata or capabilities 
-     * (e.g., icons, categories) when targeting a single data source outside 
+     * Use this method to access specific plugin metadata or capabilities
+     * (e.g., icons, categories) when targeting a single data source outside
      * of the global collection.
-     * 
+     *
      * @param pluginId - The unique ID of the plugin to retrieve.
      * @returns The WorldPlugin instance if found, otherwise undefined.
      */
@@ -40,10 +40,10 @@ class PluginRegistry {
 
     /**
      * Returns an array of all currently registered plugins.
-     * This is primarily used by the PluginManager during initialization and the 
-     * UI components (like PluginsTab) to render the full list of available 
+     * This is primarily used by the PluginManager during initialization and the
+     * UI components (like PluginsTab) to render the full list of available
      * data layers for the user.
-     * 
+     *
      * @returns An array containing all WorldPlugin instances.
      */
     getAll(): WorldPlugin[] {
@@ -52,9 +52,9 @@ class PluginRegistry {
 
     /**
      * Filters and returns all registered plugins belonging to a specific category.
-     * This method powers the categorical grouping in the UI dashboard, enabling 
+     * This method powers the categorical grouping in the UI dashboard, enabling
      * users to quickly filter between 'Aviation', 'Maritime', or 'Environment' layers.
-     * 
+     *
      * @param category - The category string to filter by.
      * @returns An array of WorldPlugin instances matching the category.
      */
@@ -64,9 +64,9 @@ class PluginRegistry {
 
     /**
      * Checks if a plugin with the given ID is already registered.
-     * A lightweight utility for components that need to verify plugin availability 
+     * A lightweight utility for components that need to verify plugin availability
      * or handle conditional rendering without retrieving the entire plugin object.
-     * 
+     *
      * @param pluginId - The unique ID to check.
      * @returns True if the plugin exists in the registry, false otherwise.
      */
@@ -76,10 +76,10 @@ class PluginRegistry {
 
     /**
      * Removes a plugin from the registry by its ID.
-     * Critical for managing the cleanup phase of dynamic plugins when they are 
-     * uninstalled or disabled via the marketplace, preventing memory leaks and 
+     * Critical for managing the cleanup phase of dynamic plugins when they are
+     * uninstalled or disabled via the marketplace, preventing memory leaks and
      * ensuring the UI stays synchronized with actual active sources.
-     * 
+     *
      * @param pluginId - The unique ID of the plugin to remove.
      */
     unregister(pluginId: string): void {

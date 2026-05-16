@@ -1,5 +1,5 @@
-import { dataBus } from "./DataBus";
 import type { WsStreamPayload, GeoEntity } from "@worldwideview/wwv-plugin-sdk";
+import { dataBus } from "./DataBus";
 import { pluginManager } from "../plugins/PluginManager";
 import { useStore } from "../state/store";
 
@@ -95,7 +95,7 @@ class WebSocketClient {
       console.warn(`[WsClient] Payload for ${data.pluginId} is an object but no mapWebsocketPayload exists. Ignoring.`);
       return;
     } else {
-      finalEntities = finalEntities.map(e => ({
+      finalEntities = finalEntities.map((e) => ({
         ...e,
         timestamp: new Date(e.timestamp || Date.now()),
       }));
@@ -155,7 +155,7 @@ class WebSocketClient {
     this.engines.forEach((engine, url) => {
       table.push({
         'Engine URL': url,
-        'Status': engine.ws ? ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'][engine.ws.readyState] || 'UNKNOWN' : 'DISCONNECTED',
+        Status: engine.ws ? ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'][engine.ws.readyState] || 'UNKNOWN' : 'DISCONNECTED',
         'Plugins Subscribed': Array.from(engine.subscriptions).join(", ") || "(None)",
       });
     });

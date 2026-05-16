@@ -17,8 +17,8 @@ function isSafeRedirect(url: string): boolean {
     try {
         const parsed = new URL(url);
         return (
-            ALLOWED_REDIRECT_HOSTS.has(parsed.hostname) ||
-            parsed.hostname.endsWith(".worldwideview.dev")
+            ALLOWED_REDIRECT_HOSTS.has(parsed.hostname)
+            || parsed.hostname.endsWith(".worldwideview.dev")
         );
     } catch {
         return false;
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         if (!session?.user) {
             const origin = getRequestOrigin(request);
             const loginUrl = new URL("/login", origin);
-            
+
             // Construct a relative path for callback to ensure it redirects back to the identical host
             const callbackPath = request.nextUrl.pathname + request.nextUrl.search;
             loginUrl.searchParams.set("callbackUrl", callbackPath);

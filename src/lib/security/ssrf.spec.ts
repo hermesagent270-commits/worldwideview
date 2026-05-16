@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+ describe, it, expect, vi, beforeEach
+} from "vitest";
 import { safeFetch, validateOrigin, isPrivateIP } from "./ssrf";
 
 describe("SSRF Protection Utility", () => {
@@ -39,7 +41,7 @@ describe("SSRF Protection Utility", () => {
             await expect(safeFetch("https://127.0.0.1/data")).rejects.toThrow(/SSRF/);
             await expect(safeFetch("https://169.254.169.254/latest/meta-data")).rejects.toThrow(/SSRF/);
         });
-        
+
         it("should enforce size limits", async () => {
             // Because safeFetch will attempt DNS lookup, we'd need to mock it if we wanted to test this in isolation.
             // But since this is a unit test, we can trust the return is a standard fetch wrapped with size enforcement.

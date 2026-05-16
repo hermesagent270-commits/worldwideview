@@ -13,10 +13,11 @@ import { useStore } from "@/core/state/store";
 import { trackEvent } from "@/lib/analytics";
 import { resolveEngineUrl } from "@/core/data/resolveEngineUrl";
 import { fetchLocalEngineManifest } from "@/core/data/engineManifest";
+import { pluginRegistry } from "@/core/plugins/PluginRegistry";
 
 /**
  * ManagedPlugin represents the internal state and instance of a registered data source.
- * It wraps the raw WorldPlugin with system-level tracking for its enabled status, 
+ * It wraps the raw WorldPlugin with system-level tracking for its enabled status,
  * current data snapshot (entities), and the execution context provided by the manager.
  */
 interface ManagedPlugin {
@@ -28,8 +29,8 @@ interface ManagedPlugin {
 
 /**
  * PluginManager is the central orchestrator for the entire data ingestion pipeline.
- * It is responsible for the full lifecycle of data sources—from initial registration 
- * and environment injection to polling orchestration, data caching, and routing 
+ * It is responsible for the full lifecycle of data sources—from initial registration
+ * and environment injection to polling orchestration, data caching, and routing
  * snapshots to the global state and event bus.
  */
 class PluginManager {
@@ -40,23 +41,43 @@ class PluginManager {
 
     /**
      * Initializes the PluginManager and prepares the persistent cache layer.
-     * This must be called before any plugins are enabled to ensure that 
+     * This must be called before any plugins are enabled to ensure that
      * initial data hydration from IndexedDB/Localstorage is possible.
-     * 
+     *
      * @returns A promise that resolves once the cache layer is ready.
      */
     async init(): Promise<void> {
         if (this.initialized) return;
         await cacheLayer.init();
+
+        dataBus.on("dynamicPluginCreate", async ({ plugin, autoEnable }) => {
+            try {
+                await this.registerPlugin(plugin);
+                pluginRegistry.register(plugin);
+                if (autoEnable) {
+                    this.enablePlugin(plugin.id);
+                }
+            } catch (err) {
+                console.error(`[PluginManager] Failed to create dynamic plugin ${plugin.id}:`, err);
+                const toastStr = `Failed to load ${plugin.name}`;
+                dataBus.emit("pluginError", { pluginId: plugin.id, message: toastStr });
+            }
+        });
+
+        dataBus.on("dynamicPluginRemove", ({ pluginId }) => {
+            this.unregisterPlugin(pluginId);
+            pluginRegistry.unregister(pluginId);
+        });
+
         this.initialized = true;
     }
 
     /**
      * Registers a new plugin and establishes its execution environment.
-     * This method is responsible for injecting `NEXT_PUBLIC_WWV_PLUGIN_*` environment 
-     * variables, resolving the correct Data Engine URLs, and setting up the 
+     * This method is responsible for injecting `NEXT_PUBLIC_WWV_PLUGIN_*` environment
+     * variables, resolving the correct Data Engine URLs, and setting up the
      * pub/sub routing for the plugin's data updates and error telemetry.
-     * 
+     *
      * @param plugin - The WorldPlugin instance to onboard into the manager.
      * @returns A promise that resolves when initialization and polling registration are complete.
      */
@@ -88,7 +109,7 @@ class PluginManager {
         for (const [k, v] of Object.entries(explicitVars)) {
             if (v && !envVars[k]) envVars[k] = v;
         }
-        
+
         const edition = (process.env.NEXT_PUBLIC_WWV_EDITION || "local") as "local" | "cloud" | "demo";
 
         if (Object.keys(envVars).length > 0) {
@@ -129,17 +150,12 @@ class PluginManager {
                 }
                 console.error("[Plugin:%s]", plugin.id, error);
                 trackEvent("plugin-error", { plugin: plugin.id, error: error.message });
-                const store = useStore.getState();
-                if (store.showErrorToast) {
-                    store.showErrorToast(`[${plugin.name || plugin.id}] ${error.message}`);
-                }
+                dataBus.emit("pluginError", { pluginId: plugin.id, message: `[${plugin.name || plugin.id}] ${error.message}`, error });
             },
-            getPluginSettings: (pluginId) =>
-                useStore.getState().dataConfig.pluginSettings[pluginId] as ReturnType<typeof useStore.getState>["dataConfig"]["pluginSettings"][string],
+            getPluginSettings: (pluginId) => useStore.getState().dataConfig.pluginSettings[pluginId] as ReturnType<typeof useStore.getState>["dataConfig"]["pluginSettings"][string],
             isPlaybackMode: () => useStore.getState().isPlaybackMode,
             getCurrentTime: () => useStore.getState().currentTime,
         };
-
 
         this.plugins.set(plugin.id, {
             plugin,
@@ -171,7 +187,7 @@ class PluginManager {
                     const entities = await plugin.fetch(managed.context.timeRange);
                     this.handleDataUpdate(plugin.id, entities);
                 } catch (err: any) {
-                    useStore.getState().setLayerLoading(plugin.id, false);
+                    dataBus.emit("layerLoadingChanged", { pluginId: plugin.id, loading: false });
                     managed.context.onError(err instanceof Error ? err : new Error(String(err)));
                     // Do not re-throw: onError already handled reporting.
                     // Re-throwing would produce an unhandled rejection in PollingManager
@@ -183,9 +199,9 @@ class PluginManager {
 
     /**
      * Activates a plugin and initiates its data retrieval cycle.
-     * This method attempts an immediate cache hydration to ensure the UI feels 
+     * This method attempts an immediate cache hydration to ensure the UI feels
      * instantaneous, then signals the polling manager to begin background fetching.
-     * 
+     *
      * @param pluginId - The unique identifier of the plugin to enable.
      * @returns A promise that resolves when the plugin status is updated and cached data is emitted.
      */
@@ -204,7 +220,7 @@ class PluginManager {
         managed.enabled = true;
 
         // Signal that data is loading
-        useStore.getState().setLayerLoading(pluginId, true);
+        dataBus.emit("layerLoadingChanged", { pluginId, loading: true });
 
         // Try to load from cache immediately so UI feels responsive
         let cached = cacheLayer.get(pluginId);
@@ -225,9 +241,9 @@ class PluginManager {
 
     /**
      * Deactivates a plugin and ceases all background activity.
-     * This stops the polling cycle, clears in-memory entity buffers, and 
+     * This stops the polling cycle, clears in-memory entity buffers, and
      * notifies the UI to remove the corresponding layer from the globe.
-     * 
+     *
      * @param pluginId - The unique identifier of the plugin to disable.
      */
     disablePlugin(pluginId: string): void {
@@ -246,9 +262,22 @@ class PluginManager {
     }
 
     /**
+     * De-registers a plugin and ceases all activity, removing it from the store.
+     *
+     * @param pluginId - The unique identifier of the plugin to unregister.
+     */
+    unregisterPlugin(pluginId: string): void {
+        console.debug(`[PluginManager] unregisterPlugin called for ${pluginId}`);
+        this.disablePlugin(pluginId);
+        this.plugins.delete(pluginId);
+        cacheLayer.invalidate(pluginId);
+        dataBus.emit("pluginUnregistered", { pluginId });
+    }
+
+    /**
      * Convenience method to toggle a plugin's enabled state.
      * Primarily used by UI switch components in the Layers or Marketplace panels.
-     * 
+     *
      * @param pluginId - The ID of the plugin to toggle.
      */
     togglePlugin(pluginId: string): void {
@@ -263,9 +292,9 @@ class PluginManager {
 
     /**
      * Manually triggers a data fetch for a plugin, bypassing the polling interval.
-     * Useful for timeline scrubbing, playback, or on-demand refreshes when 
+     * Useful for timeline scrubbing, playback, or on-demand refreshes when
      * the user interacts with specific time windows.
-     * 
+     *
      * @param pluginId - The ID of the plugin to refresh.
      * @param timeRange - The new temporal window for the data request.
      * @returns A promise that resolves when the new data is fetched and processed.
@@ -281,7 +310,7 @@ class PluginManager {
     /**
      * Returns the management wrapper for a specific plugin ID.
      * Used internally by rendering components to check individual plugin state.
-     * 
+     *
      * @param pluginId - The unique ID of the plugin.
      * @returns The ManagedPlugin state object or undefined.
      */
@@ -291,7 +320,7 @@ class PluginManager {
 
     /**
      * Returns a collection of all managed plugins in the system.
-     * 
+     *
      * @returns An array of all ManagedPlugin instances.
      */
     getAllPlugins(): ManagedPlugin[] {
@@ -300,9 +329,9 @@ class PluginManager {
 
     /**
      * Returns all currently active and enabled plugins.
-     * This is the source for the global rendering loop to determine which 
+     * This is the source for the global rendering loop to determine which
      * layers should be active on the globe.
-     * 
+     *
      * @returns An array of enabled ManagedPlugin instances.
      */
     getEnabledPlugins(): ManagedPlugin[] {
@@ -311,7 +340,7 @@ class PluginManager {
 
     /**
      * Returns the current entity snapshot for a specific plugin.
-     * 
+     *
      * @param pluginId - The ID of the plugin.
      * @returns An array of current GeoEntities for that plugin.
      */
@@ -321,9 +350,9 @@ class PluginManager {
 
     /**
      * Aggregates all entities from all enabled plugins into a single array.
-     * Used by global analytics or debugging tools to see the entire visible 
+     * Used by global analytics or debugging tools to see the entire visible
      * geospatial dataset.
-     * 
+     *
      * @returns A flattened array of all visible GeoEntities.
      */
     getAllEntities(): GeoEntity[] {
@@ -332,24 +361,22 @@ class PluginManager {
 
     /**
      * Synchronously updates the time range for all enabled plugins.
-     * Used during global timeline changes or playback to ensure all data 
+     * Used during global timeline changes or playback to ensure all data
      * sources are reflecting the same temporal slice.
-     * 
+     *
      * @param timeRange - The global time range to apply.
      * @returns A promise that settles after all fetch attempts are complete.
      */
     async updateTimeRange(timeRange: TimeRange): Promise<void> {
-        const promises = this.getEnabledPlugins().map((managed) =>
-            this.fetchForPlugin(managed.plugin.id, timeRange)
-        );
+        const promises = this.getEnabledPlugins().map((managed) => this.fetchForPlugin(managed.plugin.id, timeRange));
         await Promise.allSettled(promises);
     }
 
     /**
      * Sets the global maximum age for the data config cache.
-     * Determines how long entities remain in the fast-access cache layer 
+     * Determines how long entities remain in the fast-access cache layer
      * before requiring a fresh fetch.
-     * 
+     *
      * @param age - Maximum cache lifetime in milliseconds.
      */
     setCacheMaxAge(age: number): void {
@@ -358,10 +385,10 @@ class PluginManager {
 
     /**
      * Resolves a plugin manifest into a live instance and registers it.
-     * This is the core engine for the marketplace and dynamic loading, 
-     * instantiating the correct loader strategy (Static, Proxied, etc.) 
+     * This is the core engine for the marketplace and dynamic loading,
+     * instantiating the correct loader strategy (Static, Proxied, etc.)
      * based on the manifest declarations.
-     * 
+     *
      * @param manifest - The PluginManifest configuration to load.
      * @returns A promise that resolves when the plugin is fully registered and initialized.
      */
@@ -377,9 +404,9 @@ class PluginManager {
 
     /**
      * Retrieves the original manifest used to load a specific plugin.
-     * Useful for checking plugin capabilities or marketplace metadata 
+     * Useful for checking plugin capabilities or marketplace metadata
      * after the plugin has been instantiated.
-     * 
+     *
      * @param pluginId - The ID of the plugin.
      * @returns The PluginManifest if available, otherwise undefined.
      */
@@ -389,7 +416,7 @@ class PluginManager {
 
     /**
      * Tears down the entire plugin management system.
-     * Stops all polling, calls destroy on all plugins, and clears the registry. 
+     * Stops all polling, calls destroy on all plugins, and clears the registry.
      * Essential for hot-module reloading and clean application shutdown.
      */
     destroy(): void {
@@ -406,9 +433,9 @@ class PluginManager {
 
     /**
      * Orchestrates the internal data flow when a plugin receives new entities.
-     * This updates the in-memory cache, commits to the persistent cache layer, 
+     * This updates the in-memory cache, commits to the persistent cache layer,
      * emits to the DataBus, and clears the loading state in the UI.
-     * 
+     *
      * @param pluginId - The ID of the plugin providing the update.
      * @param entities - The new array of GeoEntities.
      */
@@ -421,7 +448,7 @@ class PluginManager {
         dataBus.emit("dataUpdated", { pluginId, entities });
 
         // Clear loading indicator once first data arrives
-        useStore.getState().setLayerLoading(pluginId, false);
+        dataBus.emit("layerLoadingChanged", { pluginId, loading: false });
     }
 }
 

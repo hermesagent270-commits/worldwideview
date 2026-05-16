@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+ describe, it, expect, vi, beforeEach
+} from "vitest";
 import { NextRequest } from "next/server";
 import { GET as connectRoute } from "./connect/route";
 import { GET as callbackRoute } from "./callback/route";
@@ -39,14 +41,14 @@ describe("PKCE Flow", () => {
         it("should generate PKCE parameters and redirect with secure cookies", async () => {
             const req = new NextRequest("https://localhost:3000/api/marketplace/connect");
             const res = await connectRoute(req);
-            
+
             expect(res.status).toBe(302);
-            
+
             // Check redirect URL
             const location = res.headers.get("Location");
             expect(location).toContain("response_type=code");
             expect(location).toContain("code_challenge_method=S256");
-            
+
             // Check cookie flags
             const cookies = res.headers.get("Set-Cookie");
             expect(cookies).toBeDefined();
@@ -63,7 +65,7 @@ describe("PKCE Flow", () => {
         it("should reject if state does not match", async () => {
             const req = new NextRequest("https://localhost:3000/api/marketplace/callback?state=wrong-state&code=test-code");
             req.cookies.set("__Host-pkce_state", "correct-state");
-            
+
             const res = await callbackRoute(req);
             expect(res.status).toBe(400);
             expect(await res.json()).toEqual({ error: "State mismatch" });
@@ -73,7 +75,7 @@ describe("PKCE Flow", () => {
             const req = new NextRequest("https://localhost:3000/api/marketplace/callback?state=correct-state&code=test-code");
             req.cookies.set("__Host-pkce_state", "correct-state");
             // code_verifier cookie is intentionally omitted
-            
+
             const res = await callbackRoute(req);
             expect(res.status).toBe(400);
             expect(await res.json()).toEqual({ error: "Missing code_verifier" });
@@ -83,19 +85,19 @@ describe("PKCE Flow", () => {
             const req = new NextRequest("https://localhost:3000/api/marketplace/callback?state=correct-state&code=test-code");
             req.cookies.set("__Host-pkce_state", "correct-state");
             req.cookies.set("__Host-pkce_verifier", "mock-verifier");
-            
+
             const res = await callbackRoute(req);
-            
+
             const cookies = res.headers.get("Set-Cookie");
             expect(cookies).toContain("__Host-pkce_state=;");
             expect(cookies).toContain("Max-Age=0");
         });
-        
+
         it("should perform openid-client exchange and save encrypted token", async () => {
             const req = new NextRequest("https://localhost:3000/api/marketplace/callback?state=correct-state&code=test-code");
             req.cookies.set("__Host-pkce_state", "correct-state");
             req.cookies.set("__Host-pkce_verifier", "mock-verifier");
-            
+
             const res = await callbackRoute(req);
             expect(res.status).toBe(302); // Redirect back to marketplace or app
         });

@@ -5,9 +5,8 @@
  * until all features are retrieved.
  */
 
-const GDOT_BASE =
-    "https://services1.arcgis.com/2iUE8l8JKrP2tygQ/arcgis/rest/services" +
-    "/GDOT_Live_Traffic_Cameras/FeatureServer/0/query";
+const GDOT_BASE = "https://services1.arcgis.com/2iUE8l8JKrP2tygQ/arcgis/rest/services"
+    + "/GDOT_Live_Traffic_Cameras/FeatureServer/0/query";
 
 const PAGE_SIZE = 2000;
 

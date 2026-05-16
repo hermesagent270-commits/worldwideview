@@ -39,8 +39,13 @@ function buildModelMatrix(position: Cartesian3, heading: number, scale: number, 
     lodScratchHPR.heading = CesiumMath.toRadians(heading + headingOffset);
     lodScratchHPR.pitch = 0;
     lodScratchHPR.roll = 0;
-    Transforms.headingPitchRollToFixedFrame(position, lodScratchHPR,
-        undefined, undefined, lodScratchMatrix);
+    Transforms.headingPitchRollToFixedFrame(
+position,
+lodScratchHPR,
+        undefined,
+undefined,
+lodScratchMatrix
+);
     Matrix4.multiplyByUniformScale(lodScratchMatrix, scale, lodScratchMatrix);
     // Return a clone since the caller stores this in the model
     return Matrix4.clone(lodScratchMatrix);
@@ -80,7 +85,7 @@ export function useModelRendering(
             // Sort by distance (closest first) and cap at MAX_MODELS
             candidates.sort((a, b) => a.distance - b.distance);
             const promoted = candidates.slice(0, MAX_MODELS);
-            const promotedIds = new Set(promoted.map(c => c.id));
+            const promotedIds = new Set(promoted.map((c) => c.id));
 
             // 2. Remove models that are no longer promoted
             for (const [id, active] of activeModels.entries()) {
@@ -138,14 +143,14 @@ export function useModelRendering(
                     silhouetteColor: Color.CYAN,
                     silhouetteSize: 0,
                     id: { _wwvEntity: item.entity },
-                }).then(model => {
+                }).then((model) => {
                     loading.delete(id);
                     if (!viewer || viewer.isDestroyed()) return;
                     // Re-check still promoted
                     if (!animatables.has(id)) return;
                     viewer.scene.primitives.add(model);
                     activeModels.set(id, { model, entityId: id, distance });
-                    
+
                     const refreshedItem = animatables.get(id);
                     if (refreshedItem) refreshedItem.promotedModel = model;
                 }).catch(() => {

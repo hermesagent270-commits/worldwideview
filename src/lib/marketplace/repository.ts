@@ -22,11 +22,12 @@ export async function upsertPlugin(pluginId: string, version: string, config?: s
             data: { version, config: config ?? undefined, enabled: true },
         });
         return prisma.installedPlugin.findFirst({ where: { pluginId } });
-    } else {
-        return prisma.installedPlugin.create({
-            data: { pluginId, version, config: config ?? "{}", enabled: true },
-        });
     }
+        return prisma.installedPlugin.create({
+            data: {
+ pluginId, version, config: config ?? "{}", enabled: true
+},
+        });
 }
 
 /** Remove an installed plugin record. Returns 0 or 1. */
@@ -48,11 +49,12 @@ export async function disablePlugin(pluginId: string) {
             data: { enabled: false },
         });
         return prisma.installedPlugin.findFirst({ where: { pluginId } });
-    } else {
-        return prisma.installedPlugin.create({
-            data: { pluginId, version: "built-in", config: "{}", enabled: false },
-        });
     }
+        return prisma.installedPlugin.create({
+            data: {
+ pluginId, version: "built-in", config: "{}", enabled: false
+},
+        });
 }
 
 /** Re-enable a disabled plugin. */

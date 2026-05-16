@@ -294,6 +294,9 @@ export type GlobePlugin = WorldPlugin;
 // ─── Data Bus Event Types ────────────────────────────────────
 export type DataBusEvents = {
     pluginRegistered: { pluginId: string; defaultInterval: number };
+    pluginUnregistered: { pluginId: string };
+    dynamicPluginCreate: { plugin: WorldPlugin; autoEnable?: boolean };
+    dynamicPluginRemove: { pluginId: string };
     dataUpdated: { pluginId: string; entities: GeoEntity[] };
     entitySelected: { entity: GeoEntity | null };
     layerToggled: { pluginId: string; enabled: boolean };
@@ -302,6 +305,8 @@ export type DataBusEvents = {
     cameraFaceTowards: { lat: number; lon: number; alt: number };
     cameraGoTo: { lat: number; lon: number; alt: number; distance?: number; maxPitch?: number; heading?: number };
     globeReady: Record<string, never>;
+    pluginError: { pluginId?: string; message: string; error?: Error };
+    layerLoadingChanged: { pluginId: string; loading: boolean };
 };
 
 export * from "./viteGlobals";

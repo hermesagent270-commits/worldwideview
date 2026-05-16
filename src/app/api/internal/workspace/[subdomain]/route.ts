@@ -12,7 +12,7 @@ export async function GET(
 
     // Await params as required in Next.js 15+
     const resolvedParams = await params;
-    const subdomain = resolvedParams.subdomain;
+    const {subdomain} = resolvedParams;
 
     try {
         const workspace = await prisma.workspace.findUnique({

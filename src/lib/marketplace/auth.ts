@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { verifyMarketplaceToken } from "./marketplaceToken";
 import { isDemo, isDemoAdmin } from "@/core/edition";
+import { verifyMarketplaceToken } from "./marketplaceToken";
 
 /**
  * Validate marketplace API access. Accepts (in order):

@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import {
+ describe, it, expect, vi, beforeEach, afterEach
+} from "vitest";
 import { wsClient } from "./WsClient";
 import { dataBus } from "./DataBus";
 import { pluginManager } from "../plugins/PluginManager";
@@ -41,9 +43,7 @@ describe("WsClient", () => {
       readyState: 0, // CONNECTING
     };
 
-    global.WebSocket = vi.fn().mockImplementation(function() {
-      return mockWs;
-    }) as any;
+    global.WebSocket = vi.fn().mockImplementation(function() { return mockWs; }) as any;
     Object.assign(global.WebSocket, {
       CONNECTING: 0,
       OPEN: 1,
@@ -61,7 +61,7 @@ describe("WsClient", () => {
 
   it("should create a new WebSocket connection when subscribing to a new engine", () => {
     wsClient.subscribe("plugin-a", "ws://engine-1/stream");
-    
+
     expect(global.WebSocket).toHaveBeenCalledWith("ws://engine-1/stream");
   });
 
@@ -74,7 +74,7 @@ describe("WsClient", () => {
 
   it("should send a subscribe action once the socket is open", () => {
     wsClient.subscribe("plugin-a", "ws://engine-1/stream");
-    
+
     // Simulate open
     mockWs.readyState = 1; // OPEN
     mockWs.onopen();
@@ -89,9 +89,9 @@ describe("WsClient", () => {
     mockWs.onclose();
 
     expect(global.WebSocket).toHaveBeenCalledTimes(1); // Initial
-    
+
     vi.advanceTimersByTime(5000);
-    
+
     expect(global.WebSocket).toHaveBeenCalledTimes(2); // Reconnect
   });
 
@@ -109,8 +109,10 @@ describe("WsClient", () => {
 
   it("should handle data messages and emit dataUpdated via DataBus", () => {
     wsClient.subscribe("plugin-a", "ws://engine-1/stream");
-    
-    const mockEntities = [{ id: "1", type: "point", lat: 10, lng: 20 }];
+
+    const mockEntities = [{
+ id: "1", type: "point", lat: 10, lng: 20
+}];
     const message = {
       type: "data",
       pluginId: "plugin-a",
@@ -134,7 +136,7 @@ describe("WsClient", () => {
     (pluginManager.getPlugin as any).mockReturnValue({ plugin: mockPlugin });
 
     wsClient.subscribe("plugin-custom", "ws://engine-1/stream");
-    
+
     const mockEntities = [{ id: "1" }];
     const message = {
       type: "data",
@@ -153,10 +155,10 @@ describe("WsClient", () => {
   it("should cancel cleanup timer if a new subscription is added during grace period", () => {
     wsClient.subscribe("plugin-a", "ws://engine-1/stream");
     wsClient.unsubscribe("plugin-a", "ws://engine-1/stream");
-    
+
     // Cleanup timer is running
     wsClient.subscribe("plugin-b", "ws://engine-1/stream");
-    
+
     vi.advanceTimersByTime(30000);
     expect(mockWs.close).not.toHaveBeenCalled();
   });

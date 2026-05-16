@@ -35,12 +35,13 @@ export interface LayersSlice {
     setLayerLoading: (pluginId: string, loading: boolean) => void;
     /** Initializes a new layer entry in the state if it doesn't already exist. */
     initLayer: (pluginId: string, defaultEnabled?: boolean) => void;
+    /** Completely removes a layer from the state. */
+    removeLayer: (pluginId: string) => void;
 }
 
 export const createLayersSlice: StateCreator<AppStore, [], [], LayersSlice> = (set) => ({
     layers: {},
-    toggleLayer: (pluginId) =>
-        set((state) => ({
+    toggleLayer: (pluginId) => set((state) => ({
             layers: {
                 ...state.layers,
                 [pluginId]: {
@@ -49,32 +50,33 @@ export const createLayersSlice: StateCreator<AppStore, [], [], LayersSlice> = (s
                 },
             },
         })),
-    setLayerEnabled: (pluginId, enabled) =>
-        set((state) => ({
+    setLayerEnabled: (pluginId, enabled) => set((state) => ({
             layers: {
                 ...state.layers,
                 [pluginId]: { ...state.layers[pluginId], enabled },
             },
         })),
-    setEntityCount: (pluginId, count) =>
-        set((state) => ({
+    setEntityCount: (pluginId, count) => set((state) => ({
             layers: {
                 ...state.layers,
                 [pluginId]: { ...state.layers[pluginId], entityCount: count },
             },
         })),
-    setLayerLoading: (pluginId, loading) =>
-        set((state) => ({
+    setLayerLoading: (pluginId, loading) => set((state) => ({
             layers: {
                 ...state.layers,
                 [pluginId]: { ...state.layers[pluginId], loading },
             },
         })),
-    initLayer: (pluginId, defaultEnabled = false) =>
-        set((state) => ({
+    initLayer: (pluginId, defaultEnabled = false) => set((state) => ({
             layers: {
                 ...state.layers,
                 [pluginId]: state.layers[pluginId] || { enabled: defaultEnabled, entityCount: 0, loading: false },
             },
         })),
+    removeLayer: (pluginId) => set((state) => {
+        const copy = { ...state.layers };
+        delete copy[pluginId];
+        return { layers: copy };
+    }),
 });

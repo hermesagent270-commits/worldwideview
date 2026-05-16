@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
 
+import https from "https";
+
 const OVERPASS_MIRRORS = [
     "https://overpass-api.de/api/interpreter",
     "https://lz4.overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter"
 ];
 
-import https from "https";
-
 async function tryMirror(urlStr: string, query: string, timeoutMs: number) {
     return new Promise<any>((resolve, reject) => {
         const url = new URL(urlStr);
         const bodyStr = `data=${encodeURIComponent(query)}`;
-        
+
         const req = https.request(url, {
             method: "POST",
             family: 4, // Force IPv4 to avoid Docker IPv6 dropout
@@ -24,7 +24,7 @@ async function tryMirror(urlStr: string, query: string, timeoutMs: number) {
             timeout: timeoutMs,
         }, (res) => {
             let data = "";
-            res.on("data", chunk => data += chunk);
+            res.on("data", (chunk) => data += chunk);
             res.on("end", () => {
                 resolve({
                     ok: res.statusCode && res.statusCode >= 200 && res.statusCode < 300,
@@ -41,7 +41,7 @@ async function tryMirror(urlStr: string, query: string, timeoutMs: number) {
             req.destroy();
             reject(new Error("Request timed out"));
         });
-        
+
         req.write(bodyStr);
         req.end();
     });
@@ -92,7 +92,7 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json(
-            { error: "All Overpass mirrors failed or timed out. The OSM servers are likely under heavy load." }, 
+            { error: "All Overpass mirrors failed or timed out. The OSM servers are likely under heavy load." },
             { status: 504 }
         );
     } catch (e: any) {
