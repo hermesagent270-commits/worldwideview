@@ -138,7 +138,17 @@ class PluginManager {
                 this.handleDataUpdate(plugin.id, entities);
             },
             onError: (error) => {
-                console.error(`[Plugin:${plugin.id}]`, error);
+                // "Failed to fetch" is a non-fatal best-effort HTTP cold-start pull
+                // that WS-native plugins attempt before the WebSocket delivers data.
+                // Downgrade to warn to avoid alarming noise; the WS pipeline handles
+                // actual data delivery independently.
+                const isNonFatalFetch =
+                    error instanceof TypeError && error.message === "Failed to fetch";
+                if (isNonFatalFetch) {
+                    console.warn("[Plugin:%s] Non-fatal initial fetch failed (WS will deliver data): %s", plugin.id, error.message);
+                    return;
+                }
+                console.error("[Plugin:%s]", plugin.id, error);
                 trackEvent("plugin-error", { plugin: plugin.id, error: error.message });
                 dataBus.emit("pluginError", { pluginId: plugin.id, message: `[${plugin.name || plugin.id}] ${error.message}`, error });
             },
@@ -179,7 +189,9 @@ class PluginManager {
                 } catch (err: any) {
                     dataBus.emit("layerLoadingChanged", { pluginId: plugin.id, loading: false });
                     managed.context.onError(err instanceof Error ? err : new Error(String(err)));
-                    throw err;
+                    // Do not re-throw: onError already handled reporting.
+                    // Re-throwing would produce an unhandled rejection in PollingManager
+                    // with no additional benefit.
                 }
             }
         );
