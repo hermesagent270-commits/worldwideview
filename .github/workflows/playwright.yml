@@ -10,6 +10,10 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
     steps:
     - uses: actions/checkout@v4
     
@@ -37,11 +41,11 @@ jobs:
         pnpm run predev
 
     - name: Run Playwright tests
-      run: pnpm test:e2e
+      run: pnpm test:e2e --project=${{ matrix.browser }}
       
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
-        name: playwright-report
+        name: playwright-report-${{ matrix.browser }}
         path: playwright-report/
         retention-days: 30
