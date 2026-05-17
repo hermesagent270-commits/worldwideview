@@ -1,7 +1,7 @@
 import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
 import nextTypeScript from "eslint-config-next/typescript";
 
-export default [
+const config = [
     {
         ignores: [
             "node_modules/**",
@@ -16,6 +16,7 @@ export default [
             "local-seeders/**",
             ".agents/**",
             ".claude/**",
+            ".gemini/**",
             "*.cjs",
         ],
     },
@@ -45,3 +46,5 @@ export default [
         },
     },
 ];
+
+export default config;

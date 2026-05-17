@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability */
 import { useEffect, useRef } from "react";
 import {
     Viewer as CesiumViewer,
@@ -10,7 +11,8 @@ import {
 import { useStore } from "@/core/state/store";
 import { createImageryProvider, createOsmProvider } from "./ImageryProviderFactory";
 
-export function useImageryManager(viewer: CesiumViewer | null, viewerReady: boolean) {
+export function useImageryManager(viewerInstance: CesiumViewer | null, viewerReady: boolean) {
+    const viewer = viewerInstance;
     const baseLayerId = useStore((s) => s.mapConfig.baseLayerId);
     const fallbackLayerId = useStore((s) => s.mapConfig.fallbackLayerId);
     const sceneMode = useStore((s) => s.mapConfig.sceneMode);

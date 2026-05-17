@@ -46,14 +46,14 @@ export function useSearch() {
     const flatResults = sections.flatMap((s) => s.results);
 
     useEffect(() => {
-        if (!query.trim()) {
-            setLiveSections((prev) => (prev.length === 0 ? prev : []));
-            setSelectedIndex((prev) => (prev === 0 ? prev : 0));
-            return;
-        }
         let isStale = false;
 
         const run = async () => {
+            if (!query.trim()) {
+                setLiveSections((prev) => (prev.length === 0 ? prev : []));
+                setSelectedIndex((prev) => (prev === 0 ? prev : 0));
+                return;
+            }
             const currentLayers = useStore.getState().layers;
             const newSections = searchEntities(query, currentLayers);
             const locationSection = await searchLocations(query);
