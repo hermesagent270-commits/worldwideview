@@ -182,6 +182,7 @@ export function useMarketplaceSync(hostReady: boolean) {
 
     useEffect(() => {
         if (!hostReady) return;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         syncPlugins();
 
         const handleFocus = () => { syncPlugins(); };

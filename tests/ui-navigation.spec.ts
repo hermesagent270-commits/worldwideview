@@ -11,7 +11,7 @@ test.describe('UI Navigation and Panels', () => {
     try {
       await installBtn.waitFor({ state: 'visible', timeout: 2000 });
       await installBtn.click();
-    } catch (e) {
+    } catch {
       // Ignore if it doesn't appear
     }
   });

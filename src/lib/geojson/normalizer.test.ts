@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, test, expect } from "vitest";
 import fc from "fast-check";
 import { normalizeToGeoJson } from "./normalizer";

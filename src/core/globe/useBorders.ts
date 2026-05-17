@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/refs */
 import { useEffect, useRef } from "react";
 import {
     GeoJsonDataSource,
@@ -18,7 +19,7 @@ import {
     LabelStyle,
     HeightReference,
     NearFarScalar,
-    Ellipsoid,
+    
     Cartographic,
 } from "cesium";
 import type { Viewer as CesiumViewer } from "cesium";

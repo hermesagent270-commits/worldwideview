@@ -14,7 +14,6 @@ import type {
     PluginCategory,
 } from "../PluginTypes";
 import type { PluginManifest } from "../PluginManifest";
-import { getNestedValue } from "./getNestedValue";
 import { mapGeoJsonToEntities } from "./mapGeoJsonToEntities";
 import { mapJsonToEntities } from "./mapJsonToEntities";
 

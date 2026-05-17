@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { WorldPlugin } from "@/core/plugins/PluginTypes";
 
 /**

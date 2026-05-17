@@ -69,12 +69,16 @@ describe("RateLimiter", () => {
         localLimiter.check("ip-cleanup");
 
         // Force the store resetAt to be in the past
-        const entry = (localLimiter as any).store.get("ip-cleanup");
+        const limiterInternal = localLimiter as unknown as { 
+            store: Map<string, { resetAt: number }>;
+            cleanup: () => void;
+        };
+        const entry = limiterInternal.store.get("ip-cleanup")!;
         entry.resetAt = Date.now() - 1000;
 
-        (localLimiter as any).cleanup();
+        limiterInternal.cleanup();
 
-        expect((localLimiter as any).store.has("ip-cleanup")).toBe(false);
+        expect(limiterInternal.store.has("ip-cleanup")).toBe(false);
         localLimiter.destroy();
     });
 });

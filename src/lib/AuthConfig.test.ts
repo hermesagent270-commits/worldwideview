@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
  describe, it, expect, vi, beforeEach
 } from "vitest";
-import { isDemo } from "@/core/edition";
 import { authConfig } from "./auth.config";
 
 vi.mock("@/core/edition", () => ({

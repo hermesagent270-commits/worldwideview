@@ -60,7 +60,7 @@ export const {
     adapter: isCloud ? SupabaseAdapter({
         url: process.env.NEXT_PUBLIC_SUPABASE_URL || "http://dummy.supabase.co",
         secret: process.env.SUPABASE_SERVICE_ROLE_KEY || "dummy",
-    }) as any : undefined,
+    }) as never : undefined,
     providers: [localCredentialsProvider],
     callbacks: {
         ...authConfig.callbacks,

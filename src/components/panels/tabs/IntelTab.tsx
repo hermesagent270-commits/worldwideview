@@ -119,7 +119,7 @@ export function IntelTab() {
                         className="intel-panel__action-btn"
                         title="Face towards"
                         onClick={() => {
-                                    console.log("[Intel] Face button clicked", selectedEntity.latitude, selectedEntity.longitude);
+
                                     dataBus.emit("cameraFaceTowards", {
                                         lat: selectedEntity.latitude,
                                         lon: selectedEntity.longitude,
@@ -134,7 +134,7 @@ export function IntelTab() {
                         className="intel-panel__action-btn"
                         title="Go to entity"
                         onClick={() => {
-                                    console.log("[Intel] Go To button clicked", selectedEntity.latitude, selectedEntity.longitude);
+
                                     dataBus.emit("cameraGoTo", {
                                         lat: selectedEntity.latitude,
                                         lon: selectedEntity.longitude,

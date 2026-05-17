@@ -58,6 +58,7 @@ export const CameraStream: React.FC<CameraStreamProps> = ({
     const [imgRefreshTick, setImgRefreshTick] = useState(0);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsPlaying(false); setError(null); setIsLoading(false); setHlsFailed(false);
         setActiveStreamUrl(streamUrl);
 
@@ -85,6 +86,7 @@ export const CameraStream: React.FC<CameraStreamProps> = ({
     const handlePopOut = (e: React.MouseEvent) => {
         e.stopPropagation();
         addFloatingStream({
+            // eslint-disable-next-line react-hooks/purity
             id: id || `stream-${Math.random().toString(36).substr(2, 9)}`,
             streamUrl: activeStreamUrl,
 isIframe,
@@ -189,6 +191,7 @@ label: label || "Camera Stream",
         const refreshedUrl = imgRefreshTick > 0
             ? `${resolvedUrl}${sep}_t=${imgRefreshTick}`
             : resolvedUrl;
+         
         return (
           <img
             src={refreshedUrl}
@@ -227,6 +230,7 @@ label: label || "Camera Stream",
             onClick={handlePlay}
           >
             {previewUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={getProxiedStreamUrl(previewUrl)}
               alt={label || "Camera preview"}

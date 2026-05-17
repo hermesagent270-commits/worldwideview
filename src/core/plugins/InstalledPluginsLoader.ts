@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * @file InstalledPluginsLoader.ts
  * @description Scans the database for previously installed marketplace plugins,

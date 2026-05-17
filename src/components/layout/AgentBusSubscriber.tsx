@@ -102,6 +102,7 @@ export function AgentBusSubscriber() {
         const buildId = process.env.NEXT_PUBLIC_WWV_BUILD_ID ?? "dev";
         const builtAt = process.env.NEXT_PUBLIC_WWV_BUILD_AT ?? "";
         const agentBusEnabled = process.env.NEXT_PUBLIC_WWV_AGENT_BUS_ENABLED === "true";
+        // eslint-disable-next-line no-console
         console.log(
             `[wwv build] id=${buildId} built_at=${builtAt} agent_bus=${agentBusEnabled ? "on" : "off"}`,
         );
@@ -115,12 +116,14 @@ export function AgentBusSubscriber() {
                 const msg = JSON.parse(event.data) as AgentMessage;
                 applyAction(msg);
             } catch (err) {
+                // eslint-disable-next-line no-console
                 console.warn("[AgentBus] malformed message", err);
             }
         };
         es.onerror = (err) => {
             // EventSource auto-reconnects on its own with the `retry:` value
             // we send from the server. Just log; don't tear down.
+            // eslint-disable-next-line no-console
             console.debug("[AgentBus] stream error (auto-reconnecting)", err);
         };
 

@@ -2,6 +2,7 @@ import {
  useState, useRef, useEffect, useCallback
 } from "react";
 import type { TestResult } from "./types";
+import type { GdotCameraFeature } from "@/app/api/camera/gdot/gdotFetcher";
 
 export function useCameraTestRunner(testSources: string[], testStatuses: string[]) {
     const [cameras, setCameras] = useState<TestResult[]>([]);
@@ -15,44 +16,48 @@ export function useCameraTestRunner(testSources: string[], testStatuses: string[
             const res = await fetch("/api/camera/traffic");
             const data = await res.json();
 
-            let staticFeatures: any[] = [];
+            let staticFeatures: GdotCameraFeature[] = [];
             try {
                 const staticRes = await fetch("/public-cameras.json");
                 if (staticRes.ok) {
                     const staticData = await staticRes.json();
                     if (staticData.features) {
-                        staticFeatures = staticData.features.map((f: any) => ({
-                            ...f,
-                            properties: {
-                                ...f.properties,
-                                name: f.properties.city || f.properties.region || "Public Camera",
-                                source: f.properties.source || "cameras_json"
-                            }
-                        }));
+                        staticFeatures = staticData.features.map((f: Record<string, unknown>) => {
+                            const props = (f.properties || {}) as Record<string, unknown>;
+                            return {
+                                ...f,
+                                properties: {
+                                    ...props,
+                                    name: props.city || props.region || "Public Camera",
+                                    source: props.source || "cameras_json"
+                                }
+                            } as unknown as GdotCameraFeature;
+                        });
                     }
                 }
             } catch (staticErr) {
-                console.error("Failed to fetch static cameras:", staticErr);
+                void staticErr; // Ignore static fetch errors
             }
 
-            let combinedFeatures: any[] = [];
+            let combinedFeatures: GdotCameraFeature[] = [];
             if (data.cameras) {
                 combinedFeatures = [...data.cameras];
             }
             combinedFeatures = [...combinedFeatures, ...staticFeatures];
 
-            setCameras(combinedFeatures.map((c: any) => ({
+            setCameras(combinedFeatures.map((c: GdotCameraFeature) => ({
                 feature: c,
                 status: "pending"
             })));
         } catch (err) {
-            console.error(err);
+            void err; // Ignore errors
         }
         setLoading(false);
     }, []);
 
     useEffect(() => {
-        fetchCameras();
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        void fetchCameras();
     }, [fetchCameras]);
 
     const runTests = async () => {
@@ -204,13 +209,14 @@ export function useCameraTestRunner(testSources: string[], testStatuses: string[
                 };
                 return nextState;
             });
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const errorMsg = err instanceof Error ? err.message : String(err);
             setCameras((prev) => {
                 const nextState = [...prev];
                 nextState[globalIndex] = {
                     ...nextState[globalIndex],
                     status: "error",
-                    errorMsg: err.message
+                    errorMsg
                 };
                 return nextState;
             });

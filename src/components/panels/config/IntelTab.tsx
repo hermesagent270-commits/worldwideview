@@ -89,6 +89,7 @@ export function IntelTab() {
                         if (DetailComp) {
                             return (
                               <div className="intel-panel__custom-detail" style={{ marginTop: "var(--space-md)", maxWidth: "100%", overflow: "hidden" }}>
+                                {/* eslint-disable-next-line react-hooks/static-components */}
                                 <DetailComp entity={selectedEntity} />
                               </div>
                             );

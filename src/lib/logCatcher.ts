@@ -1,6 +1,6 @@
+/* eslint-disable no-console */
 "use client";
 
-import { useStore } from "@/core/state/store";
 
 export interface CapturedLog {
     level: "log" | "warn" | "error" | "info" | "debug";
@@ -31,7 +31,7 @@ export function initLogCatcher() {
     ];
 
     levels.forEach(({ name, original }) => {
-        console[name] = (...args: any[]) => {
+        console[name] = (...args: unknown[]) => {
             // Forward to original console
             original.apply(console, args);
 
@@ -44,8 +44,8 @@ export function initLogCatcher() {
                     }
                     if (typeof arg === "object" && arg !== null) {
                         try {
-                            if (arg.message || arg.stack) {
-                                return `ErrorLike: ${arg.message || ''}\n${arg.stack || ''}`;
+                            if (("message" in arg) || ("stack" in arg)) {
+                                return `ErrorLike: ${(arg as {message?: unknown}).message || ''}\n${(arg as {stack?: unknown}).stack || ''}`;
                             }
                             // Very shallow serialization. Do not traverse deeply.
                             const str = JSON.stringify(arg, (key, value) => {
@@ -74,7 +74,7 @@ export function initLogCatcher() {
                 if (capturedLogs.length > MAX_LOGS) {
                     capturedLogs.shift();
                 }
-            } catch (err) {
+            } catch {
                 // Ignore errors inside log catcher to avoid infinite loops
             }
         };

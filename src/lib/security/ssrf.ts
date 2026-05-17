@@ -42,9 +42,9 @@ export async function safeFetch(urlStr: string, options: FetchOptions = {}): Pro
         if (isPrivateIP(resolvedIp)) {
             throw new Error("SSRF Error: Host resolves to a private IP.");
         }
-    } catch (err: any) {
-        if (err.message.includes("SSRF")) throw err;
-        throw new Error(`SSRF Error: DNS resolution failed - ${err.message}`);
+    } catch (err: unknown) {
+        if (err instanceof Error && err.message.includes("SSRF")) throw err;
+        throw new Error(`SSRF Error: DNS resolution failed - ${err instanceof Error ? err.message : String(err)}`);
     }
 
     const customAgent = new Agent({
@@ -62,12 +62,12 @@ export async function safeFetch(urlStr: string, options: FetchOptions = {}): Pro
     const id = setTimeout(() => controller.abort(), timeout);
 
     try {
-        const fetchOptions: any = {
+        const fetchOptions = {
             ...options,
             dispatcher: customAgent,
-            redirect: "manual",
+            redirect: "manual" as const,
             signal: controller.signal
-        };
+        } as Parameters<typeof fetch>[1];
         const response = await fetch(urlStr, fetchOptions);
 
         if (response.body) {
@@ -99,7 +99,7 @@ export async function safeFetch(urlStr: string, options: FetchOptions = {}): Pro
 
             return new Response(stream, {
                 status: response.status,
-                headers: response.headers as any
+                headers: response.headers as unknown as HeadersInit
             });
         }
 

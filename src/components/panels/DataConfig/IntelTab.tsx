@@ -240,6 +240,7 @@ export function IntelTab() {
                     {SidebarComp && (
                       <div style={{ marginBottom: "var(--space-lg)", paddingBottom: "var(--space-lg)", borderBottom: "1px solid var(--border-subtle)" }}>
                         <PluginErrorBoundary pluginId={layerPlugin.plugin.id}>
+                          {/* eslint-disable-next-line react-hooks/static-components */}
                           <SidebarComp plugin={layerPlugin.plugin} />
                         </PluginErrorBoundary>
                       </div>
@@ -293,7 +294,7 @@ export function IntelTab() {
                                             label={item.label}
                                             color={item.color}
                                             pluginId={pluginId}
-                                            colorOverrides={colorOverrides}
+                                            colorOverrides={colorOverrides as Record<string, string> | undefined}
                                             updatePluginSettings={updatePluginSettings}
                                             isFilterable={isFilterable}
                                             isActive={isActive}
@@ -309,7 +310,7 @@ export function IntelTab() {
                                 pluginId={pluginId}
                                 updatePluginSettings={updatePluginSettings}
                                 isDefault
-                                customLayerColor={settings.customLayerColor}
+                                customLayerColor={settings.customLayerColor as string | undefined}
                               />
                             )}
                     </div>
@@ -399,6 +400,7 @@ export function IntelTab() {
           {DetailComp ? (
             <div className="intel-panel__custom-detail" style={{ marginTop: "var(--space-md)", maxWidth: "100%", overflow: "hidden" }}>
               <PluginErrorBoundary pluginId={selectedEntity.pluginId}>
+                {/* eslint-disable-next-line react-hooks/static-components */}
                 <DetailComp entity={selectedEntity} />
               </PluginErrorBoundary>
             </div>

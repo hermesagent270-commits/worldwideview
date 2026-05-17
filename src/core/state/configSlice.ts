@@ -30,7 +30,7 @@ export interface DataConfig {
         showTimelineHighlight: boolean;
     };
     /** Generic storage for plugin-specific settings. */
-    pluginSettings: Record<string, any>;
+    pluginSettings: Record<string, Record<string, unknown>>;
     /** Cryptographic license key for paid tiers. */
     licenseKey: string | null;
     /** The active subscription tier of the user. */
@@ -80,7 +80,7 @@ export interface ConfigSlice {
     /** Overrides the default polling interval for a specific plugin. */
     setPollingInterval: (pluginId: string, intervalMs: number) => void;
     /** Updates internal settings stored for a specific plugin. */
-    updatePluginSettings: (pluginId: string, settings: any) => void;
+    updatePluginSettings: (pluginId: string, settings: Record<string, unknown>) => void;
 }
 
 export const createConfigSlice: StateCreator<AppStore, [], [], ConfigSlice> = (set) => ({

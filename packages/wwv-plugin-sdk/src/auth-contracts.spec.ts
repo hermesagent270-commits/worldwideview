@@ -1,3 +1,4 @@
+ 
 import { describe, it, expectTypeOf } from "vitest";
 import type { 
     TokenExchangeRequest, 
@@ -21,7 +22,8 @@ describe("Auth Contracts", () => {
         expectTypeOf<TokenExchangeRequest>().toHaveProperty("audience").toEqualTypeOf<string>();
 
         // @ts-expect-error - missing required apiKey
-        const badReq: TokenExchangeRequest = { audience: "engine-123" };
+        const _badReq: TokenExchangeRequest = { audience: "engine-123" };
+        void _badReq;
     });
 
     it("TokenExchangeResponse has exact required properties", () => {
@@ -31,7 +33,8 @@ describe("Auth Contracts", () => {
         expectTypeOf<TokenExchangeResponse>().toHaveProperty("tier").toEqualTypeOf<Tier | undefined>();
 
         // @ts-expect-error - missing required token
-        const badRes: TokenExchangeResponse = { expiresAt: 123456789, kid: "key-1" };
+        const _badRes: TokenExchangeResponse = { expiresAt: 123456789, kid: "key-1" };
+        void _badRes;
     });
 
     it("WebSocketAuthMessage has exact required properties including protocol version", () => {
@@ -40,10 +43,12 @@ describe("Auth Contracts", () => {
         expectTypeOf<WebSocketAuthMessage>().toHaveProperty("token").toEqualTypeOf<SensitiveString>();
 
         // @ts-expect-error - missing version
-        const badMsg: WebSocketAuthMessage = { type: "auth", token: "jwt-token-here" as SensitiveString };
+        const _badMsg: WebSocketAuthMessage = { type: "auth", token: "jwt-token-here" as SensitiveString };
+        void _badMsg;
         
         // @ts-expect-error - wrong version
-        const badVersion: WebSocketAuthMessage = { type: "auth", v: 2, token: "jwt-token-here" as SensitiveString };
+        const _badVersion: WebSocketAuthMessage = { type: "auth", v: 2, token: "jwt-token-here" as SensitiveString };
+        void _badVersion;
     });
 
     it("WebSocketMessage is a discriminated union correctly containing WebSocketAuthMessage", () => {

@@ -62,7 +62,7 @@ export function AppShell() {
     const initLayer = useStore((s) => s.initLayer);
     const boot = useBootSequence();
     const isMobile = useIsMobile();
-    const bootStartRef = useRef(Date.now());
+    const [bootStart] = useState(() => Date.now());
     const [hostReady, setHostReady] = useState(false);
     const {
  needsReload, pendingUnverified, approveSelected, denyAll
@@ -153,10 +153,10 @@ export function AppShell() {
     // Track when boot completes
     useEffect(() => {
         if (boot.phase === "ready") {
-            const duration = Date.now() - bootStartRef.current;
+            const duration = Date.now() - bootStart;
             trackEvent("platform-boot", { duration });
         }
-    }, [boot.phase]);
+    }, [boot.phase, bootStart]);
     const activeBottomPanel = useStore((s) => s.activeBottomPanel);
 
     const rootClasses = [

@@ -51,10 +51,10 @@ export function createGeoJsonPlugin(config: ImportedPluginConfig): WorldPlugin {
         category: "custom" as const,
         version: "1.0.0",
 
-        async initialize(_ctx: PluginContext): Promise<void> { },
+        async initialize(): Promise<void> { },
         destroy(): void { },
 
-        async fetch(_timeRange: TimeRange): Promise<GeoEntity[]> {
+        async fetch(): Promise<GeoEntity[]> {
             return entities;
         },
 
@@ -70,7 +70,7 @@ export function createGeoJsonPlugin(config: ImportedPluginConfig): WorldPlugin {
             };
         },
 
-        renderEntity(_entity: GeoEntity): CesiumEntityOptions {
+        renderEntity(): CesiumEntityOptions {
             return {
                 type: "point",
                 color: config.color,

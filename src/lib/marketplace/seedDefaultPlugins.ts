@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { isDemo } from "@/core/edition";
 import { validateManifest } from "@/core/plugins/validateManifest";
 import { prisma } from "../db";
@@ -78,7 +79,7 @@ export async function seedDefaultPlugins(): Promise<void> {
 
                 await upsertPlugin(
                     pluginId,
-                    manifest.version || "1.0.0",
+                    (manifest.version as string | undefined) || "1.0.0",
                     JSON.stringify(manifest),
                 );
                 installed += 1;
@@ -103,7 +104,7 @@ export async function seedDefaultPlugins(): Promise<void> {
 /** Fetch a plugin manifest from the marketplace API. */
 async function fetchManifest(
     pluginId: string,
-): Promise<Record<string, any> | null> {
+): Promise<Record<string, unknown> | null> {
     try {
         const res = await fetch(`${MARKETPLACE_URL}/api/plugins/${pluginId}`);
         if (!res.ok) {

@@ -119,7 +119,7 @@ export interface UISlice {
 }
 
 export const createUISlice: StateCreator<AppStore, [], [], UISlice> = (set) => ({
-    theme: typeof window !== "undefined" ? (localStorage.getItem("wwv-theme") as any) || "black" : "black",
+    theme: typeof window !== "undefined" ? ((localStorage.getItem("wwv-theme") as "dark" | "light" | "legacy" | "black") || "black") : "black",
     leftSidebarOpen: true,
     rightSidebarOpen: false,
     configPanelOpen: true,

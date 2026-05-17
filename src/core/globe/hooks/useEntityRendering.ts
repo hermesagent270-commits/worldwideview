@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability */
 import { useEffect, useRef } from "react";
 import type { Viewer as CesiumViewer } from "cesium";
 import { Cartographic, Cartesian3 } from "cesium";

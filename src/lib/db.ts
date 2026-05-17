@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { headers } from "next/headers";
@@ -16,19 +17,19 @@ const globalForPrisma = globalThis as unknown as {
     prisma: PrismaClient | undefined;
 };
 
-function applyTenantIsolation(client: any) {
+function applyTenantIsolation(client: PrismaClient) {
     // Use Prisma Client Extension to inject RLS
     return client.$extends({
         query: {
             $allModels: {
                 async $allOperations({
  model, operation, args, query
-}: { model: string, operation: string, args: any, query: any }) {
+}: { model: string, operation: string, args: Record<string, unknown>, query: (args: unknown) => unknown }) {
                     let tenantSubdomain = null;
                     try {
                         const headersList = await headers();
                         tenantSubdomain = headersList.get("x-tenant-subdomain");
-                    } catch (e) {
+                    } catch {
                         // Not in a request context (e.g. scripts, background jobs)
                     }
 
@@ -38,24 +39,24 @@ function applyTenantIsolation(client: any) {
                         // Inject into data for creates
                         if (operation === 'create' || operation === 'createMany') {
                             if (Array.isArray(args.data)) {
-                                args.data = args.data.map((d: any) => ({ ...d, tenantId: tenantSubdomain }));
-                            } else if (args.data) {
-                                args.data.tenantId = tenantSubdomain;
+                                args.data = args.data.map((d: Record<string, unknown>) => ({ ...d, tenantId: tenantSubdomain }));
+                            } else if (args.data && typeof args.data === 'object') {
+                                (args.data as Record<string, unknown>).tenantId = tenantSubdomain;
                             }
                         }
 
                         // Inject into data for updates
                         if (operation === 'update' || operation === 'updateMany') {
-                            if (args.data) args.data.tenantId = tenantSubdomain;
+                            if (args.data && typeof args.data === 'object') (args.data as Record<string, unknown>).tenantId = tenantSubdomain;
                         }
                         if (operation === 'upsert') {
-                            if (args.create) args.create.tenantId = tenantSubdomain;
-                            if (args.update) args.update.tenantId = tenantSubdomain;
+                            if (args.create && typeof args.create === 'object') (args.create as Record<string, unknown>).tenantId = tenantSubdomain;
+                            if (args.update && typeof args.update === 'object') (args.update as Record<string, unknown>).tenantId = tenantSubdomain;
                         }
 
                         // Inject into where filters
                         if (['findUnique', 'findFirst', 'findMany', 'update', 'updateMany', 'delete', 'deleteMany', 'count', 'upsert'].includes(operation)) {
-                            args.where = { ...(args.where || {}), tenantId: tenantSubdomain };
+                            args.where = { ...((args.where as Record<string, unknown>) || {}), tenantId: tenantSubdomain };
                         }
 
                         return query(args);

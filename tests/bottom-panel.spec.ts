@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { test, expect } from '@playwright/test';
 
 test.describe('Bottom Panel System', () => {
@@ -21,7 +22,7 @@ test.describe('Bottom Panel System', () => {
             await installBtn.waitFor({ state: 'visible', timeout: 5000 });
             await installBtn.click();
             console.log('Clicked "Install Selected" in unverified plugin dialog.');
-        } catch (e) {
+        } catch {
             console.log('Unverified plugin dialog did not appear.');
         }
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createPublicKey, verify } from "crypto";
 
 /** Ed25519 public key for verifying the WWV plugin registry. */

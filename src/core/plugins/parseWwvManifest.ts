@@ -16,30 +16,32 @@ import type { PluginManifest } from "./PluginManifest";
  * @returns A sanitized and properly structured PluginManifest object.
  * @throws Error if the raw input is not a valid JSON object.
  */
-export function parseWwvManifest(rawManifest: any): PluginManifest {
+export function parseWwvManifest(rawManifest: unknown): PluginManifest {
     if (!rawManifest || typeof rawManifest !== "object") {
         throw new Error("Manifest must be a JSON object");
     }
+
+    const raw = rawManifest as Record<string, unknown>;
 
     /**
      * Partial construction allows us to explicitly map and default fields
      * before casting to the final strict interface.
      */
     const manifest: Partial<PluginManifest> = {
-        id: rawManifest.id,
-        name: rawManifest.name,
-        version: rawManifest.version,
-        description: rawManifest.description,
-        type: rawManifest.type || "data-layer",
+        id: raw.id as string | undefined,
+        name: raw.name as string | undefined,
+        version: raw.version as string | undefined,
+        description: raw.description as string | undefined,
+        type: (raw.type as PluginManifest["type"]) || "data-layer",
         format: "bundle", // Modern wwv-manifest plugins are always ES module bundles
         trust: "unverified", // Default trust level; overridden by marketplace signature verification
-        capabilities: rawManifest.capabilities || [],
-        category: rawManifest.category || "custom",
-        icon: rawManifest.icon,
-        compatibility: rawManifest.compatibility,
-        entry: rawManifest.entry,
-        assets: rawManifest.assets,
-        extends: rawManifest.extends,
+        capabilities: (raw.capabilities as PluginManifest["capabilities"]) || [],
+        category: (raw.category as string | undefined) || "custom",
+        icon: raw.icon as string | undefined,
+        compatibility: raw.compatibility as PluginManifest["compatibility"],
+        entry: raw.entry as string | undefined,
+        assets: raw.assets as PluginManifest["assets"],
+        extends: raw.extends as PluginManifest["extends"],
     };
 
     return manifest as PluginManifest;

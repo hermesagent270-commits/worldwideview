@@ -55,6 +55,7 @@ export function GraphicsSettings() {
     const update = useStore((s) => s.updateMapConfig);
 
     // Save to cookie on change
+     
     useEffect(() => {
         const { resolutionScale, antiAliasing, maxScreenSpaceError, shadowsEnabled, enableLighting, showFps, showOsmBuildings } = mapConfig;
         const graphicsToSave = { resolutionScale, antiAliasing, maxScreenSpaceError, shadowsEnabled, enableLighting, showFps, showOsmBuildings };
@@ -93,7 +94,7 @@ export function GraphicsSettings() {
             className="gfx-settings__select"
             value={mapConfig.antiAliasing}
             onChange={(e) => {
-                        const v = e.target.value as any;
+                        const v = e.target.value as "none" | "fxaa" | "msaa2x" | "msaa4x" | "msaa8x";
                         update({ antiAliasing: v });
                         trackEvent("graphics-setting", { key: "antiAliasing", value: v });
                     }}

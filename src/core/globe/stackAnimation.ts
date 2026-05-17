@@ -6,7 +6,7 @@
  * Uses a dedicated persistent Billboard per stack for the textual hub badge.
  */
 import {
- Cartesian2, Cartesian3, HorizontalOrigin, VerticalOrigin, NearFarScalar, HeightReference, Color
+ Cartesian2, Cartesian3, HorizontalOrigin, VerticalOrigin, NearFarScalar,  Color
 } from "cesium";
 import type { LabelCollection, BillboardCollection } from "cesium";
 import {

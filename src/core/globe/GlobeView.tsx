@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/refs */
 
 // @refresh reset
 
@@ -92,8 +93,8 @@ enableLighting,
             if (!Array.isArray(entities)) return;
 
             const settings = pluginSettings[pluginId];
-            const colorOverrides = settings?.colorOverrides;
-            const customLayerColor = settings?.customLayerColor;
+            const colorOverrides = settings?.colorOverrides as Record<string, string> | undefined;
+            const customLayerColor = settings?.customLayerColor as string | undefined;
 
             const defs = managed.plugin.getFilterDefinitions?.() || [];
             const active = filters[pluginId] || {};

@@ -50,7 +50,7 @@ export const publishCommand = new Command('publish')
         process.exit(1);
       }
 
-      let originalName = pkgContent.name;
+      const originalName = pkgContent.name;
       let publishedName = originalName;
 
       // Determine organization

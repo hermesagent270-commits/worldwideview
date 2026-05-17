@@ -3,15 +3,18 @@ import { CameraStream } from "@/components/video/CameraStream";
 import styles from "./page.module.css";
 import type { TestResult } from "./types";
 
-function LiveTimer({ start }: { start: number }) {
-    const [now, setNow] = useState(Date.now());
+function LiveTimer({ start }: { start?: number }) {
+    const [now, setNow] = useState(() => Date.now());
+    const [fallbackStart] = useState(() => Date.now());
+    const effectiveStart = start || fallbackStart;
+    
     useEffect(() => {
         const interval = setInterval(() => setNow(Date.now()), 100);
         return () => clearInterval(interval);
     }, []);
     return (
       <span>
-        {(Math.max(0, now - start) / 1000).toFixed(1)}
+        {(Math.max(0, now - effectiveStart) / 1000).toFixed(1)}
         s
       </span>
     );
@@ -53,7 +56,7 @@ export function CameraTestCard({
             {status === "testing" ? (
               <>
                 Testing...
-                <LiveTimer start={result.testStartTime || Date.now()} />
+                <LiveTimer start={result.testStartTime} />
               </>
                     ) : (
                         status.toUpperCase()

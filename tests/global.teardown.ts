@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { type FullConfig } from '@playwright/test';
 import { PrismaClient } from '../src/generated/prisma/index.js';
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -23,12 +24,12 @@ function loadEnv() {
         }
       });
     }
-  } catch (e) {
+  } catch {
     // Ignore read errors
   }
 }
 
-async function globalTeardown(config: FullConfig) {
+async function globalTeardown() {
   loadEnv();
   const pool = new Pool({ connectionString: process.env.DATABASE_URL || "postgresql://postgres:postgres@127.0.0.1:5432/worldwideview?schema=public" });
   const adapter = new PrismaPg(pool);
@@ -42,7 +43,7 @@ async function globalTeardown(config: FullConfig) {
       await prisma.user.deleteMany({
         where: { email: TEST_USER_EMAIL },
       });
-  } catch (e) {
+  } catch {
       console.error(`[Teardown] Failed to delete test user:`, e);
   } finally {
       await prisma.$disconnect();

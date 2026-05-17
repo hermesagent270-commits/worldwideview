@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Command } from 'commander';
 import { saveConfig } from '../utils/config.js';
 

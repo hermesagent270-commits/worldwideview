@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { chromium, type FullConfig } from '@playwright/test';
 import { PrismaClient } from '../src/generated/prisma/index.js';
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -25,7 +26,7 @@ function loadEnv() {
         }
       });
     }
-  } catch (e) {
+  } catch {
     // Ignore read errors
   }
 }
@@ -50,7 +51,7 @@ async function globalSetup(config: FullConfig) {
         await prisma.$queryRaw`SELECT 1`;
         dbConnected = true;
         break;
-      } catch (e) {
+      } catch {
         console.log(`[Setup] Waiting for database (attempt ${i + 1}/5)...`);
         await new Promise(resolve => setTimeout(resolve, 2000));
       }

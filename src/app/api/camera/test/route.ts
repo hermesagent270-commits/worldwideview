@@ -47,18 +47,19 @@ export async function GET(req: NextRequest) {
                 headers: { "User-Agent": "WorldWideView/1.0" },
                 signal: AbortSignal.timeout(TIMEOUT_MS)
             });
-        } catch (headError: any) {
+        } catch (headError: unknown) {
+            const err = headError as Error & { cause?: { code?: string } };
             // Primitive IP camera servers (like Insecam sources) often aggressively drop the TCP connection
             // instead of returning 405 when they see an unsupported HTTP method like HEAD.
             // If the socket was closed unexpectedly, retry with GET.
-            if (headError.cause?.code === 'UND_ERR_SOCKET' || headError.message?.includes('fetch failed')) {
+            if (err.cause?.code === 'UND_ERR_SOCKET' || err.message?.includes('fetch failed')) {
                 response = await fetch(url, {
                     method: "GET",
                     headers: { "User-Agent": "WorldWideView/1.0" },
                     signal: AbortSignal.timeout(TIMEOUT_MS)
                 });
             } else {
-                throw headError;
+                throw err;
             }
         }
 
@@ -81,13 +82,14 @@ export async function GET(req: NextRequest) {
             contentType: response.headers.get("content-type"),
             latencyMs: Date.now() - startTime
         });
-    } catch (error: any) {
-        const realError = error.cause || error;
-        const code = realError?.code || error?.code || realError?.name || error?.name;
+    } catch (error: unknown) {
+        const err = error as Error & { cause?: { code?: string, message?: string, name?: string }, code?: string };
+        const realError = err.cause || err;
+        const code = realError?.code || err?.code || realError?.name || err?.name;
 
-        let displayError = error?.message || "Unknown error";
+        let displayError = err?.message || "Unknown error";
         if (code && code !== 'TypeError' && code !== 'Error') {
-            displayError = `[${code}] ${realError?.message || error?.message || ""}`;
+            displayError = `[${code}] ${realError?.message || err?.message || ""}`;
         }
 
         // Make sure we don't accidentally categorize a malformed HTTP response as a timeout
@@ -95,7 +97,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ status: "error", error: displayError, latencyMs: Date.now() - startTime });
         }
 
-        if (error?.name === "TimeoutError" || displayError.includes("timeout") || code === "UND_ERR_CONNECT_TIMEOUT") {
+        if (err?.name === "TimeoutError" || displayError.includes("timeout") || code === "UND_ERR_CONNECT_TIMEOUT") {
             return NextResponse.json({ status: "timeout", error: "Connection timed out", latencyMs: Date.now() - startTime });
         }
 

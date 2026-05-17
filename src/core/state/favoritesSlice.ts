@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * @file favoritesSlice.ts
  * @description State slice for managing user-bookmarked entities.
@@ -8,6 +9,7 @@ import type { StateCreator } from "zustand";
 import type { GeoEntity } from "@/core/plugins/PluginTypes";
 import { isDemo } from "@/core/edition";
 import type { AppStore } from "./store";
+import type { ReactNode, ComponentType } from "react";
 
 /**
  * A bookmarked entity with metadata for quick retrieval.
@@ -22,7 +24,7 @@ export interface FavoriteItem {
     /** Display name of the plugin for UI purposes. */
     pluginName: string;
     /** Optional React icon element (not persisted to DB/Cookie). */
-    icon?: any;
+    icon?: string | ComponentType<{ size?: number; color?: string }>;
     /** Timestamp of when the bookmark was created or last updated. */
     lastSeen: number;
 }
@@ -34,7 +36,7 @@ export interface FavoritesSlice {
     /** List of all bookmarked items. */
     favorites: FavoriteItem[];
     /** Adds a new entity to the favorites list and persists it to the backend/cookie. */
-    addFavorite: (entity: GeoEntity, pluginName: string, icon?: any) => void;
+    addFavorite: (entity: GeoEntity, pluginName: string, icon?: string | ComponentType<{ size?: number; color?: string }>) => void;
     /** Removes an entity from favorites and updates the persistence layer. */
     removeFavorite: (id: string) => void;
     /** Replaces the entire favorites list (typically called during initial app hydration). */

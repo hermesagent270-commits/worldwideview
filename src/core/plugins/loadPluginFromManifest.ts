@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * @file loadPluginFromManifest.ts
  * @description Handles the dynamic loading and instantiation of WorldWideView plugins from ES module bundles.
@@ -39,12 +40,13 @@ async function loadBundlePlugin(entry: string): Promise<WorldPlugin> {
     /**
      * Helper to safely instantiate a class and verify its compliance with WorldPlugin.
      */
-    const instantiate = (maybeClass: any): WorldPlugin | null => {
+    const instantiate = (maybeClass: unknown): WorldPlugin | null => {
         if (typeof maybeClass === "function") {
             try {
-                const instance = new maybeClass();
+                const Constructor = maybeClass as new () => Record<string, unknown>;
+                const instance = new Constructor();
                 if (instance && typeof instance.initialize === "function") {
-                    return instance as WorldPlugin;
+                    return instance as unknown as WorldPlugin;
                 }
             } catch {
                 return null;

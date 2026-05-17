@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type {
     WorldPlugin,
     GeoEntity,
@@ -158,7 +159,7 @@ class PluginManager {
                 trackEvent("plugin-error", { plugin: plugin.id, error: error.message });
                 dataBus.emit("pluginError", { pluginId: plugin.id, message: `[${plugin.name || plugin.id}] ${error.message}`, error });
             },
-            getPluginSettings: (pluginId) => useStore.getState().dataConfig.pluginSettings[pluginId] as ReturnType<typeof useStore.getState>["dataConfig"]["pluginSettings"][string],
+            getPluginSettings: <T = unknown>(pluginId: string) => useStore.getState().dataConfig.pluginSettings[pluginId] as T | undefined,
             isPlaybackMode: () => useStore.getState().isPlaybackMode,
             getCurrentTime: () => useStore.getState().currentTime,
         };
@@ -192,7 +193,7 @@ class PluginManager {
                 try {
                     const entities = await plugin.fetch(managed.context.timeRange);
                     this.handleDataUpdate(plugin.id, entities);
-                } catch (err: any) {
+                } catch (err: unknown) {
                     dataBus.emit("layerLoadingChanged", { pluginId: plugin.id, loading: false });
                     managed.context.onError(err instanceof Error ? err : new Error(String(err)));
                     // Do not re-throw: onError already handled reporting.

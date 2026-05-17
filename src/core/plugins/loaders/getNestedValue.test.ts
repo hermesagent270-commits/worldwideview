@@ -59,7 +59,7 @@ describe("getNestedValue", () => {
                         try {
                             getNestedValue(obj, path);
                             return true;
-                        } catch (e) {
+                        } catch {
                             return false; // Should never reach here
                         }
                     }
