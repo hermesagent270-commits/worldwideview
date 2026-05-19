@@ -41,9 +41,15 @@ export default defineConfig({
     },
     {
       name: 'firefox',
-      use: { 
+      use: {
         ...devices['Desktop Firefox'],
-        storageState: 'playwright/.auth/user.json'
+        storageState: 'playwright/.auth/user.json',
+        launchOptions: {
+          firefoxUserPrefs: {
+            // Disable MSAA/AT-SPI accessibility layer — causes hangs on Linux CI
+            'accessibility.force_disabled': 1,
+          },
+        },
       },
     },
     {
