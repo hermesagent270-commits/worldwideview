@@ -36,6 +36,8 @@ describe("WsClient", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.clearAllMocks();
+    // Pin Math.random to 0 so jitter is deterministic (delay = base only)
+    vi.spyOn(Math, "random").mockReturnValue(0);
 
     // Mock WebSocket global
     mockWs = {
@@ -85,7 +87,7 @@ describe("WsClient", () => {
     );
   });
 
-  it("should attempt to reconnect after 5s if the connection is closed while subscriptions exist", () => {
+  it("should attempt to reconnect after base delay if the connection is closed while subscriptions exist", () => {
     wsClient.subscribe("plugin-a", "ws://engine-1/stream");
     mockWs.onclose();
 

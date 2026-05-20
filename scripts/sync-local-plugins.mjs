@@ -7,6 +7,7 @@
  */
 
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { build } from "vite";
 import { fileURLToPath } from "url";
@@ -74,8 +75,24 @@ function wwvHostRedirectPlugin() {
 }
 
 /**
+ * @function readJsonFile
+ * @description Reads a UTF-8 JSON file, tolerating a leading BOM (U+FEFF).
+ * Node's `fs.readFileSync(p, 'utf-8')` preserves the BOM byte, which `JSON.parse`
+ * then rejects with "Unexpected token". Scaffolders and editors on Windows
+ * occasionally emit BOMs into `package.json`; pnpm/npm strip them silently,
+ * so we match that behavior here to avoid breaking dev on otherwise-valid files.
+ * @param {string} filePath
+ * @returns {any}
+ */
+function readJsonFile(filePath) {
+    let text = fs.readFileSync(filePath, "utf-8");
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    return JSON.parse(text);
+}
+
+/**
  * @function discoverLocalPlugins
- * @description Finds all directories in `local-plugins/` that contain a valid 
+ * @description Finds all directories in `local-plugins/` that contain a valid
  * `package.json` with a `worldwideview` manifest block.
  * @returns {Array<{dir: string, manifest: any, pluginDir: string}>}
  */
@@ -87,12 +104,12 @@ export function discoverLocalPlugins() {
             if (dir.startsWith(".")) return false;
             const pkgPath = path.join(LOCAL_PLUGINS_DIR, dir, "package.json");
             if (!fs.existsSync(pkgPath)) return false;
-            const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+            const pkg = readJsonFile(pkgPath);
             return !!pkg.worldwideview;
         })
         .map(dir => {
             const pkgPath = path.join(LOCAL_PLUGINS_DIR, dir, "package.json");
-            const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+            const pkg = readJsonFile(pkgPath);
             const manifest = pkg.worldwideview;
             manifest.version = pkg.version;
             manifest.name = pkg.name;
@@ -140,12 +157,71 @@ function resolvePluginEntry(pluginDir, manifest, pkg) {
     return candidates.find(f => fs.existsSync(f)) ?? null;
 }
 
+const SKIP_DIRS = new Set(["dist", "node_modules", ".git", ".turbo", ".vite"]);
+
+/**
+ * @function latestSourceMtime
+ * @description Walks a plugin directory and returns the newest mtime (ms) across
+ * source files. Used to decide whether a cached `dist/frontend.mjs` is still valid.
+ * Skips build/output dirs so this is fast even on cold disks.
+ * @param {string} rootDir
+ * @returns {number} newest mtime in ms, or 0 if no files found
+ */
+function latestSourceMtime(rootDir) {
+    let newest = 0;
+    /** @param {string} dir */
+    function walk(dir) {
+        let entries;
+        try {
+            entries = fs.readdirSync(dir, { withFileTypes: true });
+        } catch {
+            return;
+        }
+        for (const entry of entries) {
+            if (entry.name.startsWith(".") && entry.name !== ".env") continue;
+            if (SKIP_DIRS.has(entry.name)) continue;
+            const full = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+                walk(full);
+            } else if (entry.isFile()) {
+                const m = fs.statSync(full).mtimeMs;
+                if (m > newest) newest = m;
+            }
+        }
+    }
+    walk(rootDir);
+    return newest;
+}
+
+/**
+ * @function isBuildFresh
+ * @description Returns true if the plugin's existing `dist/frontend.mjs` is newer
+ * than every source file under its directory — meaning Vite would produce a
+ * byte-identical bundle and the build can be skipped.
+ * @param {string} pluginDir
+ * @returns {boolean}
+ */
+function isBuildFresh(pluginDir) {
+    const distFile = path.join(pluginDir, "dist", "frontend.mjs");
+    if (!fs.existsSync(distFile)) return false;
+    const distMtime = fs.statSync(distFile).mtimeMs;
+    const sourceMtime = latestSourceMtime(pluginDir);
+    return distMtime >= sourceMtime;
+}
+
 /**
  * @function buildPlugin
  * @description Invokes the Vite build engine to compile a plugin's source
  * into a single ES module, externalizing shared host dependencies.
+ *
+ * Returns `"fresh"` if an up-to-date `dist/frontend.mjs` already exists (no build run),
+ * `true` if Vite produced a new bundle, or `false` on failure.
  */
 export async function buildPlugin({ dir, manifest, pkg, pluginDir }) {
+    if (isBuildFresh(pluginDir)) {
+        return "fresh";
+    }
+
     const entryFile = resolvePluginEntry(pluginDir, manifest, pkg ?? {});
 
     if (!entryFile) {
@@ -200,7 +276,7 @@ export async function buildPlugin({ dir, manifest, pkg, pluginDir }) {
     }
 }
 
-export function syncToPublic({ dir, manifest, pluginDir }) {
+export function syncToPublic({ dir, manifest, pluginDir }, { quiet = false } = {}) {
     const publicName = manifest.id || dir.replace("wwv-plugin-", "");
     const targetDir = path.join(OUTPUT_DIR, publicName);
     const distFile = path.join(pluginDir, "dist", "frontend.mjs");
@@ -237,7 +313,7 @@ export function syncToPublic({ dir, manifest, pluginDir }) {
         JSON.stringify(pluginJson, null, 2)
     );
 
-    console.log(`[sync] ✅ ${publicName} → public/plugins-local/${publicName}/`);
+    if (!quiet) console.log(`[sync] ✅ ${publicName} → public/plugins-local/${publicName}/`);
 }
 
 // Clean stale plugins from public/plugins-local/ that no longer exist in local-plugins/
@@ -252,6 +328,32 @@ function cleanStale(activeIds) {
     }
 }
 
+/**
+ * @function runWithConcurrency
+ * @description Runs an async worker over `items` with a fixed concurrency cap.
+ * Vite builds are CPU-bound; running all ~30 in parallel thrashes the scheduler
+ * and balloons RSS. A cap around half the logical cores keeps wall-clock low
+ * without starving the rest of the dev environment (Next.js, the data engine).
+ * @template T, R
+ * @param {T[]} items
+ * @param {number} concurrency
+ * @param {(item: T) => Promise<R>} worker
+ * @returns {Promise<R[]>}
+ */
+async function runWithConcurrency(items, concurrency, worker) {
+    const results = new Array(items.length);
+    let cursor = 0;
+    const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+        while (true) {
+            const i = cursor++;
+            if (i >= items.length) return;
+            results[i] = await worker(items[i]);
+        }
+    });
+    await Promise.all(workers);
+    return results;
+}
+
 export async function syncAll() {
     const plugins = discoverLocalPlugins();
 
@@ -261,12 +363,20 @@ export async function syncAll() {
         return;
     }
 
-    console.log(`[sync] Found ${plugins.length} local plugin(s): ${plugins.map(p => p.dir).join(", ")}`);
+    const concurrency = Math.max(2, Math.min(plugins.length, Math.ceil(os.cpus().length / 2)));
+    console.log(`[sync] Found ${plugins.length} local plugin(s); building with concurrency=${concurrency}`);
+    const started = Date.now();
 
-    for (const plugin of plugins) {
-        const ok = await buildPlugin(plugin);
-        if (ok) syncToPublic(plugin);
-    }
+    let freshCount = 0;
+    let builtCount = 0;
+    await runWithConcurrency(plugins, concurrency, async (plugin) => {
+        const result = await buildPlugin(plugin);
+        if (result === "fresh") freshCount++;
+        else if (result) builtCount++;
+        if (result) syncToPublic(plugin, { quiet: result === "fresh" });
+    });
+
+    console.log(`[sync] Done in ${((Date.now() - started) / 1000).toFixed(1)}s (${builtCount} built, ${freshCount} cached)`);
 
     const activeIds = plugins.map(p => p.manifest.id || p.dir.replace("wwv-plugin-", ""));
     cleanStale(activeIds);
