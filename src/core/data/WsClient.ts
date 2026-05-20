@@ -9,9 +9,16 @@ interface EngineConnection {
   subscriptions: Set<string>;
   /** Grace period timer — closes the connection if no plugins remain subscribed */
   cleanupTimer: NodeJS.Timeout | null;
+  /** Backoff attempt counter — resets after a stable connection (>5s open) */
+  reconnectAttempts: number;
+  /** Timer that resets the backoff counter once a connection has been stable */
+  stableConnectionTimer: NodeJS.Timeout | null;
 }
 
-const RECONNECT_DELAY_MS = 5000;
+const RECONNECT_BASE_MS = 5000;
+const RECONNECT_MAX_MS = 60000; // Cap at 1 minute
+const RECONNECT_JITTER_MS = 4000;
+const STABLE_CONNECTION_MS = 5000; // Reset backoff after 5s of stable connection
 const CLEANUP_GRACE_MS = 30000;
 
 /** Normalizes underscore-based pluginIds to kebab-case (e.g. `my_plugin` → `my-plugin`). */
@@ -30,6 +37,8 @@ class WebSocketClient {
         reconnectTimer: null,
         subscriptions: new Set(),
         cleanupTimer: null,
+        reconnectAttempts: 0,
+        stableConnectionTimer: null,
       };
       this.engines.set(engineUrl, engine);
     }
@@ -48,6 +57,12 @@ class WebSocketClient {
 
     engine.ws.onopen = () => {
       console.debug(`[WSClient] 🟢 Connected to ${engineUrl}. WS Handshake took ${(performance.now() - wsStart).toFixed(2)}ms`);
+      // Only reset backoff if the connection stays open for a non-trivial time —
+      // an immediate close (e.g. server-side rejection) shouldn't be treated as success.
+      if (engine.stableConnectionTimer) clearTimeout(engine.stableConnectionTimer);
+      engine.stableConnectionTimer = setTimeout(() => {
+        engine.reconnectAttempts = 0;
+      }, STABLE_CONNECTION_MS);
       // Resubscribe to all active plugins on this engine
       for (const pluginId of engine.subscriptions) {
         this.send(engine, { action: "subscribe", pluginId });
@@ -79,12 +94,25 @@ class WebSocketClient {
     };
 
     engine.ws.onclose = () => {
-      console.warn(`[WSClient] Disconnected from ${engineUrl}. Reconnecting in 5s...`);
       engine.ws = null;
+      if (engine.stableConnectionTimer) {
+        clearTimeout(engine.stableConnectionTimer);
+        engine.stableConnectionTimer = null;
+      }
       if (engine.reconnectTimer) clearTimeout(engine.reconnectTimer);
       // Only reconnect if there are still active subscriptions
       if (engine.subscriptions.size > 0) {
-        engine.reconnectTimer = setTimeout(() => this.connectEngine(engineUrl), RECONNECT_DELAY_MS);
+        // Exponential backoff with jitter to prevent thundering herd on engine restart.
+        // 5s -> 10s -> 20s -> 40s -> 60s (cap), plus ±4s of jitter so simultaneous
+        // sessions don't all reconnect at the same instant.
+        const expDelay = Math.min(
+          RECONNECT_BASE_MS * Math.pow(2, engine.reconnectAttempts),
+          RECONNECT_MAX_MS
+        );
+        const delay = expDelay + Math.random() * RECONNECT_JITTER_MS;
+        engine.reconnectAttempts++;
+        console.warn(`[WSClient] Disconnected from ${engineUrl}. Reconnecting in ${Math.round(delay / 1000)}s (attempt ${engine.reconnectAttempts})...`);
+        engine.reconnectTimer = setTimeout(() => this.connectEngine(engineUrl), delay);
       }
     };
   }
@@ -149,6 +177,7 @@ class WebSocketClient {
         if (engine.subscriptions.size === 0) {
           console.log(`[WSClient] No subscriptions remain for ${engineUrl}. Closing connection.`);
           if (engine.reconnectTimer) clearTimeout(engine.reconnectTimer);
+          if (engine.stableConnectionTimer) clearTimeout(engine.stableConnectionTimer);
           engine.ws?.close();
           this.engines.delete(engineUrl);
         }

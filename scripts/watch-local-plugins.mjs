@@ -15,40 +15,66 @@ if (!fs.existsSync(LOCAL_PLUGINS_DIR)) {
 let debounceTimeout = null;
 let isSyncing = false;
 let pendingSync = false;
+/** Files changed since last sync completed — collected during the debounce window */
+const pendingChanges = new Set();
 
 function handleFileChange(eventType, filename) {
-    if (filename && (
-        filename.includes("dist") || 
-        filename.includes("node_modules") || 
+    if (!filename) return;
+    if (
+        filename.includes("dist") ||
+        filename.includes("node_modules") ||
         filename.endsWith(".map") ||
         filename.includes(".git")
-    )) return; // ignore build artifacts and git internals
-    
+    ) return; // ignore build artifacts and git internals
+
+    pendingChanges.add(filename);
+
     if (debounceTimeout) {
         clearTimeout(debounceTimeout);
     }
-    
+
     debounceTimeout = setTimeout(async () => {
         if (isSyncing) {
             pendingSync = true;
             return;
         }
-        await runSync(filename);
+        await runSync();
     }, 500);
 }
 
-async function runSync(filename) {
+/**
+ * Pulls plugin slugs out of changed file paths so we can name what triggered the rebuild.
+ * fs.watch on `local-plugins/` emits paths like `aviation/src/index.ts` (POSIX or Windows).
+ */
+function summarizeChangedPlugins(files) {
+    const slugs = new Set();
+    for (const f of files) {
+        const head = f.split(/[\\/]/)[0];
+        if (head) slugs.add(head);
+    }
+    return [...slugs];
+}
+
+async function runSync() {
     isSyncing = true;
-    console.log(`\n[watch] Change detected in local plugins (file: ${filename}). Syncing...`);
+    const changed = summarizeChangedPlugins(pendingChanges);
+    pendingChanges.clear();
+    const label = changed.length === 0
+        ? "pending changes"
+        : changed.length <= 3
+            ? changed.join(", ")
+            : `${changed.slice(0, 3).join(", ")} (+${changed.length - 3} more)`;
+    console.log(`\n[watch] 🔄 Change detected in: ${label}`);
     try {
         await syncAll();
+        console.log(`[watch] ✨ Hot-reload ready`);
     } catch (err) {
         console.error(`[watch] Sync failed:`, err);
     } finally {
         isSyncing = false;
         if (pendingSync) {
             pendingSync = false;
-            await runSync("pending changes");
+            await runSync();
         }
     }
 }
