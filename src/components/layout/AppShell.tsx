@@ -129,15 +129,27 @@ export function AppShell() {
             console.log("[AppShell] Platform Ready. Waiting for globe tiles...");
         };
 
-        // Start boot sequence when globe tiles are loaded
-        const unsubGlobe = dataBus.on("globeReady", () => {
-            console.log("[AppShell] Globe ready — starting boot sequence.");
+        // Guard so boot only starts once regardless of which trigger fires first.
+        let bootStarted = false;
+        const startBootOnce = (reason: string) => {
+            if (bootStarted) return;
+            bootStarted = true;
+            console.log(`[AppShell] Starting boot sequence (${reason}).`);
             boot.startBoot();
-        });
+        };
+
+        // Primary trigger: globe signals it is ready.
+        const unsubGlobe = dataBus.on("globeReady", () => startBootOnce("globeReady"));
+
+        // Safety fallback: if the globe never initialises (e.g. WebGL unavailable
+        // in headless CI environments), force the boot sequence after 20 s so the
+        // app still reaches the "ready" state and tests are not left hanging.
+        const safetyTimer = setTimeout(() => startBootOnce("safety-timeout"), 20_000);
 
         startPlatform();
 
         return () => {
+            clearTimeout(safetyTimer);
             unsubGlobe();
             boot.cleanup();
             pluginManager.destroy();
