@@ -32,7 +32,7 @@ Five repositories, modelled after the n8n pattern:
 | `silvertakana/wwv-seeders-community` | Open Source | Open-source community seeders |
 | `silvertakana/wwv-seeders-private` | **Private** | Proprietary seeder scripts (aviation, maritime, etc.) |
 | `silvertakana/worldwideview-marketplace` | Open Source | Plugin catalog, signed registry, admin UI |
-| `silvertakana/worldwideview-plugins` | Open Source | Published plugin frontend source |
+| `silvertakana/wwv-plugins` | Open Source | Published plugin frontend source (formerly `worldwideview-plugins`) |
 | `silvertakana/worldwideview-web` | Open Source | Landing page, docs, static content |
 | `silvertakana/worldwideview-cloud` | **Private** | Cloud deployment config — Docker Compose, nginx, provisioning scripts |
 | `silvertakana/plugin-sdk` | MIT | `@worldwideview/plugin-sdk` — shared types for repos + 3rd-party authors |

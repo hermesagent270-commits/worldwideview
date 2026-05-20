@@ -65,5 +65,5 @@ worldwideview/
 | `wwv-seeders-community` | Open-source community seeders (PUBLIC) |
 | `wwv-seeders-private` | Proprietary seeder scripts (PRIVATE, downloaded in prod) |
 | `worldwideview-marketplace` | Plugin marketplace web app |
-| `worldwideview-plugins` | Published npm plugin packages (frontend source) |
+| `wwv-plugins` | Published npm plugin packages (frontend source). Lives at `local-plugins/` inside the worldwideview monorepo as its own git working tree. *(Formerly `worldwideview-plugins` — deprecated.)* |
 | `worldwideview-web` | Marketing / landing page |

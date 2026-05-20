@@ -18,7 +18,7 @@ If you are asked to implement a feature or fix a bug, you **MUST** determine the
 | **`wwv-seeders`** | The community (public) data seeders. **Edit here** to create or modify background polling scripts (e.g. `aviation.ts`, `wildfire.ts`) that fetch data from public APIs and normalize it into `GeoEntity` arrays. |
 | **`wwv-seeders-private`** | The proprietary (private) data seeders. **Edit here** for closed-source, premium, or high-security data ingestion scripts. |
 | **`worldwideview-marketplace`** | The Plugin Marketplace web application. **Edit here** if you are modifying the platform where users browse, purchase, or manage plugin installations. |
-| **`worldwideview-plugins`** | Independent repository for published npm plugin packages (typically frontend source bundles). |
+| **`wwv-plugins`** | Independent repository for frontend plugin source bundles published to npm. In dev clones it lives **inside** the worldwideview monorepo at `local-plugins/` (the folder is gitignored from the worldwideview repo and is itself a separate git working tree tracking `silvertakana/wwv-plugins`). **Edit here** to add or modify plugin source, or to add CI workflows that smoke-test plugins against the data engine. *(Formerly named `worldwideview-plugins` — that name is deprecated.)* |
 | **`worldwideview-web`** | The marketing site, landing pages, and documentation. |
 | **`wwv-test`** | A testing ground repository (e.g., for docker-compose setups, scratch testing). |
 

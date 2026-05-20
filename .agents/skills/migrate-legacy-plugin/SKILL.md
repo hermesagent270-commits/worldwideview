@@ -65,7 +65,7 @@ cp -r ../worldwideview-plugins/packages/wwv-plugin-<name> local-plugins/wwv-plug
 
 The `local-plugins/` directory is:
 - Part of the pnpm workspace (`pnpm-workspace.yaml` includes `local-plugins/*`)
-- Gitignored from the main worldwideview repo (it IS its own Git repo — `worldwideview-plugins`)
+- Gitignored from the main worldwideview repo (it IS its own Git repo — `wwv-plugins`, formerly `worldwideview-plugins`)
 - Auto-discovered by the `dev:plugins` watcher during `pnpm dev`
 
 ## Step 2: Fix Frontend Routing (getEngineUrl)
