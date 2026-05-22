@@ -1,0 +1,154 @@
+name: Garbage Collector
+
+on:
+  # Manual trigger with optional overrides
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run — post report only, open no PRs/Issues'
+        required: false
+        default: 'true'
+        type: choice
+        options: ['true', 'false']
+      days_branch:
+        description: 'Days before a branch is considered stale'
+        required: false
+        default: '90'
+      days_comment:
+        description: 'Days before a TODO/FIXME comment is flagged'
+        required: false
+        default: '180'
+
+  # Scheduled: every Monday at 03:00 UTC
+  schedule:
+    - cron: '0 3 * * 1'
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  gc-scan:
+    name: Scan for stale artefacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      DRY_RUN:      ${{ github.event.inputs.dry_run    || 'true' }}
+      DAYS_BRANCH:  ${{ github.event.inputs.days_branch  || '90' }}
+      DAYS_COMMENT: ${{ github.event.inputs.days_comment || '180' }}
+      GH_TOKEN:     ${{ secrets.GC_BOT_TOKEN }}
+
+    steps:
+      - name: Checkout (full history for git blame)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GC_BOT_TOKEN }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Run GC scan
+        id: scan
+        run: |
+          node scripts/gc-scan.mjs \
+            --days-branch=${{ env.DAYS_BRANCH }} \
+            --days-comment=${{ env.DAYS_COMMENT }} \
+            > gc-report.json
+          echo "findings_count=$(node -e "const r=require('./gc-report.json');console.log(r.findings.length)")" >> $GITHUB_OUTPUT
+
+      - name: Upload raw report
+        uses: actions/upload-artifact@v4
+        with:
+          name: gc-report
+          path: gc-report.json
+          retention-days: 30
+
+      - name: Find or create tracking issue
+        id: tracking
+        env:
+          GH_TOKEN: ${{ secrets.GC_BOT_TOKEN }}
+        run: |
+          ISSUE_NUMBER=$(gh issue list \
+            --label gc-bot \
+            --state open \
+            --limit 1 \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [ -z "$ISSUE_NUMBER" ]; then
+            ISSUE_NUMBER=$(gh issue create \
+              --title "🗑️ Garbage Collector — tracking issue" \
+              --body "This issue is updated automatically each time the GC scanner runs." \
+              --label gc-bot \
+              --json number \
+              --jq '.number')
+            echo "Created tracking issue #$ISSUE_NUMBER"
+          fi
+          echo "issue_number=$ISSUE_NUMBER" >> $GITHUB_OUTPUT
+
+      - name: Post scan report as comment
+        env:
+          GH_TOKEN: ${{ secrets.GC_BOT_TOKEN }}
+        run: |
+          FINDINGS=$(node - <<'EOF'
+          const r = require('./gc-report.json');
+          const byType = {};
+          for (const f of r.findings) {
+            if (!byType[f.type]) byType[f.type] = [];
+            byType[f.type].push(f);
+          }
+          const lines = [
+            `## 🗑️ GC Report — ${r.generatedAt.slice(0,10)}`,
+            `> Thresholds: branches stale after **${r.thresholds.STALE_BRANCH_DAYS}d**, comments stale after **${r.thresholds.STALE_COMMENT_DAYS}d**`,
+            `> Mode: **${process.env.DRY_RUN === 'true' ? 'dry-run (report only)' : 'LIVE'}**`,
+            `> Total findings: **${r.findings.length}**`,
+            '',
+          ];
+          for (const [type, items] of Object.entries(byType)) {
+            lines.push(`### ${type} (${items.length})`);
+            for (const it of items.slice(0, 20)) {
+              if (type === 'stale-branch') {
+                lines.push(`- \`${it.branch}\` — ${it.ageDays}d old, last by ${it.author}${it.isMerged ? ' ✅ merged' : ''}`);
+              } else if (type === 'stale-comment') {
+                lines.push(`- \`${it.file}:${it.line}\` — ${it.ageDays}d old — ${it.text.slice(0,80)}`);
+              } else if (type === 'orphaned-package') {
+                lines.push(`- \`${it.name}\` (${it.path})`);
+              } else if (type === 'old-migration') {
+                lines.push(`- \`${it.migration}\` — ${it.ageDays}d old`);
+              }
+            }
+            if (items.length > 20) lines.push(`- … and ${items.length - 20} more`);
+            lines.push('');
+          }
+          if (r.findings.length === 0) lines.push('_No findings — repo is squeaky clean! 🎉_');
+          console.log(lines.join('\n'));
+          EOF
+          )
+
+          gh issue comment "${{ steps.tracking.outputs.issue_number }}" --body "$FINDINGS"
+
+      - name: Open stale-branch PRs (live mode only)
+        if: env.DRY_RUN == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GC_BOT_TOKEN }}
+        run: |
+          node - <<'EOF'
+          const { execSync } = require('child_process');
+          const r = require('./gc-report.json');
+          const staleBranches = r.findings.filter(f => f.type === 'stale-branch' && f.isMerged);
+          for (const b of staleBranches.slice(0, 5)) {
+            try {
+              execSync(`gh pr create \
+                --title "chore(gc): delete merged stale branch \`${b.branch}\`" \
+                --body "This branch was merged ${b.ageDays} days ago and can be safely deleted.\n\nLast commit: ${b.lastSubject}\nAuthor: ${b.author}" \
+                --label gc-bot \
+                --head ${b.branch} \
+                --base main 2>/dev/null || true`, { stdio: 'inherit' });
+            } catch {}
+          }
+          EOF
