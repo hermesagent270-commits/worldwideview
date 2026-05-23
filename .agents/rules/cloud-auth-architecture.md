@@ -22,6 +22,16 @@ paths:
 
 ## Auth Strategy
 
+> [!WARNING]
+> **This section is superseded by [ADR-003](../../docs/architecture/decisions/adr-0003-shared-identity-and-ecosystem-auth-host.md) (2026-05-22).**
+> The decisions below describing `app.worldwideview.dev` as the auth owner and NextAuth as the ecosystem IdP are no longer current. The new architecture is:
+> - **`worldwideview.dev`** (the `worldwideview-web` repo) owns all login, signup, and account management UI
+> - **Supabase Auth** (single shared project) is the identity provider for all products
+> - Session cookies are scoped to `.worldwideview.dev` and shared across all subdomains
+> - The Marketplace never owns auth UI and never redirects to `app.worldwideview.dev`
+>
+> The multi-tenant RLS, tier matrix, license key, and CI/CD sections below remain valid.
+
 **Auth.js (NextAuth)** is the single auth API across all editions. `app.worldwideview.dev` owns **all auth UI** — login, registration, password reset. No other subdomain ever shows a login or registration form.
 
 ```typescript

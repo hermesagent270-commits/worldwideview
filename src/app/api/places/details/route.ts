@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+rimport { NextResponse } from "next/server";
 
 // Server-side cache: keyed by place_id, 24-hour TTL (place geometry is stable)
 const cache = new Map<string, { data: unknown; expiresAt: number }>();

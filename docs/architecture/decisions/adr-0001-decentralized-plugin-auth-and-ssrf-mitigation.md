@@ -75,9 +75,11 @@ For legacy plugins (e.g., Webcams) that *cannot* use WebSockets, the local proxy
 ## Operational Implementation Details
 
 ### 1. Library Selection
-*   **`jose`:** The industry-standard library for modern JS. Used by the Marketplace to generate Ed25519 keys, sign JWTs, and expose the JWKS endpoint.
+*   **`jose`:** The industry-standard library for modern JS. Used by the Marketplace to generate Ed25519 keys, sign JWTs, and expose the JWKS endpoint. **Also used by Data Engines** to verify tickets — `createRemoteJWKSet` handles remote fetching, caching, and `kid` selection, and `jwtVerify` validates the signature plus `iss`/`aud`/`exp` in one call, with native OKP/Ed25519 support.
 *   **`openid-client`:** The RFC-compliant library used by the Local App to execute the PKCE Authorization Code flow securely.
-*   **`@fastify/jwt` + `get-jwks`:** Used by Data Engines. `@fastify/jwt` provides the middleware, while `get-jwks` (built by the Fastify core team) handles remote fetching, local LRU caching, and OKP-to-PEM conversion for Ed25519 keys.
+
+> [!NOTE]
+> **Amendment (2026-05-22):** The original draft specified `@fastify/jwt` + `get-jwks` for Data Engines. This was found to be incorrect during local integration testing: `get-jwks.getPublicKey()` converts JWKs via `jwk-to-pem`, which **does not support OKP/Ed25519 keys** (throws `Unsupported key type "OKP"`). `@fastify/jwt`'s standalone `verify()` is also incompatible with a remote-JWKS async key resolver. Data Engines now use `jose` — the same library already mandated for the Marketplace — which supports Ed25519 natively.
 
 ### 2. Hardened First-Message Auth
 Data Engines MUST enforce strict WebSocket handshake rules:
@@ -145,8 +147,8 @@ sequenceDiagram
         M->>L: 5-min JWT (aud: Engine A)
         L->>U: JWT
         U->>E: wss://engine (Origin validation)
-        U->>E: { type: "auth", jwt: "..." }
-        E->>E: Verify with get-jwks cache
+        U->>E: { type: "auth", v: 1, token: "..." }
+        E->>E: Verify JWT via jose (cached JWKS)
         E->>U: Stream
     end
 ```
