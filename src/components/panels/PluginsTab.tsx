@@ -62,16 +62,23 @@ function TrustBadge({ trust }: { trust: string }) {
 // ─── Browse Link ────────────────────────────────────────────
 
 function BrowseLink() {
+    function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
+        e.preventDefault();
+        trackEvent("marketplace-browse-click");
+        const base = "https://marketplace.worldwideview.dev";
+        const url = `${base}?from_instance=${encodeURIComponent(window.location.origin)}`;
+        window.open(url, "_blank", "noopener,noreferrer");
+    }
     return (
       <a
         href="https://marketplace.worldwideview.dev"
         target="_blank"
         rel="noopener noreferrer"
         className="plugins-tab__browse"
-        onClick={() => trackEvent("marketplace-browse-click")}
+        onClick={handleClick}
       >
         <ExternalLink size={14} />
-        Marketplace
+        Browse Plugins
       </a>
     );
 }
