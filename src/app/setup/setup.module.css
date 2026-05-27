@@ -103,3 +103,17 @@
 .button:hover { opacity: 0.9; }
 .button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.footer {
+    margin-top: 1.25rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary, #888);
+    text-align: center;
+}
+
+.link {
+    color: rgb(200, 30, 30);
+    text-decoration: none;
+}
+
+.link:hover { text-decoration: underline; }
+

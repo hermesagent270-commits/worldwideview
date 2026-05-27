@@ -6,13 +6,20 @@ import { isDemo } from "@/core/edition";
 import { loginAction } from "./actions";
 import styles from "../setup/setup.module.css";
 
-/** Allow relative paths or absolute URLs on the same origin. */
+// Trusted subdomain root derived from NEXT_PUBLIC_WWV_COOKIE_DOMAIN (e.g. ".wwv.local" → "wwv.local").
+const _trustedDomain = process.env.NEXT_PUBLIC_WWV_COOKIE_DOMAIN?.replace(/^\./, '') ?? ''
+
+/** Allow relative paths, same-origin URLs, or any subdomain of the configured cookie domain. */
 function getSafeRedirect(url: string | null): string {
     if (!url) return "/";
     if (url.startsWith("/")) return url;
     try {
         const parsed = new URL(url);
         if (parsed.origin === window.location.origin) return url;
+        if (_trustedDomain && (
+            parsed.hostname === _trustedDomain ||
+            parsed.hostname.endsWith('.' + _trustedDomain)
+        )) return url;
     } catch { /* invalid URL — fall through */ }
     return "/";
 }
@@ -84,6 +91,16 @@ function LoginForm() {
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
+
+          <p className={styles.footer}>
+            Don&apos;t have an account?{" "}
+            <a
+              href={`/signup${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
+              className={styles.link}
+            >
+              Sign up
+            </a>
+          </p>
         </div>
       </div>
     );

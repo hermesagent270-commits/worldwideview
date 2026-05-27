@@ -1,4 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dir = path.dirname(fileURLToPath(import.meta.url));
+const MARKETPLACE_DIR = path.resolve(__dir, '../worldwideview-marketplace');
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -61,12 +66,25 @@ export default defineConfig({
     },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'pnpm dev',
-    env: { PORT: '3001' },
-    url: 'http://localhost:3001',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
+  /* Run dev servers before starting the tests */
+  webServer: [
+    {
+      command: 'pnpm dev',
+      env: {
+        PORT: '3001',
+        NEXT_PUBLIC_MARKETPLACE_URL: 'http://localhost:3002',
+      },
+      url: 'http://localhost:3001',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+    },
+    {
+      command: 'pnpm dev',
+      cwd: MARKETPLACE_DIR,
+      env: { PORT: '3002' },
+      url: 'http://localhost:3002',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+    },
+  ],
 });

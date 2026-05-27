@@ -1,7 +1,20 @@
 # ADR-0003: Shared Identity & Ecosystem Authentication Host
 
 ## Status
-Proposed *(Pending Review)*
+Accepted *(Phase 2A-D implementation complete 2026-05-25)*
+
+### Implementation notes (Phase 2 closeout)
+- `worldwideview/src/lib/supabase/cookieOptions.ts`, `server.ts`, `client.ts` added — mirrors marketplace recipe
+- `worldwideview/src/app/login/actions.ts` migrated from `@supabase/supabase-js` to `@supabase/ssr` `createServerClient` so login actually persists a Supabase session cookie
+- `getSafeRedirect` updated to allow trusted subdomains via `NEXT_PUBLIC_WWV_COOKIE_DOMAIN`
+- `/auth/callback` route added to handle Supabase PKCE email verification flow
+- `/signup` page and server action added at the auth host
+- `worldwideview-marketplace/src/app/api/install/start/route.ts` — new server-side auth gate for plugin installs
+- `InstallButton.handleInstall` retargeted to `/api/install/start` (was building WWV URL client-side with no auth check)
+- `requireSupabaseUser` redirect param renamed `?next=` to `?callbackUrl=` to match WWV login page
+- `install-redirect/route.ts` updated to use Supabase auth for cloud edition, NextAuth for local/demo
+- `httpOnly: true` added to `buildCookieOptions()` in both repos
+- NextAuth (Credentials provider) retained for local and demo editions
 
 ## Date
 2026-05-22

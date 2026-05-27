@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
+import { getSupabaseUser } from "@/lib/supabase/server";
+import { isCloud, isPluginInstallEnabled, isDemo, isDemoAdmin } from "@/core/edition";
 import { upsertPlugin } from "@/lib/marketplace/repository";
 import { issueMarketplaceToken } from "@/lib/marketplace/marketplaceToken";
 import type { MarketplaceSessionToken } from "@worldwideview/wwv-plugin-sdk";
@@ -8,7 +10,6 @@ import type { PluginManifest } from "@/core/plugins/PluginManifest";
 import { validateManifest } from "@/core/plugins/validateManifest";
 import { installLimiter } from "@/lib/rateLimiters";
 import { getClientIp } from "@/lib/rateLimit";
-import { isPluginInstallEnabled, isDemo, isDemoAdmin } from "@/core/edition";
 import { getVerifiedPluginIds } from "@/lib/marketplace/registryClient";
 import { getRequestOrigin } from "@/lib/origin";
 
@@ -51,23 +52,38 @@ export async function GET(request: NextRequest) {
         const rateLimited = installLimiter.check(getClientIp(request));
         if (rateLimited) return rateLimited;
 
-        const session = await auth();
+        // Auth: cloud edition uses Supabase session; local/demo uses NextAuth.
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const isDummyUrl = !supabaseUrl || supabaseUrl.includes("dummy") || supabaseUrl.includes("xyz.supabase.co");
+        const useSupabaseAuth = isCloud && !isDummyUrl;
 
-        // Not logged in — send to login with this URL as callbackUrl
-        if (!session?.user) {
-            const origin = getRequestOrigin(request);
-
-            const loginUrl = new URL("/login", origin);
-            const callbackPath = request.nextUrl.pathname + request.nextUrl.search;
-            loginUrl.searchParams.set("callbackUrl", callbackPath);
-            return NextResponse.redirect(loginUrl);
-        }
-
-        if (isDemo && !isDemoAdmin(session)) {
-            return NextResponse.json(
-                { error: "Admin access required on Demo edition" },
-                { status: 403 }
-            );
+        let userId: string;
+        if (useSupabaseAuth) {
+            const supabaseUser = await getSupabaseUser();
+            if (!supabaseUser) {
+                const origin = getRequestOrigin(request);
+                const loginUrl = new URL("/login", origin);
+                const callbackPath = request.nextUrl.pathname + request.nextUrl.search;
+                loginUrl.searchParams.set("callbackUrl", callbackPath);
+                return NextResponse.redirect(loginUrl);
+            }
+            userId = supabaseUser.id;
+        } else {
+            const session = await auth();
+            if (!session?.user) {
+                const origin = getRequestOrigin(request);
+                const loginUrl = new URL("/login", origin);
+                const callbackPath = request.nextUrl.pathname + request.nextUrl.search;
+                loginUrl.searchParams.set("callbackUrl", callbackPath);
+                return NextResponse.redirect(loginUrl);
+            }
+            if (isDemo && !isDemoAdmin(session)) {
+                return NextResponse.json(
+                    { error: "Admin access required on Demo edition" },
+                    { status: 403 }
+                );
+            }
+            userId = session.user.id ?? "";
         }
 
         const pluginId = searchParams.get("pluginId");
@@ -114,7 +130,7 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Install failed" }, { status: 500 });
         }
 
-        const token: MarketplaceSessionToken = await issueMarketplaceToken(session.user.id ?? "");
+        const token: MarketplaceSessionToken = await issueMarketplaceToken(userId);
         const successUrl = new URL(redirectTo);
 
         // Unverified plugins need user confirmation on the WWV client side

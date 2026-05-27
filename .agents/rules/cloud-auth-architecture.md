@@ -22,35 +22,16 @@ paths:
 
 ## Auth Strategy
 
-> [!WARNING]
-> **This section is superseded by [ADR-003](../../docs/architecture/decisions/adr-0003-shared-identity-and-ecosystem-auth-host.md) (2026-05-22).**
-> The decisions below describing `app.worldwideview.dev` as the auth owner and NextAuth as the ecosystem IdP are no longer current. The new architecture is:
-> - **`worldwideview.dev`** (the `worldwideview-web` repo) owns all login, signup, and account management UI
-> - **Supabase Auth** (single shared project) is the identity provider for all products
-> - Session cookies are scoped to `.worldwideview.dev` and shared across all subdomains
-> - The Marketplace never owns auth UI and never redirects to `app.worldwideview.dev`
+> [!NOTE]
+> **See [ADR-003](../../docs/architecture/decisions/adr-0003-shared-identity-and-ecosystem-auth-host.md) for the canonical auth architecture.**
+> The implementation described below (NextAuth as ecosystem IdP, `app.worldwideview.dev` as auth host) was superseded on 2026-05-22. Phase 2A-D (completed 2026-05-25) implemented the ADR-003 architecture:
+> - **Supabase Auth** is the identity provider for the cloud edition
+> - **`worldwideview.dev`** owns login, signup, and auth callback routes (`/login`, `/signup`, `/auth/callback`)
+> - **NextAuth** (Credentials provider) remains active for the local and demo editions only
+> - Session cookies use `@supabase/ssr` `createServerClient` scoped to `NEXT_PUBLIC_WWV_COOKIE_DOMAIN`
+> - Both worldwideview and worldwideview-marketplace use the same `buildCookieOptions()` recipe
 >
 > The multi-tenant RLS, tier matrix, license key, and CI/CD sections below remain valid.
-
-**Auth.js (NextAuth)** is the single auth API across all editions. `app.worldwideview.dev` owns **all auth UI** — login, registration, password reset. No other subdomain ever shows a login or registration form.
-
-```typescript
-// src/lib/auth.ts
-const providers = isCloud
-  ? [SupabaseProvider({ /* delegates to Supabase Auth (GoTrue) */ })]
-  : [Credentials({ /* local bcrypt + PostgreSQL */ })];
-
-export const { auth, signIn, signOut } = NextAuth({ providers });
-```
-
-Application code is **identical** across editions — always calls `auth()`, `signIn()`, `signOut()`.
-
-**One account for the entire ecosystem:**
-- Cloud instance (`[user].app.worldwideview.dev`)
-- Marketplace (browse, install, publish) — via SSO redirect
-- Local instance Bridge API connection
-
-**Marketplace never owns auth UI** — it redirects to `app.worldwideview.dev/login?redirect_to=marketplace...` for all sign-in.
 
 ---
 

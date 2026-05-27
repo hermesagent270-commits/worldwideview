@@ -23,6 +23,9 @@ node_modules/
 /.agents/context/
 /.agents/settings.local.json
 
+# planning (private repo: github.com/silvertakana/wwv-planning)
+.planning/
+
 # performance
 /performance/
 
