@@ -77,7 +77,7 @@ jobs:
       - name: Verify idempotency (re-run must skip gracefully)
         shell: bash
         run: |
-          output=$(pnpm setup 2>&1)
+          output=$(pnpm run setup 2>&1)
           echo "$output"
           if echo "$output" | grep -q "already exists"; then
             echo "PASS: second run skipped gracefully"
