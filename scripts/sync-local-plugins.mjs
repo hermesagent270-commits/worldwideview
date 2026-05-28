@@ -251,10 +251,22 @@ export async function buildPlugin({ dir, manifest, pkg, pluginDir }) {
                     external: Object.keys(EXTERNAL_GLOBALS),
                     output: {
                         globals: EXTERNAL_GLOBALS,
-                        codeSplitting: false,
+                        inlineDynamicImports: true,
                         banner: '"use client";',
                     },
-                    plugins: [(await import("rollup-plugin-external-globals")).default(EXTERNAL_GLOBALS)],
+                    plugins: [
+                        {
+                            name: 'replace-process-env',
+                            transform(code) {
+                                if (!code.includes('process.env.NODE_ENV')) return null;
+                                return {
+                                    code: code.replace(/process\.env\.NODE_ENV/g, '"production"'),
+                                    map: null,
+                                };
+                            },
+                        },
+                        (await import("rollup-plugin-external-globals")).default(EXTERNAL_GLOBALS),
+                    ],
                     onwarn(warning, warn) {
                         if (warning.code === 'MODULE_LEVEL_DIRECTIVE' && warning.message.includes('"use client"')) {
                             return;
@@ -291,6 +303,13 @@ export function syncToPublic({ dir, manifest, pluginDir }, { quiet = false } = {
     fs.copyFileSync(distFile, path.join(targetDir, "frontend.mjs"));
     if (fs.existsSync(distMap)) {
         fs.copyFileSync(distMap, path.join(targetDir, "frontend.mjs.map"));
+    }
+    // Copy any CSS files emitted alongside the bundle (e.g. from gridstack imports)
+    const distDir = path.join(pluginDir, "dist");
+    for (const f of fs.readdirSync(distDir)) {
+        if (f.endsWith(".css")) {
+            fs.copyFileSync(path.join(distDir, f), path.join(targetDir, f));
+        }
     }
 
     // Generate plugin.json manifest for the marketplace load route
