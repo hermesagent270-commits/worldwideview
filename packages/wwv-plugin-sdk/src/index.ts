@@ -313,3 +313,24 @@ export * from "./viteGlobals";
 
 // ─── Auth Contracts ──────────────────────────────────────────
 export * from "./auth-contracts";
+
+// ─── Tagged Property Helpers ─────────────────────────────────
+export function dtProp(iso: string | undefined | null): string | null {
+    if (!iso) return null;
+    return `datetime:${iso}`;
+}
+
+export function urlProp(href: string | undefined | null): string | null {
+    if (!href) return null;
+    return `url:${href}`;
+}
+
+export function imageProp(src: string | undefined | null): string | null {
+    if (!src) return null;
+    return `image:${src}`;
+}
+
+export function videoProp(href: string | undefined | null): string | null {
+    if (!href) return null;
+    return `video:${href}`;
+}
