@@ -3,6 +3,8 @@ name: Test Local Dev Environment
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "packages/wwv-cli/**"
   pull_request:
     branches: [main]
     paths:

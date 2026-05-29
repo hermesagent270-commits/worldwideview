@@ -1,9 +1,14 @@
 name: Playwright Tests
+# CLI-only changes are covered by cli.yml; skip browser E2E for them.
 on:
   push:
     branches: [ main, master ]
+    paths-ignore:
+      - "packages/wwv-cli/**"
   pull_request:
     branches: [ main, master ]
+    paths-ignore:
+      - "packages/wwv-cli/**"
 permissions:
   contents: read
 jobs:

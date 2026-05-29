@@ -124,9 +124,16 @@ export const createCommand = new Command('create')
     }
 
     if (options.yes && promptList.length > 0) {
-      const missing = promptList.map(p => p.name).join(', ');
-      console.error(`Error: --yes given but these required values are missing: ${missing}`);
-      process.exit(1);
+      // Only count prompts that would actually fire. seederTier is irrelevant
+      // unless the resolved architecture is websocket, so a polling plugin with
+      // --yes must not be forced to supply it.
+      const missing = promptList
+        .map(p => p.name as string)
+        .filter(name => (name === 'seederTier' ? options.architecture === 'websocket' : true));
+      if (missing.length > 0) {
+        console.error(`Error: --yes given but these required values are missing: ${missing.join(', ')}`);
+        process.exit(1);
+      }
     }
 
     const answers = promptList.length > 0 ? await prompts(promptList) : {};

@@ -1,10 +1,15 @@
 name: CI
 
+# CLI-only changes are covered by cli.yml; skip the full app suite for them.
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "packages/wwv-cli/**"
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "packages/wwv-cli/**"
 
 jobs:
   # Non-blocking dependency audit. Surfaces high / critical vulnerabilities
