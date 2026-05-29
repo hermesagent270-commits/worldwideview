@@ -33,6 +33,7 @@ import { createMcpServer } from "@/lib/mcp/server";
 import { mcpLimiter, getClientIp } from "@/lib/rateLimiters";
 import { registerGlobeResources } from "./globeResources";
 import { registerDataQueryTools } from "@/lib/mcp/tools";
+import { registerGlobeCommandTools } from "./globeCommandTools";
 
 // ---------------------------------------------------------------------------
 // JSON-RPC 2.0 error response helpers
@@ -131,10 +132,10 @@ async function handleMcpRequest(request: Request): Promise<Response> {
     const server = createMcpServer();
 
     // Registration seam (RECONCILIATION R-1):
-    // Phase 19: registerGlobeCommandTools(server, { userId: authResult.userId });
     // Phase 21: dynamic per-plugin tools
     registerGlobeResources(server, { userId: authResult.userId });
     registerDataQueryTools(server);
+    registerGlobeCommandTools(server, { userId: authResult.userId });
 
     const transport = new WebStandardStreamableHTTPServerTransport({
         sessionIdGenerator: undefined, // stateless mode (D-17-04)

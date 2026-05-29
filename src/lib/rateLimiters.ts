@@ -47,6 +47,15 @@ export const authLimiter = new RateLimiter({
 // multi-replica deployments — in-process limiters are per-replica and do not
 // share state across horizontal scale-out.
 
+/**
+ * GET /api/globe/commands — browser poll at ~1500ms across a small number of tabs.
+ * 120 req/60s per IP comfortably covers several simultaneous tabs with headroom.
+ */
+export const globeCommandsLimiter = new RateLimiter({
+    windowMs: 60_000,
+    maxRequests: 120,
+});
+
 /** /api/mcp — prevents scan/DoS before the expensive auth layer runs. */
 export const mcpLimiter = new RateLimiter({
     windowMs: 60_000,
