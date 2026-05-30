@@ -3,11 +3,16 @@ import { auth as getSession } from "@/lib/auth";
 import { authenticateApiKey } from "@/lib/apiKeyAuth";
 import { writeGlobeState } from "@/lib/globeStateStore";
 import { mcpLimiter, getClientIp } from "@/lib/rateLimiters";
+import { isDemo } from "@/core/edition";
 import type { GlobeStateSnapshot } from "@/lib/globeState";
 
 export async function POST(request: Request) {
     const limited = mcpLimiter.check(getClientIp(request));
     if (limited) return limited;
+
+    if (isDemo) {
+        return NextResponse.json({ error: "Not available in demo edition" }, { status: 403 });
+    }
 
     // R-2: browser write path authenticates via NextAuth session cookie (primary),
     // falling back to Bearer API key for programmatic/MCP clients.

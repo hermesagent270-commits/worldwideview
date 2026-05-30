@@ -17,6 +17,11 @@ vi.mock("@/lib/rateLimiters", () => ({
     getClientIp: vi.fn().mockReturnValue("127.0.0.1"),
 }));
 
+// Mutable ref so individual tests can toggle the demo edition flag.
+// Must be declared with vi.hoisted so it is available when vi.mock is hoisted.
+const editionMock = vi.hoisted(() => ({ isDemo: false }));
+vi.mock("@/core/edition", () => editionMock);
+
 const mockAuth = vi.mocked(authenticateApiKey);
 const mockWrite = vi.mocked(writeGlobeState);
 
@@ -44,6 +49,7 @@ function makeRequest(body: unknown): Request {
 
 beforeEach(() => {
     vi.resetAllMocks();
+    editionMock.isDemo = false;
     mockAuth.mockResolvedValue({ userId: "user-1", keyId: "key-1" });
     mockWrite.mockResolvedValue(undefined);
 });
@@ -94,5 +100,21 @@ describe("POST /api/globe/state (RSRC-01)", () => {
         const res = await POST(req);
 
         expect(res.status).toBe(200);
+    });
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/globe/state -- demo edition gate (GAP-01)
+// ---------------------------------------------------------------------------
+
+describe("POST /api/globe/state -- demo edition gate", () => {
+    it("returns 403 and does NOT call writeGlobeState when isDemo is true", async () => {
+        editionMock.isDemo = true;
+        const req = makeRequest({ sessionId: "sess-abc", snapshot: validSnapshot });
+        const res = await POST(req);
+        const body = await res.json();
+        expect(res.status).toBe(403);
+        expect(body).toEqual({ error: "Not available in demo edition" });
+        expect(mockWrite).not.toHaveBeenCalled();
     });
 });
