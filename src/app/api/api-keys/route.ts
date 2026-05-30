@@ -85,6 +85,30 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ key: created }, { status: 201 });
     } catch (err) {
+        // P2003 on the userId FK means the session refers to a user that has
+        // no row in `users` (e.g. a stale JWT after a DB reset). Signal the
+        // client to re-authenticate rather than surfacing an opaque 500.
+        const isPrismaP2003OnUserFk =
+            typeof err === "object" &&
+            err !== null &&
+            "code" in err &&
+            (err as { code: string }).code === "P2003" &&
+            "meta" in err &&
+            typeof (err as { meta: unknown }).meta === "object" &&
+            (err as { meta: { field_name?: string } }).meta !== null &&
+            (err as { meta: { field_name?: string } }).meta.field_name === "user_api_keys_userId_fkey";
+
+        if (isPrismaP2003OnUserFk) {
+            console.error("[api-keys] POST: session user not found in DB (id redacted)");
+            return NextResponse.json(
+                {
+                    error: "session_user_not_found",
+                    message: "Your session refers to a user that no longer exists. Please sign in again.",
+                },
+                { status: 401 },
+            );
+        }
+
         console.error("[api-keys] POST error:", err);
         return NextResponse.json({ error: "Failed to create API key" }, { status: 500 });
     }

@@ -223,4 +223,58 @@ describe("POST /api/api-keys", () => {
         const res = await POST(req);
         expect(res.status).toBe(201);
     });
+
+    it("returns 401 with session_user_not_found when prisma throws P2003 on user_api_keys_userId_fkey", async () => {
+        // Simulates a stale JWT whose user id has no row in `users` (e.g. after a DB reset).
+        vi.mocked(prisma.userApiKey.count).mockResolvedValue(0 as never);
+        const fkError = Object.assign(new Error("Foreign key constraint failed"), {
+            code: "P2003",
+            meta: { field_name: "user_api_keys_userId_fkey" },
+        });
+        vi.mocked(prisma.userApiKey.create).mockRejectedValue(fkError);
+        vi.mocked(generateApiKey).mockReturnValue({
+            prefix: "wwv_TESTPFX3",
+            secret: "testsecret_43chars_base64url_value_here123",
+            hashedSecret: "c".repeat(64),
+            fullToken: "wwv_TESTPFX3.testsecret_43chars_base64url_value_here123",
+        });
+
+        const req = new Request("http://localhost/api/api-keys", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: "Stale key" }),
+        });
+        const res = await POST(req);
+        const body = await res.json();
+
+        expect(res.status).toBe(401);
+        expect(body.error).toBe("session_user_not_found");
+    });
+
+    it("returns 500 when prisma throws P2003 on a different FK constraint", async () => {
+        // P2003 on a different constraint must NOT be mistaken for the user-not-found case.
+        vi.mocked(prisma.userApiKey.count).mockResolvedValue(0 as never);
+        const otherFkError = Object.assign(new Error("Foreign key constraint failed"), {
+            code: "P2003",
+            meta: { field_name: "some_other_fkey" },
+        });
+        vi.mocked(prisma.userApiKey.create).mockRejectedValue(otherFkError);
+        vi.mocked(generateApiKey).mockReturnValue({
+            prefix: "wwv_TESTPFX4",
+            secret: "testsecret_43chars_base64url_value_here123",
+            hashedSecret: "d".repeat(64),
+            fullToken: "wwv_TESTPFX4.testsecret_43chars_base64url_value_here123",
+        });
+
+        const req = new Request("http://localhost/api/api-keys", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: "Other error" }),
+        });
+        const res = await POST(req);
+        const body = await res.json();
+
+        expect(res.status).toBe(500);
+        expect(body.error).not.toBe("session_user_not_found");
+    });
 });
