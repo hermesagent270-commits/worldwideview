@@ -15,18 +15,19 @@
  * A module-level singleton would bind the transport to a prior request context,
  * causing all subsequent requests to fail silently (Pitfall 2).
  *
- * Future capability registration seam (RECONCILIATION R-1):
+ * Capability registration seam (RECONCILIATION R-1):
  *   After createMcpServer() + server.connect(transport) and BEFORE
  *   transport.handleRequest(), later phases append ONE registrar call each:
  *     Phase 18: registerGlobeResources(server, { userId })
  *     Phase 19: registerGlobeCommandTools(server, { userId })
  *     Phase 20: registerDataQueryTools(server, { userId })
- *     Phase 21: dynamic per-plugin tools
+ *     Phase 21: dynamic per-plugin tools (this phase)
  *   userId is available from the auth result at that point.
  */
 
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
+import { z } from "zod";
 import { isDemo } from "@/core/edition";
 import { authenticateApiKey } from "@/lib/apiKeyAuth";
 import { createMcpServer } from "@/lib/mcp/server";
@@ -34,6 +35,9 @@ import { mcpLimiter, getClientIp } from "@/lib/rateLimiters";
 import { registerGlobeResources } from "./globeResources";
 import { registerDataQueryTools } from "@/lib/mcp/tools";
 import { registerGlobeCommandTools } from "./globeCommandTools";
+import { readSessionCatalog } from "@/lib/mcpSessionCatalog";
+import { resolveActiveSessionId } from "@/lib/globeCommandQueue";
+import { composePluginToolsList } from "./pluginToolsList";
 
 // ---------------------------------------------------------------------------
 // JSON-RPC 2.0 error response helpers
@@ -94,6 +98,70 @@ function withStreamingHeaders(sdkResponse: Response): Response {
 }
 
 // ---------------------------------------------------------------------------
+// Phase 21: dynamic plugin tool registrar
+// ---------------------------------------------------------------------------
+
+/**
+ * Reads the per-session catalog for the authenticated user and registers each
+ * unique namespaced plugin tool on the server so they appear in tools/list.
+ *
+ * Tool handlers at this wave return a pending-relay message -- actual browser
+ * execution is wired in Wave 3 (21-04-PLAN).
+ *
+ * Security:
+ *   - userId comes from the auth result; never from the request or body.
+ *   - Catalog is scoped to the most-recently-active session for this user.
+ *   - No DB/tenantId enumeration -- catalog is browser-published only.
+ *   - Server stays plugin-agnostic: no streamUrl / data-engine access.
+ */
+type McpServer = import("@modelcontextprotocol/sdk/server/mcp.js").McpServer;
+
+async function registerPluginTools(
+    server: McpServer,
+    userId: string,
+): Promise<void> {
+    // Resolve the active session for this user (ZSET globe:sessions)
+    const sessionId = await resolveActiveSessionId(userId);
+    if (!sessionId) return;
+
+    // Read the browser-published catalog for this session
+    const catalog = await readSessionCatalog(userId, sessionId);
+
+    // composePluginToolsList returns all tools; we only need the plugin subset
+    // (system tools are already registered by the phase 19/20 registrars above).
+    const allTools = composePluginToolsList(catalog);
+    const systemNames = new Set([
+        "pan_globe", "focus_entity", "toggle_layer", "set_timeline",
+        "search_entities", "get_entities_in_region", "get_entity_details", "get_plugin_data",
+    ]);
+
+    for (const tool of allTools) {
+        if (systemNames.has(tool.name)) continue;
+
+        // Register the plugin tool -- handler is a stub until Wave 3 wires relay.
+        server.registerTool(
+            tool.name,
+            {
+                description: tool.description,
+                inputSchema: { args: z.record(z.string(), z.unknown()).optional() },
+            },
+            async (_input) => ({
+                content: [
+                    {
+                        type: "text" as const,
+                        text: JSON.stringify({
+                            pending: true,
+                            tool: tool.name,
+                            note: "Plugin tool relay is wired in Wave 3 (21-04).",
+                        }),
+                    },
+                ],
+            }),
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Core handler — all three methods delegate here
 // ---------------------------------------------------------------------------
 
@@ -132,10 +200,18 @@ async function handleMcpRequest(request: Request): Promise<Response> {
     const server = createMcpServer();
 
     // Registration seam (RECONCILIATION R-1):
-    // Phase 21: dynamic per-plugin tools
+    // Phase 18: globe resources
+    // Phase 19: globe command tools
+    // Phase 20: data query tools
+    // Phase 21: dynamic per-session plugin tools (below)
     registerGlobeResources(server, { userId: authResult.userId });
     registerDataQueryTools(server);
     registerGlobeCommandTools(server, { userId: authResult.userId });
+
+    // Phase 21: dynamic plugin tools — read the per-session catalog and
+    // register each plugin tool so tools/list includes them.
+    // NO DB/tenantId enumeration: discovery is browser-published only.
+    await registerPluginTools(server, authResult.userId);
 
     const transport = new WebStandardStreamableHTTPServerTransport({
         sessionIdGenerator: undefined, // stateless mode (D-17-04)
