@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: full-mcp-support
 status: active
-last_updated: "2026-05-29T11:24:00.000Z"
+last_updated: "2026-05-30T12:12:00.000Z"
 progress:
-  total_phases: 6
-  completed_phases: 1
-  total_plans: 7
-  completed_plans: 5
-  percent: 17
+  total_phases: 7
+  completed_phases: 2
+  total_plans: 20
+  completed_plans: 10
+  percent: 29
 ---
 
 # Project State
@@ -30,11 +30,70 @@ are NOT duplicated here.
 
 ## Current Position
 
-Phase: 17 (MCP Server Foundation) — IN PROGRESS (3 plans; Wave 0 complete)
-- **17-01 DONE (fcb7a5e):** RED test scaffolds (route.test.ts + transport-spike.test.ts). route.test.ts
-  is RED (./route absent); spike passes/skips cleanly.
-- **17-02 NEXT:** Install @modelcontextprotocol/sdk@^1.29.0, implement route.ts + createMcpServer factory.
-- **17-03:** ConnectAgentHelper UI + Nginx runbook + semver bump 2.26.0.
+**Phase 16:** code complete (5f3fe69 UI, 90dfb68 tsc fix). UAT run on :3005 (Playwright) passed steps
+1-5 EXCEPT: (a) cosmetic - existing section header reads "Your API Keys" not spec's "Service Keys"
+(fix in progress); (b) ANOMALY - after reload, GET /api/api-keys returned [] (all keys vanished). A
+debugger agent is investigating whether (b) is a code bug or a shared-dev-DB-across-worktrees artifact,
+and fixing (a). Phase 16 NOT marked verified until (b) is resolved.
+
+**Phase 17:** COMPLETE (verified 2026-05-30). Wave 0 (fcb7a5e) + Wave 1 (e0ad832, 0053f1d) + Wave 2
+(6f77495). Human-verify PASSED 6/6: token only in Authorization header, copy buttons flip, placeholder
+after dismiss, 401 JSON-RPC body, 200 SSE with x-accel-buffering:no + protocolVersion 2025-06-18.
+Version 2.26.0.
+
+**Phase 18:** COMPLETE (2026-05-30). Wave 0 + 1 + 2 + 3 all done. 498/498 tests GREEN. Delivered:
+ioredis singleton, GlobeStateSnapshot, globeStateStore (ZSET sessions), POST /api/globe/state (dual
+auth per R-2), useSessionId + useGlobeStateSync hooks, GlobeView wiring, registerGlobeResources MCP
+module (RSRC-02/03/04), route.ts first R-1 edit. Version TBD (bump in final commit).
+
+**Phase 20:** COMPLETE (2026-05-30). All waves done. 498/498 tests GREEN. Delivered: types.ts +
+service.ts transport-neutral service layer, REST routes (search + region), registerDataQueryTools
+MCP module (TOOL-01/02/03/04), route.ts second R-1 edit. Commit a5b4b62 (combined with Phase 18).
+Version 2.27.0.
+
+**Phase 19:** SPLIT (2026-05-30, user-approved) into 19a + 19b. See phases/19-globe-command-bridge/19-SPLIT.md.
+
+- **19a (Globe Command System Tools, poll-based):** COMPLETE (2026-05-30, commit a3c8f12). Command tools
+  (pan/focus/toggle/timeline) + Redis list queue + GET /api/globe/commands poll route + browser poll hook.
+  NO boot-path change. Covers CTRL-04 + CTRL-05. Version 2.28.0.
+
+  - All 3 waves GREEN. Full suite 573 passed / 0 failed.
+  - code-reviewer + security-reviewer DONE: no Critical/High. Security PASS on hard invariants (userId only
+    from auth, gate ordering rate-limit -> isDemo 403 -> auth, per-user/tenant queue namespacing, no secret in
+    URL, double-validation). Review findings folded in: timeWindow/currentTime validation, atomic enqueue
+    (multi.rpush.expire), UUID sessionId 400 guard, dedicated globeCommandsLimiter (120/60s), in-flight poll
+    guard, focusEntity entityId-only -> console.warn (no 0,0 fly), z.enum timeWindow.
+
+  - Committed: 15 files (excluded pnpm-lock.yaml, .planning, debug PNGs per constraints).
+- **Phase 21 readiness (IMPORTANT — two conflicting plan generations on disk):**
+    - AUTHORITATIVE: 21-REPLAN.md + 21-DECISIONS.md (May 30 02:16) — PLUG-03 via streamUrl delegation,
+      worldwideview-only, NO engine endpoint, NO marketplace. 4 decisions LOCKED.
+
+    - STALE: 21-RESEARCH.md + 21-01..04-PLAN.md (May 29 22:31-23:28) — route PLUG-03 through a NEW
+      wwv-data-engine REST endpoint + marketplace JWT bridge. DO NOT EXECUTE these wave plans; they predate
+      the re-plan. Archive them and regenerate 21-01..N against 21-REPLAN.md before executing.
+
+    - OPEN DECISION (the one heavy item): InstalledPlugin model is keyed by tenantId (nullable), NOT userId.
+      The MCP auth chain produces userId. Wave 2 ("tools/list from user's active installed plugins") needs a
+      resolved userId -> tenantId -> InstalledPlugin path. Stale research's `findMany({ where: { userId } })`
+      will NOT compile. Decide enumeration strategy (likely tenantId null in local edition = single-tenant)
+      before planning Wave 2.
+
+- **19b (WebSocket push transport):** DEFERRED out of milestone. server.ts + WS + Docker entrypoint + Nginx
+  + pub/sub subscriber. Covers CTRL-01/02/03/06. Basis = original 19-01..19-05 plans. Not executed unless
+  user later requests. The risky boot-path change is parked here.
+
+**Phase 21:** IN PROGRESS. Re-planned as v3 frontend-relay (21-REPLAN.md, decisions locked 2026-05-30).
+- **21-01 (Wave 0, RED):** COMPLETE (2026-05-30, commit 5930bc7). Six RED test files authored:
+  validateManifest.test.ts (extended + MAN-01..08), pluginTools.test.ts (PT-01..08),
+  mcpSessionCatalog.test.ts (CAT-01..06), pluginToolsList.test.ts (LIST-01..05),
+  mcpRelay.test.ts (RELAY-01 + SEC-01..05), pluginToolDispatch.test.ts (MCP-QA-01..04 + SEC-01/06).
+  tsc: only TS2307 "module not found" (expected). lint: zero errors on new files. vitest: 5 files FAIL
+  "Failed to resolve import" (correct RED), validateManifest.test.ts 7 RED + 9 GREEN.
+
+**Execution order (per RECONCILIATION R-7):** 17 done -> 18 done -> 20 done -> 19 (PAUSED, awaiting
+user discussion on WebSocket + custom server.ts) -> 21 (re-plan pause). route.ts serialization:
+18-04 first, then 20-04 appended. Commit checkpoint: a5b4b62 (Phases 18 + 20 combined).
 
 ## Phase 17 Plan Map (planned 2026-05-29)
 
@@ -76,6 +135,18 @@ Phase: 17 (MCP Server Foundation) — IN PROGRESS (3 plans; Wave 0 complete)
 - **17 connect helper (D-17-08/09):** in "API & MCP Access"; mcpServers JSON carries the token in the
   Authorization HEADER (raw-SDK Streamable HTTP form), never in a URL; Claude Code CLI deferred "coming
   soon". Nginx/Coolify buffering documented (D-17-07), not automated.
+
+- **17-03 (Wave 2):** mcpServers JSON shape uses `{ "url": "...", "headers": { "Authorization": "Bearer
+  <token>" } }` -- raw-SDK Streamable HTTP form (D-17-09). Local URL derived from window.location.origin
+  at runtime (not hardcoded :3000). CopyField sub-component pattern established for clipboard interactions.
+  .agents/context/ is gitignored in both worktree and main repo; server-management.md exists on disk as
+  a local operator runbook only (D-17-07 intent: document not automate).
+
+- **17-02 (Wave 1):** vitest.config.ts clearMocks: true required to fix mock call count isolation
+  between describe blocks (MCP-04 demo-gate tests inherited stale call counts from MCP-03 without this).
+  Optional chaining on server?.connect?.() and transport.handleRequest?.() guards against vi.resetAllMocks()
+  clearing SDK mock implementations in happy-path tests. AuthInfo.token = "" (raw token not re-exposed).
+  createMcpServer() capabilities: { tools: { listChanged: true } } per RECONCILIATION R-1.
 
 - **17-01 (Wave 0):** @vite-ignore on variable-based import specifier required in transport spike to
   prevent Vite's import-analysis from crashing at transform time on absent SDK. Runtime try/catch alone
