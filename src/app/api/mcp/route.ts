@@ -39,6 +39,7 @@ import { registerPluginToolDispatch } from "./pluginToolDispatch";
 import { registerGeocodingTools } from "./geocodingTools";
 import { registerFavoritesTools } from "./favoritesTools";
 import { registerFilterTools } from "./filterTools";
+import { registerDiscoveryTools } from "./discoveryTools";
 
 // ---------------------------------------------------------------------------
 // JSON-RPC 2.0 error response helpers
@@ -178,6 +179,8 @@ async function handleMcpRequest(request: Request): Promise<Response> {
     registerGeocodingTools(server, { userId: authResult.userId });
     registerFavoritesTools(server, { userId: authResult.userId });
     registerFilterTools(server, { userId: authResult.userId });
+    // Phase 29: discovery tools (list_available_plugins, get_globe_context, investigate_area)
+    registerDiscoveryTools(server, { userId: authResult.userId });
     // Phase 26: orientation prompts (INST-03, INST-04)
     await registerOrientationPrompts(server, { userId: authResult.userId });
 
