@@ -139,10 +139,14 @@ export async function registerOrientationPrompts(
                 };
             }
 
-            const mostRecent = sessions[0];
+            // readActiveSessions returns Redis zrange order (ascending score =
+            // oldest first), so sort by lastSeen descending to pick the genuinely
+            // most-recent session (matches composeGlobeContext / get_globe_context).
+            const sorted = [...sessions].sort((a, b) => b.lastSeen - a.lastSeen);
+            const mostRecent = sorted[0];
             const snapshot = await readGlobeState(userId, mostRecent.sessionId);
 
-            const sessionLines = sessions.map(
+            const sessionLines = sorted.map(
                 (s, i) =>
                     `  ${i + 1}. sessionId=${s.sessionId} (last seen ${Math.round((Date.now() - s.lastSeen) / 1000)}s ago)`,
             );
