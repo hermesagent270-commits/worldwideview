@@ -17,6 +17,8 @@ export interface RedisClient {
     zadd(key: string, score: number, member: string): Promise<number>;
     zrange(key: string, start: number | string, stop: number | string, withScores: "WITHSCORES"): Promise<string[]>;
     zrem(key: string, ...members: string[]): Promise<number>;
+    zremrangebyscore(key: string, min: number | "-inf", max: number | "+inf"): Promise<number>;
+    zcard(key: string): Promise<number>;
     rpush(key: string, ...values: string[]): Promise<number>;
     expire(key: string, seconds: number): Promise<number>;
     multi(): RedisMultiChain;
