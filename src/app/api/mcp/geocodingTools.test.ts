@@ -95,6 +95,7 @@ describe("fly_to tool handler", () => {
         await handlers["fly_to"]({ lat: 51.5, lng: -0.1 });
 
         expect(mockEnqueueGlobeCommand).toHaveBeenCalledWith(
+            "u1",
             "sess-abc",
             expect.objectContaining({ type: "flyTo", lat: 51.5, lng: -0.1 }),
         );
@@ -116,6 +117,7 @@ describe("fly_to tool handler", () => {
         await handlers["fly_to"]({ lat: 51.5, lng: -0.1, bbox: [-1, 50, 1, 52] });
 
         expect(mockEnqueueGlobeCommand).toHaveBeenCalledWith(
+            "u1",
             "sess-abc",
             expect.objectContaining({ bbox: [-1, 50, 1, 52] }),
         );
