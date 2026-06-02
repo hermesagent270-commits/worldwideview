@@ -66,7 +66,7 @@ export function createSvgIconUrl(
 }
 
 // ─── Re-export manifest types ─────────────────────────────────
-export type { PluginManifest, PluginFormat, PluginType, TrustTier, PluginCapability, DataSourceConfig, FieldMapping, RenderingConfig, McpToolDeclaration } from "./manifest";
+export type { PluginManifest, PluginFormat, PluginType, TrustTier, PluginCapability, DataSourceConfig, FieldMapping, RenderingConfig, McpToolDeclaration, LocalDataSourceDeclaration } from "./manifest";
 
 // ─── Categories ──────────────────────────────────────────────
 export type PluginCategory =

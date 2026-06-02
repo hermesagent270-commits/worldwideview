@@ -51,3 +51,8 @@ export async function getCached(
     cache.set(key, { snapshot, expiresAt: Date.now() + ttlMs });
     return snapshot;
 }
+
+/** Exposed for testing: clear all cache entries. */
+export function _clearCache(): void {
+    cache.clear();
+}
