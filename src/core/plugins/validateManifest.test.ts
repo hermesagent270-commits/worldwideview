@@ -265,6 +265,91 @@ describe("validateManifest mcpCapabilities field (MAN-03)", () => {
 });
 
 // ---------------------------------------------------------------------------
+// MAN-LD: localData array validation (Phase 30, D-02)
+// ---------------------------------------------------------------------------
+
+describe("validateManifest localData field (MAN-LD)", () => {
+    it("accepts a manifest with no localData field (unchanged pass-through)", () => {
+        const result = validateManifest(baseManifest());
+        expect(result.valid).toBe(true);
+        expect(result.errors).toHaveLength(0);
+    });
+
+    it("accepts a well-formed localData array with geojson and route entries", () => {
+        const manifest = baseManifest({
+            localData: [
+                { name: "default", type: "geojson", path: "/public-cameras.json" },
+                { name: "traffic", type: "route", path: "/api/camera/traffic" },
+            ],
+        });
+        const result = validateManifest(manifest);
+        const hasLocalDataError = result.errors.some((e) => /localData/i.test(e));
+        expect(hasLocalDataError).toBe(false);
+    });
+
+    it("rejects localData that is not an array (string instead of array)", () => {
+        const manifest = baseManifest({ localData: "not-an-array" });
+        const result = validateManifest(manifest);
+        const hasLocalDataError = result.errors.some((e) =>
+            /localData must be an array/i.test(e),
+        );
+        expect(hasLocalDataError).toBe(true);
+    });
+
+    it("rejects a localData entry missing name (empty string)", () => {
+        const manifest = baseManifest({
+            localData: [
+                { name: "", type: "geojson", path: "/data.json" },
+            ],
+        });
+        const result = validateManifest(manifest);
+        const hasNameError = result.errors.some(
+            (e) => /localData\[0\].*name/i.test(e) || /localData\[0\].*name/i.test(e),
+        );
+        expect(hasNameError).toBe(true);
+    });
+
+    it("rejects a localData entry with an invalid type (not geojson or route)", () => {
+        const manifest = baseManifest({
+            localData: [
+                { name: "default", type: "external", path: "/data.json" },
+            ],
+        });
+        const result = validateManifest(manifest);
+        const hasTypeError = result.errors.some(
+            (e) => /localData\[0\].*type/i.test(e),
+        );
+        expect(hasTypeError).toBe(true);
+    });
+
+    it("rejects a localData entry with a path that does not start with /", () => {
+        const manifest = baseManifest({
+            localData: [
+                { name: "default", type: "geojson", path: "relative/path.json" },
+            ],
+        });
+        const result = validateManifest(manifest);
+        const hasPathError = result.errors.some(
+            (e) => /localData\[0\].*path/i.test(e),
+        );
+        expect(hasPathError).toBe(true);
+    });
+
+    it("rejects a localData entry with a path containing .. (traversal)", () => {
+        const manifest = baseManifest({
+            localData: [
+                { name: "default", type: "geojson", path: "/../etc/passwd" },
+            ],
+        });
+        const result = validateManifest(manifest);
+        const hasPathError = result.errors.some(
+            (e) => /localData\[0\].*path/i.test(e),
+        );
+        expect(hasPathError).toBe(true);
+    });
+});
+
+// ---------------------------------------------------------------------------
 // MAN-04: no "execution" field required (v3 -- server never executes plugin tools)
 // ---------------------------------------------------------------------------
 
