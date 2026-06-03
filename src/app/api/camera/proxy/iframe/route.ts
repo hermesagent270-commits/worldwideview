@@ -8,6 +8,18 @@ import { safeFetch } from "@/lib/security/ssrf";
 const MAX_IFRAME_DURATION_MS = 10 * 1000; // 10 seconds timeout for HTML
 
 /**
+ * Escape a string for safe inclusion in an HTML attribute value.
+ */
+function escapeHtmlAttr(s: string): string {
+    return s
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#x27;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+/**
  * Proxy for iframe HTML pages.
  * Fetches the target HTML, strips X-Frame-Options and CSP, and injects a <base href="...">
  * so that relative scripts/styles load correctly from the original origin.
@@ -62,7 +74,8 @@ export async function GET(req: NextRequest) {
         let html = await upstream.text();
 
         // Inject <base href="..."> right after <head> or at the very beginning of the document
-        const baseTag = `<base href="${targetUrl}">\n`;
+        const escapedUrl = escapeHtmlAttr(targetUrl);
+        const baseTag = `<base href="${escapedUrl}">\n`;
         if (html.includes("<head>")) {
             html = html.replace("<head>", `<head>\n${baseTag}`);
         } else if (html.includes("<HEAD>")) {
