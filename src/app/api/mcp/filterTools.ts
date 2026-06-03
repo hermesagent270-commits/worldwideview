@@ -23,6 +23,7 @@ import { readSessionCatalog } from "@/lib/mcpSessionCatalog";
 import { filterValueSchema } from "@/lib/mcp/filterSchemas";
 import type { GlobeCommand } from "@/core/globe/types/GlobeCommand";
 import { pluginIdSchema } from "@/lib/mcp/identifierSchemas";
+import { listStreamingPlugins } from "@/app/api/mcp/discoveryHelpers";
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -67,9 +68,10 @@ export function registerFilterTools(
             description:
                 "Apply one or more filters to a plugin's live globe layer (no page reload). " +
                 "Use after get_plugin_filters to discover valid filter ids; affects the live globe layer, not data query tools. " +
-                "Limitations: filter ids are plugin-specific; invalid ids are silently ignored by the browser. " +
+                "Use list_available_plugins to confirm valid pluginIds before calling. " +
+                "Limitations: filter ids are plugin-specific; unknown pluginIds produce a warning in the response. " +
                 "Parameters: pluginId (string, required); filters (object, required) -- filterId -> { type: 'text', value } | { type: 'select', values } | { type: 'range', min, max } | { type: 'boolean', value }; sessionId (optional). " +
-                "Output: 'set_filter command enqueued for <pluginId> (N filter(s))' or 'no active globe session to control'. " +
+                "Output: 'set_filter command enqueued for <pluginId> (N filter(s))' or a warning when the pluginId is unrecognized. " +
                 "Example: set_filter({ pluginId: 'flights', filters: { status: { type: 'select', values: ['airborne'] } } }).",
             inputSchema: {
                 pluginId: pluginIdSchema.describe("Plugin whose layer to filter, e.g. 'flights'"),
@@ -84,12 +86,23 @@ export function registerFilterTools(
                 const sessionId = await resolveSession(userId, args.sessionId);
                 if (sessionId === null) return NO_SESSION_RESULT;
 
+                // Validate the pluginId against the live streaming plugin set.
+                const { plugins } = await listStreamingPlugins();
+                const knownIds = new Set(plugins.map((p) => p.pluginId));
+                const isKnown = knownIds.has(args.pluginId);
+
                 const cmd: GlobeCommand = {
                     type: "setFilter",
                     pluginId: args.pluginId,
                     filters: args.filters,
                 };
                 await enqueueGlobeCommand(userId, sessionId, cmd);
+
+                if (!isKnown) {
+                    return textResult(
+                        `Command enqueued, but pluginId '${args.pluginId}' is not a recognized plugin. It may be ignored.`,
+                    );
+                }
                 return textResult(
                     `set_filter command enqueued for '${args.pluginId}' (${Object.keys(args.filters).length} filter(s))`,
                 );

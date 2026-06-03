@@ -211,27 +211,32 @@ export async function getEntitiesInRegion(bounds: RegionOptions): Promise<QueryR
         }
     }
 
-    const results: SearchResult[] = [];
+    // Collect all matches first to get a totalMatched count, then cap.
+    const allMatched: SearchResult[] = [];
     for (const snapshot of snapshots) {
         for (const entity of snapshot.entities) {
-            if (results.length >= effectiveLimit) break;
             const { latitude: lat, longitude: lon } = entity;
             if (lat < south || lat > north) continue;
             const inLon = isAntimeridian
                 ? lon >= west || lon <= east
                 : lon >= west && lon <= east;
-            if (inLon) results.push(entityToSearchResult(entity));
+            if (inLon) allMatched.push(entityToSearchResult(entity));
         }
-        if (results.length >= effectiveLimit) break;
     }
 
-    if (results.length === 0) {
+    if (allMatched.length === 0) {
         return {
             entities: [],
             emptyReason: snapshotNotStreaming ? "plugin_not_streaming" : "no_data_matches",
         };
     }
-    return { entities: results };
+
+    const truncated = allMatched.length > effectiveLimit;
+    const results = truncated ? allMatched.slice(0, effectiveLimit) : allMatched;
+    return {
+        entities: results,
+        ...(truncated && { totalMatched: allMatched.length }),
+    };
 }
 
 export async function getEntityDetails(
