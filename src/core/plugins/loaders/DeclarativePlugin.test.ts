@@ -123,7 +123,7 @@ describe("DeclarativePlugin", () => {
             getCurrentTime: () => new Date(),
             env: {},
             edition: "local",
-            getEngineUrl: () => "http://localhost:5001",
+            getEngineUrl: () => "http://test-engine/",
         });
 
         const entities = await plugin.fetch({ start: new Date(), end: new Date() });
