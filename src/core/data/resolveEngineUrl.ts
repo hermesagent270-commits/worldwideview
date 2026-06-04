@@ -32,7 +32,7 @@ function getLocalWsUrl() {
  * 2. Plugin's ServerPluginConfig.streamUrl (code-based plugins)
  * 3. Plugin's PluginManifest.dataSource.streamUrl (manifest-based plugins)
  * 4. NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL env var
- * 5. Fallback: wss://dataengine.worldwideview.dev/stream (cloud)
+ * 5. Fallback: wss://dataenginev2.worldwideview.dev/stream (cloud)
  */
 export function resolveEngineUrl(pluginId: string): string {
   // 1. Local engine (split-routing) - PRIORITY #1
