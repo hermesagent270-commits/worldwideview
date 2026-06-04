@@ -3,8 +3,9 @@ import Credentials from "next-auth/providers/credentials";
 import { compareSync } from "bcryptjs";
 import { timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/db";
+import type { JWT } from "next-auth/jwt";
 import {
- isDemo, isCloud, getDemoAdminSecret, DEMO_ADMIN_ROLE
+ isDemo, isCloud, getDemoAdminSecret, DEMO_ADMIN_ROLE, isHttpsDeployment
 } from "@/core/edition";
 import { authConfig } from "@/lib/auth.config";
 import { SupabaseAdapter } from "@auth/supabase-adapter";
@@ -91,6 +92,7 @@ const localCredentialsProvider = Credentials({
                 name: "Demo Admin",
                 email: "admin",
                 role: DEMO_ADMIN_ROLE,
+                sessionVersion: 0,
             };
         }
 
@@ -120,15 +122,72 @@ const localCredentialsProvider = Credentials({
             name: user.name,
             email: user.email,
             role: user.role,
+            sessionVersion: user.sessionVersion,
         };
     },
 });
+
+// True when the deployment serves over https (session cookie gets the secure
+// flag / __Secure- prefix). Shared with the edge proxy reader via
+// isHttpsDeployment() so the cookie writer and reader never disagree on the
+// __Secure- prefix behind a TLS-terminating reverse proxy.
+const isSecureDeploy = isHttpsDeployment();
+
+/**
+ * Authoritative session revocation check, run from the jwt callback on every
+ * non-sign-in request (local/demo editions). Returns the token unchanged when
+ * still valid, or `null` to invalidate the session when:
+ *  - the user row no longer exists (deleted, or the token was minted against a
+ *    different database, e.g. another worktree/instance even with a shared
+ *    AUTH_SECRET), or
+ *  - the user's sessionVersion was bumped (logout-everywhere / credential
+ *    rotation), making the token's embedded version stale.
+ */
+export async function revalidateSession(token: JWT): Promise<JWT | null> {
+    const userId = token.id;
+    if (typeof userId !== "string" || !userId) return null;
+
+    const dbUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { sessionVersion: true, role: true },
+    });
+    if (!dbUser) return null;
+
+    const tokenVersion = typeof token.sessionVersion === "number" ? token.sessionVersion : 0;
+    if (dbUser.sessionVersion !== tokenVersion) return null;
+
+    // Keep role fresh in case it changed server-side since the token was issued.
+    token.role = dbUser.role;
+    return token;
+}
 
 export const {
  handlers, auth, signIn, signOut
 } = NextAuth({
     ...authConfig,
-    session: { strategy: "jwt" },
+    session: {
+        strategy: "jwt",
+        // Bound the lifetime of the signature-only token. The edge proxy gate
+        // verifies the JWT signature but cannot reach the DB (no Prisma on the
+        // edge runtime), so a shorter maxAge limits how long a leaked-but-
+        // unexpired token can reach pages before the authoritative revocation
+        // check (revalidateSession) rejects it on any auth() call.
+        maxAge: 7 * 24 * 60 * 60, // 7 days
+        updateAge: 24 * 60 * 60, // sliding refresh, at most once per day
+    },
+    // Explicit, hardened cookie options. These pin NextAuth's secure defaults so
+    // they cannot silently regress: httpOnly blocks JS access (XSS token theft),
+    // sameSite=lax blocks cross-site sends (CSRF), secure requires https in prod.
+    cookies: {
+        sessionToken: {
+            options: {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                secure: isSecureDeploy,
+            },
+        },
+    },
     adapter: isCloud ? SupabaseAdapter({
         url: process.env.NEXT_PUBLIC_SUPABASE_URL || "http://dummy.supabase.co",
         secret: process.env.SUPABASE_SERVICE_ROLE_KEY || "dummy",
@@ -137,21 +196,32 @@ export const {
     callbacks: {
         ...authConfig.callbacks,
         async jwt({ token, user }) {
+            // Initial sign-in: copy identity claims from the authorized user.
             if (user) {
-                token.role = (user as { role?: string }).role ?? "user";
+                token.role = user.role ?? "user";
                 token.id = user.id;
+                // Embed the user's current sessionVersion so the token can be
+                // compared against the DB on later requests and revoked.
+                token.sessionVersion = user.sessionVersion ?? 0;
                 // Persist the demo-admin synthetic identity on first sign-in so
                 // that the `users` FK target exists for API key creation. Runs
                 // only when `user` is present (initial sign-in, not token refresh).
                 // All values inside come from server-controlled constants.
                 await persistDemoAdminIfNeeded(user.id!, isCloud);
+                return token;
             }
-            return token;
+
+            // Every subsequent request re-validates the token against the DB so
+            // that deleted users, cross-database tokens, and bumped
+            // sessionVersions are rejected. Cloud identities live in Supabase
+            // (no local `users` row), so they skip the Prisma comparison.
+            if (isCloud) return token;
+            return revalidateSession(token);
         },
         async session({ session, token }) {
             if (session.user) {
                 session.user.id = token.id as string;
-                (session.user as { role?: string }).role = token.role as string;
+                session.user.role = token.role as string | undefined;
             }
             return session;
         },

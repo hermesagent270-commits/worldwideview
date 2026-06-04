@@ -49,6 +49,24 @@ export const isCloud: boolean = edition === "cloud";
 export const isDemo: boolean = edition === "demo";
 
 // ---------------------------------------------------------------------------
+// Secure-context detection (https)
+// ---------------------------------------------------------------------------
+
+/**
+ * True when the deployment serves over https, derived from the configured auth
+ * URL or a production NODE_ENV. This is the request-independent half of the
+ * secure-context check: the NextAuth cookie WRITER (auth.ts) uses it to decide
+ * the secure flag / __Secure- cookie prefix, and the edge proxy READER (proxy.ts)
+ * ORs it with per-request X-Forwarded-Proto / protocol when reading the token.
+ * Centralised here so the writer and reader can never disagree on which cookie
+ * name is in play behind a TLS-terminating reverse proxy.
+ */
+export function isHttpsDeployment(): boolean {
+    const authUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? "";
+    return authUrl.startsWith("https://") || process.env.NODE_ENV === "production";
+}
+
+// ---------------------------------------------------------------------------
 // Demo admin secret (must be before feature flags so they can reference it)
 // ---------------------------------------------------------------------------
 

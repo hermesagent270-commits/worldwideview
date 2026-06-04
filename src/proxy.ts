@@ -2,10 +2,61 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { isDemo } from "@/core/edition";
+import { isDemo, isHttpsDeployment } from "@/core/edition";
 
 const workspaceCache = new Map<string, { status: string; expiresAt: number }>();
 const CACHE_TTL = 60_000; // 60 seconds
+
+// Anchored static-asset allowlist. Only requests ending in a real asset
+// extension bypass the auth gate. This replaces the former `path.includes(".")`
+// check, which let ANY dotted path (e.g. `/secret.page`, `/globe.config`)
+// skip authentication entirely.
+const STATIC_ASSET_RE = /\.(?:js|mjs|cjs|css|map|json|txt|xml|webmanifest|ico|png|jpe?g|gif|svg|webp|avif|bmp|woff2?|ttf|otf|eot|wasm|mp4|webm|glb|gltf)$/i;
+
+// API routes that must stay reachable WITHOUT a logged-in session cookie.
+// Everything else under /api is deny-by-default (requires a valid session JWT).
+//  - auth/internal/health/billing-webhook: pre-login, server-to-server, infra, or external callers.
+//  - mcp/globe/v1-entities: dual-auth routes that self-guard via Bearer API key
+//    (programmatic clients send no session cookie, so the gate must not block them).
+//  - marketplace/*: every marketplace route self-guards. validateMarketplaceAuth
+//    accepts a cross-origin Bearer marketplace JWT (callers send no session cookie),
+//    auth() guards the same-origin routes, and sideload is NODE_ENV-gated to dev.
+//    Gating the prefix here would 401 those cross-origin Bearer/preflight requests
+//    before their own auth runs, breaking install/manage from the marketplace origin.
+//  - glitchtip-tunnel/build/dev: telemetry/diagnostics (dev/* is NODE_ENV-gated to 403 in prod).
+const PUBLIC_API_PREFIXES = [
+    "/api/auth",
+    "/api/internal/workspace",
+    "/api/health",
+    "/api/billing/webhook",
+    "/api/mcp",
+    "/api/globe",
+    "/api/v1/entities",
+    "/api/marketplace",
+    "/api/glitchtip-tunnel",
+    "/api/build",
+    "/api/dev",
+];
+
+function isPublicApiPath(path: string): boolean {
+    return PUBLIC_API_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
+}
+
+// Resolve the Auth.js session token, handling the __Secure- cookie prefix used
+// behind a TLS-terminating reverse proxy (the public URL is https but the
+// request reaching us may be plain http). Detect via X-Forwarded-Proto / AUTH_URL.
+async function getSessionToken(req: NextRequest) {
+    // Request-aware OR the deploy-wide https signal (isHttpsDeployment), so the
+    // reader agrees with the cookie writer (auth.ts) on the __Secure- prefix.
+    const isSecure = req.headers.get("x-forwarded-proto") === "https"
+        || isHttpsDeployment()
+        || req.nextUrl.protocol === "https:";
+    return getToken({
+        req,
+        secret: process.env.AUTH_SECRET,
+        secureCookie: isSecure,
+    });
+}
 
 async function resolveWorkspace(subdomain: string) {
     const cached = workspaceCache.get(subdomain);
@@ -62,16 +113,49 @@ export default async function proxy(req: NextRequest) {
         return res;
     }
 
-    // Static assets, API routes, data files — always pass through.
-    // Strip any client-supplied x-tenant-subdomain on /api/* before forwarding,
-    // then re-inject only the server-resolved value (H2: tenant-header spoof prevention).
-    // A forged header must never reach the Prisma tenant extension.
+    // API routes: DENY BY DEFAULT. Evaluated BEFORE the static-asset allowlist so
+    // that no `/api/...` path ending in an asset-like extension (e.g. a catch-all
+    // segment such as `/api/x/y.json`) can match the static fast-path and skip the
+    // gate. Public/self-guarded routes pass through; every other /api route requires
+    // a valid session JWT (else 401 JSON). This closes the former blanket `/api`
+    // pass-through that left unauthenticated data proxies (places/*, camera/test,
+    // earthquake, iss*, weather*, ...) open and burning server-held upstream keys.
+    if (path.startsWith("/api")) {
+        const res = NextResponse.next();
+        // Always drop a client-supplied tenant header; only the server-resolved
+        // value may be forwarded (H2: tenant-header spoof prevention).
+        res.headers.delete("x-tenant-subdomain");
+
+        // CORS preflight is credential-less by design (no cookie, no Authorization
+        // header), so gating it would 401 the preflight and break every cross-origin
+        // API route before its real request is ever sent. Let OPTIONS through; the
+        // route's own OPTIONS/CORS handler answers it (no body, nothing to leak).
+        if (req.method === "OPTIONS") return res;
+
+        if (isPublicApiPath(path)) {
+            if (tenantSubdomain) res.headers.set("x-tenant-subdomain", tenantSubdomain);
+            return res;
+        }
+
+        const apiToken = await getSessionToken(req);
+        if (apiToken) {
+            if (tenantSubdomain) res.headers.set("x-tenant-subdomain", tenantSubdomain);
+            return res;
+        }
+        return NextResponse.json(
+            { error: "Unauthorized" },
+            { status: 401, headers: { "WWW-Authenticate": "Bearer" } },
+        );
+    }
+
+    // Static assets and internal data dirs always pass through (no auth).
+    // Static files match an explicit extension allowlist instead of the old,
+    // bypass-prone `path.includes(".")` (which let any dotted path skip the gate).
     if (
         path.startsWith("/_next")
-        || path.startsWith("/api")
         || path.startsWith("/data")
         || path.startsWith("/cesium")
-        || path.includes(".")
+        || STATIC_ASSET_RE.test(path)
     ) {
         const res = NextResponse.next();
         res.headers.delete("x-tenant-subdomain");
@@ -91,7 +175,7 @@ export default async function proxy(req: NextRequest) {
         }
     }
 
-    // Auth pages — always accessible
+    // Auth pages: always accessible
     if (path.startsWith("/setup") || path.startsWith("/login")) {
         const res = NextResponse.next();
         if (tenantSubdomain) res.headers.set("x-tenant-subdomain", tenantSubdomain);
@@ -106,30 +190,18 @@ export default async function proxy(req: NextRequest) {
         }
     }
 
-    // Check JWT session from Auth.js cookie.
-    // Behind a TLS-terminating reverse proxy, the cookie was set with the
-    // `__Secure-` prefix (because the public URL is https), but the request
-    // reaching us is plain http, so getToken's auto-detection looks for the
-    // unprefixed name and misses it. Detect via X-Forwarded-Proto / AUTH_URL.
-    const xfProto = req.headers.get("x-forwarded-proto");
-    const authUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? "";
-    const isSecure = xfProto === "https"
-        || authUrl.startsWith("https://")
-        || req.nextUrl.protocol === "https:";
-    const token = await getToken({
-        req,
-        secret: process.env.AUTH_SECRET,
-        secureCookie: isSecure,
-    });
+    // Check the Auth.js session cookie for page requests (the helper handles the
+    // __Secure- cookie prefix used behind a TLS-terminating reverse proxy).
+    const token = await getSessionToken(req);
 
     if (token) {
-        // User is logged in — allow through
+        // User is logged in, allow through
         const res = NextResponse.next();
         if (tenantSubdomain) res.headers.set("x-tenant-subdomain", tenantSubdomain);
         return res;
     }
 
-    // Not logged in — check if first-run (no users)
+    // Not logged in: check if first-run (no users)
     try {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || `http://127.0.0.1:${process.env.PORT || "3000"}`;
         const url = new URL("/api/auth/setup-status", appUrl);

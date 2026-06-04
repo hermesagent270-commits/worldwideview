@@ -18,8 +18,9 @@ vi.unmock("@/lib/auth");
 // vi.hoisted() runs before all vi.mock() factories, so the variable is
 // defined before the hoisted factory closure captures it.
 // ---------------------------------------------------------------------------
-const { mockUpsert } = vi.hoisted(() => ({
+const { mockUpsert, mockFindUnique } = vi.hoisted(() => ({
     mockUpsert: vi.fn().mockResolvedValue(undefined),
+    mockFindUnique: vi.fn(),
 }));
 
 vi.mock("@/lib/db", () => ({
@@ -27,6 +28,7 @@ vi.mock("@/lib/db", () => ({
         user: {
             upsert: mockUpsert,
             findFirst: vi.fn(),
+            findUnique: mockFindUnique,
         },
     },
 }));
@@ -54,6 +56,7 @@ vi.mock("@/core/edition", () => ({
     isDemo: false,
     getDemoAdminSecret: vi.fn(() => undefined),
     DEMO_ADMIN_ROLE: "demo-admin",
+    isHttpsDeployment: vi.fn(() => false),
 }));
 vi.mock("bcryptjs", () => ({ compareSync: vi.fn(() => false) }));
 
@@ -61,6 +64,7 @@ vi.mock("bcryptjs", () => ({ compareSync: vi.fn(() => false) }));
 import {
     persistDemoAdminIfNeeded,
     ensureLocalUserPersisted,
+    revalidateSession,
     DEMO_ADMIN_ID,
     DEMO_ADMIN_EMAIL,
     DEMO_ADMIN_NAME,
@@ -146,5 +150,45 @@ describe("persistDemoAdminIfNeeded -- jwt callback guard", () => {
         await persistDemoAdminIfNeeded(DEMO_ADMIN_ID, true);
 
         expect(mockUpsert).not.toHaveBeenCalled();
+    });
+});
+
+// ---------------------------------------------------------------------------
+// revalidateSession -- authoritative JWT revocation check
+// ---------------------------------------------------------------------------
+describe("revalidateSession -- jwt revocation check", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it("returns null when the token carries no user id", async () => {
+        const result = await revalidateSession({});
+        expect(result).toBeNull();
+        expect(mockFindUnique).not.toHaveBeenCalled();
+    });
+
+    it("returns null when the user no longer exists in the DB (deleted / cross-database token)", async () => {
+        mockFindUnique.mockResolvedValue(null);
+        const result = await revalidateSession({ id: "missing-user", sessionVersion: 0 });
+        expect(result).toBeNull();
+    });
+
+    it("returns null when the token sessionVersion is stale (revoked / logout-everywhere)", async () => {
+        mockFindUnique.mockResolvedValue({ sessionVersion: 3, role: "user" });
+        const result = await revalidateSession({ id: "u1", sessionVersion: 2 });
+        expect(result).toBeNull();
+    });
+
+    it("returns the token with role refreshed when the version matches", async () => {
+        mockFindUnique.mockResolvedValue({ sessionVersion: 5, role: "admin" });
+        const result = await revalidateSession({ id: "u1", sessionVersion: 5, role: "user" });
+        expect(result).not.toBeNull();
+        expect((result as { role?: string }).role).toBe("admin");
+    });
+
+    it("treats a missing token sessionVersion as 0", async () => {
+        mockFindUnique.mockResolvedValue({ sessionVersion: 0, role: "user" });
+        const result = await revalidateSession({ id: "u1" });
+        expect(result).not.toBeNull();
     });
 });
