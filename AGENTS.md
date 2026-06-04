@@ -60,6 +60,7 @@ Agents MUST respect these at all times:
 > - **MUST** require explicit user authorization before any state-changing action that isn't simple/safe.
 > - **MUST** ask clarifying questions rather than assume when requirements are unclear.
 > - **MUST** update `.agents/rules/` files immediately whenever an architectural shift invalidates them.
+> - **MUST** close context gaps: when missing/wrong/undocumented context made you err, struggle, or go slow, fix the relevant doc/context (or add a type/guardrail) at its source — or ask the user to update it when it depends on their knowledge. In autonomous mode, log the gap to revisit later. Never fix only the symptom and leave the trap armed for the next contributor.
 
 ---
 
