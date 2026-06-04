@@ -12,6 +12,21 @@ paths:
 ## Purpose
 The standard operating procedure for instantiating, modifying, and registering a new data source plugin within the engine.
 
+## Data Engine Agnosticism (Separation of Concern)
+
+> [!IMPORTANT]
+> **WWV is agnostic to which data engine a plugin uses.** Each plugin MUST declare its own `streamUrl` in `getServerConfig()`. The WWV application never controls or overrides plugin stream URLs.
+
+This is intentional architectural separation: a user can have 30 plugins pointing to 30 different custom backend servers, and WWV opens 30 separate WebSocket connections without caring. The WWV app does not have a "the data engine" — each plugin has its own.
+
+**Practical rules:**
+- Plugins hardcode their cloud engine URL (e.g. `wss://dataenginev2.worldwideview.dev/stream`) — this is correct and by design.
+- Do not add env vars to let WWV override a plugin's `streamUrl` globally — that breaks the separation.
+- When editing a plugin's fallback fetch URL, use `https://dataenginev2.worldwideview.dev` (note the `v2`).
+- The `NEXT_PUBLIC_WWV_DATA_ENGINE_URL` env var is for the WWV app's own server-side REST calls (manifest checks, snapshot fetches) — it is NOT injected into plugin stream URLs.
+
+---
+
 ## The WorldPlugin Contract
 
 All data ingest flows through `WorldPlugin` (defined entirely within `@worldwideview/wwv-plugin-sdk`).
