@@ -12,7 +12,11 @@ import type { FilterValue } from "@/core/plugins/PluginTypes";
 import { hasLocalSource, resolveLocalSnapshot, getLocalSourceIds } from "./localSources";
 
 export function getEngineUrl(): string {
-    return process.env.NEXT_PUBLIC_WWV_DATA_ENGINE_URL ?? "http://localhost:5000";
+    // WWV_DATA_ENGINE_URL = production (docker-compose, server-side only)
+    // NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL = local dev override
+    return process.env.WWV_DATA_ENGINE_URL
+        ?? process.env.NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL
+        ?? "http://localhost:5000";
 }
 
 function normalizeEntity(raw: unknown): GeoEntity | null {

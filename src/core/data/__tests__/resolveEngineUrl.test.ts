@@ -21,7 +21,7 @@ describe('resolveEngineUrl', () => {
   });
 
   afterEach(() => {
-    delete process.env.NEXT_PUBLIC_WWV_DATA_ENGINE_URL;
+    delete process.env.NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL;
   });
 
   it('uses port 5000 by default when no env var is set', () => {
@@ -29,8 +29,8 @@ describe('resolveEngineUrl', () => {
     expect(resolveEngineUrl('test-plugin')).toContain(':5000/stream');
   });
 
-  it('uses the configured URL when NEXT_PUBLIC_WWV_DATA_ENGINE_URL is set', () => {
-    process.env.NEXT_PUBLIC_WWV_DATA_ENGINE_URL = 'http://localhost:5003';
+  it('uses the configured URL when NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL is set', () => {
+    process.env.NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL = 'http://localhost:5003';
     vi.mocked(localEngineHasPlugin).mockReturnValue(true);
     expect(resolveEngineUrl('test-plugin')).toContain(':5003/stream');
   });

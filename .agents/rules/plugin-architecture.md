@@ -23,7 +23,8 @@ This is intentional architectural separation: a user can have 30 plugins pointin
 - Plugins hardcode their cloud engine URL (e.g. `wss://dataenginev2.worldwideview.dev/stream`) — this is correct and by design.
 - Do not add env vars to let WWV override a plugin's `streamUrl` globally — that breaks the separation.
 - When editing a plugin's fallback fetch URL, use `https://dataenginev2.worldwideview.dev` (note the `v2`).
-- The `NEXT_PUBLIC_WWV_DATA_ENGINE_URL` env var is for the WWV app's own server-side REST calls (manifest checks, snapshot fetches) — it is NOT injected into plugin stream URLs.
+- `NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL` is a local dev only var (`.env.local` only, never production) that routes locally-developed plugin seeders to a local engine instance. It is NOT injected into plugin stream URLs.
+- `WWV_DATA_ENGINE_URL` is the production server-side var (docker-compose / Coolify) for the WWV app's own REST calls (MCP tools, entity search). Never set `NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL` in production.
 
 ---
 

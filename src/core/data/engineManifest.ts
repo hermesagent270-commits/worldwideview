@@ -8,14 +8,13 @@ let manifestFetched = false;
 /**
  * Resolve the base URL of the local data engine.
  *
- * Reads NEXT_PUBLIC_WWV_DATA_ENGINE_URL (default http://localhost:5000).
- * NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL is intentionally NOT used here:
- * that variable belongs to each plugin's own declared engine URL
- * (production, third-party, etc.) and must not poison local detection.
- * Mixing the two caused the production engine to be reported as "local".
+ * Reads NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL (default http://localhost:5000).
+ * Only set this in .env.local for local development — never in production.
+ * Each plugin owns its own streamUrl; this variable is only for routing
+ * locally-developed plugin seeders to a local engine instance.
  */
 function getLocalEngineBase() {
-    return process.env.NEXT_PUBLIC_WWV_DATA_ENGINE_URL ?? 'http://localhost:5000';
+    return process.env.NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL ?? 'http://localhost:5000';
 }
 
 /**

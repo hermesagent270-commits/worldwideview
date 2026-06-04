@@ -13,10 +13,10 @@ describe('fetchLocalEngineManifest', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
-    delete process.env.NEXT_PUBLIC_WWV_DATA_ENGINE_URL;
+    delete process.env.NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL;
   });
 
-  it('probes port 5000 when NEXT_PUBLIC_WWV_DATA_ENGINE_URL is not set', async () => {
+  it('probes port 5000 when NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL is not set', async () => {
     mockFetch.mockResolvedValue({ ok: false } as Response);
     await fetchLocalEngineManifest();
     expect(mockFetch).toHaveBeenCalledWith(
@@ -25,8 +25,8 @@ describe('fetchLocalEngineManifest', () => {
     );
   });
 
-  it('probes the env-configured URL when NEXT_PUBLIC_WWV_DATA_ENGINE_URL is set', async () => {
-    process.env.NEXT_PUBLIC_WWV_DATA_ENGINE_URL = 'http://localhost:5003';
+  it('probes the env-configured URL when NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL is set', async () => {
+    process.env.NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL = 'http://localhost:5003';
     mockFetch.mockResolvedValue({ ok: false } as Response);
     await fetchLocalEngineManifest();
     expect(mockFetch).toHaveBeenCalledWith(

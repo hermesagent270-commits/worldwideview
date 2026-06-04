@@ -70,7 +70,7 @@ export async function injectHostGlobals(): Promise<void> {
     };
 
     // REST Engine URL (Fallback)
-    // Note: Local engine interception (via NEXT_PUBLIC_WWV_DATA_ENGINE_URL) happens dynamically
+    // Note: Local engine interception (via NEXT_PUBLIC_WWV_LOCAL_ENGINE_URL) happens dynamically
     // inside resolveEngineUrl.ts during plugin routing. These variables act as global fallbacks.
     const envDataEngine = process.env.NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL;
     if (envDataEngine) {
