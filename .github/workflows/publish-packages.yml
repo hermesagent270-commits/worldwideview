@@ -1,0 +1,75 @@
+# Trigger model: merge to main with a version bump in the relevant package.json is the
+# intended signal. This workflow checks npm for the exact version before publishing, so
+# re-running on an already-published version is safe and idempotent.
+#
+# OIDC trusted publishing (no npm token required). For each package, the npm trusted-publisher
+# entry on npm.org must name this workflow file:
+#   org/repo: silvertakana/worldwideview
+#   workflow: .github/workflows/publish-packages.yml
+# That configuration step is manual and done once per package on npm.org.
+
+name: Publish Packages to npm
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build wwv-plugin-sdk
+        run: pnpm --filter @worldwideview/wwv-plugin-sdk run build
+
+      - name: Publish @worldwideview/wwv-plugin-sdk
+        run: |
+          LOCAL_VERSION=$(node -p "require('./packages/wwv-plugin-sdk/package.json').version")
+          NPM_VERSION=$(npm view @worldwideview/wwv-plugin-sdk@${LOCAL_VERSION} version 2>/dev/null || true)
+          if [ "$NPM_VERSION" = "$LOCAL_VERSION" ]; then
+            echo "@worldwideview/wwv-plugin-sdk@${LOCAL_VERSION} already published — skipping"
+          else
+            echo "Publishing @worldwideview/wwv-plugin-sdk@${LOCAL_VERSION}"
+            npm publish packages/wwv-plugin-sdk --provenance --access public
+          fi
+
+      - name: Publish @worldwideview/wwv-lib-incidents
+        run: |
+          LOCAL_VERSION=$(node -p "require('./packages/wwv-lib-incidents/package.json').version")
+          NPM_VERSION=$(npm view @worldwideview/wwv-lib-incidents@${LOCAL_VERSION} version 2>/dev/null || true)
+          if [ "$NPM_VERSION" = "$LOCAL_VERSION" ]; then
+            echo "@worldwideview/wwv-lib-incidents@${LOCAL_VERSION} already published — skipping"
+          else
+            echo "Publishing @worldwideview/wwv-lib-incidents@${LOCAL_VERSION}"
+            npm publish packages/wwv-lib-incidents --provenance --access public
+          fi
+
+      - name: Publish @worldwideview/wwv-lib-aviation
+        run: |
+          LOCAL_VERSION=$(node -p "require('./packages/wwv-lib-aviation/package.json').version")
+          NPM_VERSION=$(npm view @worldwideview/wwv-lib-aviation@${LOCAL_VERSION} version 2>/dev/null || true)
+          if [ "$NPM_VERSION" = "$LOCAL_VERSION" ]; then
+            echo "@worldwideview/wwv-lib-aviation@${LOCAL_VERSION} already published — skipping"
+          else
+            echo "Publishing @worldwideview/wwv-lib-aviation@${LOCAL_VERSION}"
+            npm publish packages/wwv-lib-aviation --provenance --access public
+          fi
