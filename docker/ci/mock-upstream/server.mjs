@@ -23,6 +23,12 @@ console.log(`[mock-upstream] loaded ${Object.keys(routes).length} routes from ${
 
 createServer((req, res) => {
   const path = req.url?.split("?")[0] ?? "/";
+  if (path === "/__health") {
+    res.statusCode = 200;
+    res.setHeader("content-type", "application/json");
+    res.end(JSON.stringify({ status: "ok" }));
+    return;
+  }
   const file = routes[path];
   if (!file) {
     console.warn(`[mock-upstream] 404 ${req.method} ${path}`);
