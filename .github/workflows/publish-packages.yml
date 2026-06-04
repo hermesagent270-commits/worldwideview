@@ -67,7 +67,7 @@ jobs:
             echo "@worldwideview/wwv-plugin-sdk@${LOCAL_VERSION} already published — skipping"
           else
             echo "Publishing @worldwideview/wwv-plugin-sdk@${LOCAL_VERSION}"
-            npm publish packages/wwv-plugin-sdk --provenance --access public
+            npm publish ./packages/wwv-plugin-sdk --provenance --access public
           fi
 
       - name: Publish @worldwideview/wwv-lib-incidents
@@ -78,7 +78,7 @@ jobs:
             echo "@worldwideview/wwv-lib-incidents@${LOCAL_VERSION} already published — skipping"
           else
             echo "Publishing @worldwideview/wwv-lib-incidents@${LOCAL_VERSION}"
-            npm publish packages/wwv-lib-incidents --provenance --access public
+            npm publish ./packages/wwv-lib-incidents --provenance --access public
           fi
 
       - name: Publish @worldwideview/wwv-lib-aviation
@@ -89,5 +89,5 @@ jobs:
             echo "@worldwideview/wwv-lib-aviation@${LOCAL_VERSION} already published — skipping"
           else
             echo "Publishing @worldwideview/wwv-lib-aviation@${LOCAL_VERSION}"
-            npm publish packages/wwv-lib-aviation --provenance --access public
+            npm publish ./packages/wwv-lib-aviation --provenance --access public
           fi
