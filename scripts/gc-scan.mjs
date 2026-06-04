@@ -148,6 +148,9 @@ const ANTI_PATTERNS = [
     tier: 'A',
     globs: ['*.ts', '*.tsx'],
     pattern: '@ts-ignore',
+    // Only flag the actual suppression directive form (// @ts-ignore or /* @ts-ignore),
+    // not the token appearing in JSDoc prose (e.g. "No @ts-ignore used here").
+    directiveOnly: true,
     desc: '@ts-ignore suppresses real type errors — remove and fix the underlying type',
   },
   {
@@ -155,6 +158,7 @@ const ANTI_PATTERNS = [
     tier: 'A',
     globs: ['*.ts', '*.tsx'],
     pattern: '@ts-nocheck',
+    directiveOnly: true,
     desc: '@ts-nocheck disables all type checking for the file — remove and fix types',
   },
   {
@@ -175,7 +179,7 @@ const ANTI_PATTERNS = [
 ];
 
 function detectAntiPatterns() {
-  for (const { id, tier, globs, pattern, desc, excludePrefix } of ANTI_PATTERNS) {
+  for (const { id, tier, globs, pattern, desc, excludePrefix, directiveOnly } of ANTI_PATTERNS) {
     const globArgs = globs.map(g => `"${g}"`).join(' ');
     const raw = run(`git grep -En "${pattern}" -- ${globArgs}`);
     if (!raw) continue;
@@ -189,13 +193,19 @@ function detectAntiPatterns() {
       const m = line.match(/^([^:]+):(\d+):(.*)/);
       if (!m) continue;
       if (m[1].startsWith('node_modules/') || m[1].includes('public/cesium')) continue;
+      const content = m[3].trim();
+      // For directive-only patterns (e.g. @ts-ignore), skip lines where the token
+      // appears in prose rather than as a comment suppression directive.
+      // A real directive has @ts-ignore/@ts-nocheck immediately after the // or /*
+      // comment opener — not buried mid-sentence in a comment that mentions it.
+      if (directiveOnly && !/^\s*\/[/*]\s*@ts-(ignore|nocheck)/.test(m[3])) continue;
       add({
         type: 'anti-pattern',
         patternId: id,
         tier,
         file: m[1],
         line: parseInt(m[2], 10),
-        content: m[3].trim().slice(0, 200),
+        content: content.slice(0, 200),
         description: desc,
       });
     }
@@ -306,13 +316,36 @@ function detectOutdatedDeps() {
   if (!existsSync(join(ROOT, 'package.json'))) return;
   const raw = run('pnpm outdated --no-color 2>/dev/null || true');
   if (!raw) return;
-  const dataLines = raw
+  // pnpm outdated renders a Unicode box-drawing table. Data rows start with │ and
+  // contain pipe-separated columns; separator/border rows contain ─ or ┼ characters.
+  // We extract data rows by splitting on │ and discarding header/separator lines.
+  const SEPARATOR_CHARS = /[┌┐└┘├┤─]/;
+  const tableDataRows = raw
     .split('\n')
-    .filter(l => l.trim() && !l.startsWith('Package') && !l.startsWith('Legend') && !l.startsWith(' '));
+    .filter(l => l.startsWith('│') && !SEPARATOR_CHARS.test(l));
+  // Fall back to plain whitespace-separated output (older pnpm / --no-color plain format)
+  const plainDataLines = !tableDataRows.length
+    ? raw.split('\n').filter(l => l.trim() && !l.startsWith('Package') && !l.startsWith('Legend') && !l.startsWith(' '))
+    : [];
+
+  const dataLines = tableDataRows.length ? tableDataRows : plainDataLines;
+
   for (const line of dataLines.slice(0, 12)) {
-    const cols = line.trim().split(/\s+/);
-    if (cols.length < 3) continue;
-    const [pkg, current, latest] = cols;
+    let pkg, current, latest;
+    if (tableDataRows.length) {
+      // Parse │ col1 │ col2 │ col3 │ format
+      const cols = line.split('│').map(c => c.trim()).filter(Boolean);
+      if (cols.length < 3) continue;
+      // Header row: first column is literally "Package"
+      if (cols[0] === 'Package') continue;
+      [pkg, current, latest] = cols;
+      // current may be "1.2.3 (wanted 1.2.4)" — extract just the installed version
+      current = current.split(' ')[0];
+    } else {
+      const cols = line.trim().split(/\s+/);
+      if (cols.length < 3) continue;
+      [pkg, current, latest] = cols;
+    }
     if (!pkg || !current || !latest || current === latest) continue;
     const isMajor = current.replace(/^[^0-9]*/, '').split('.')[0] !== latest.replace(/^[^0-9]*/, '').split('.')[0];
     add({
