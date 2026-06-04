@@ -1,4 +1,5 @@
 import WebSocket from "ws";
+import { validatePayloadValue } from "./payloadShape.js";
 
 /**
  * Connects to the data-engine's /stream WebSocket and resolves when a
@@ -44,7 +45,7 @@ export async function probeWs(opts: {
       if (settled) return;
 
       const payload = msg.payload;
-      const valid = isNonEmptyPayload(payload);
+      const valid = validatePayloadValue(payload);
       if (!valid.ok) {
         console.error(`[ws] received message for "${opts.name}" but payload invalid: ${valid.reason}`);
         // Keep waiting — a later message might be valid.
@@ -66,31 +67,4 @@ export async function probeWs(opts: {
       resolve(false);
     });
   });
-}
-
-function isNonEmptyPayload(p: unknown):
-  | { ok: true; shape: "geo-entity-array" | "items-object" | "named-collection" }
-  | { ok: false; reason: string } {
-  if (Array.isArray(p)) {
-    return p.length > 0
-      ? { ok: true, shape: "geo-entity-array" }
-      : { ok: false, reason: "empty GeoEntity[]" };
-  }
-  if (p && typeof p === "object") {
-    const obj = p as Record<string, unknown>;
-    if (Array.isArray(obj.items)) {
-      return obj.items.length > 0
-        ? { ok: true, shape: "items-object" }
-        : { ok: false, reason: "empty items[]" };
-    }
-    const arrayKeys = Object.keys(obj).filter((k) => Array.isArray(obj[k]));
-    if (arrayKeys.length === 1) {
-      const arr = obj[arrayKeys[0]] as unknown[];
-      return arr.length > 0
-        ? { ok: true, shape: "named-collection" }
-        : { ok: false, reason: `empty ${arrayKeys[0]}[]` };
-    }
-    return { ok: false, reason: "payload object has no recognizable array field" };
-  }
-  return { ok: false, reason: `payload is neither array nor object (typeof=${typeof p})` };
 }
