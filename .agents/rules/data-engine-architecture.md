@@ -89,3 +89,60 @@ This means:
 
 > [!CAUTION]
 > The most common silent bug: seeder sends `{ items: [...] }` (an object), frontend plugin omits `mapWebsocketPayload`. Data arrives but WsClient drops it with a console warning. The globe stays empty. Always implement `mapWebsocketPayload` for any plugin whose seeder sends an object payload.
+
+## 8. Seeder Authoring Contract — the module shape
+
+§7 covers what a seeder **sends**. This covers how you **write** one. The engine
+auto-discovers a seeder by scanning `SEEDERS_DIR` for any folder with
+`dist/index.mjs` and importing its **default export**. The seeder's `id` is the
+**folder name**, not the `name` field. You never call a register function — the
+authoritative reference is `wwv-data-engine/README.md` → "Authoring a Seeder".
+
+The default export is `{ name }` plus **one** of these shapes:
+
+| Shape | You provide | How data is published |
+|---|---|---|
+| `interval` + `fetch(ctx)` | `fetch` **returns** the array | scheduler wraps + stores + broadcasts it for you |
+| `cron` + `fn(ctx)` | `fn` publishes itself | `import { setLiveSnapshot } from '@worldwideview/seeder-sdk'` and call it |
+| `init(ctx)` | a persistent listener | publish via the SDK as push data arrives |
+
+**The trap (this caused a real, silent CI failure):** `ctx` is **only `{ redis }`**.
+There is no `ctx.setLiveSnapshot`. Reaching for it throws at runtime and the
+snapshot never lands. Publish helpers come from `@worldwideview/seeder-sdk`, not
+from `ctx`. The engine now types `ctx` as `SeederContext { redis }`, so this is a
+compile error for any typed seeder — but `.mjs` seeders without type-checking get
+no such safety net, so know the contract.
+
+<bad-example>
+```ts
+// cron + fn reaching for a method that does not exist on ctx
+export default {
+  name: "earthquakes",
+  cron: "0 * * * *",
+  fn: async (ctx) => {
+    await ctx.setLiveSnapshot("earthquakes", items, 3600); // ❌ not a function — dies silently
+  },
+};
+```
+</bad-example>
+
+<good-example>
+```ts
+// Option A — cron + fn: publish via the SDK (dominant idiom)
+import { setLiveSnapshot } from "@worldwideview/seeder-sdk";
+export default {
+  name: "earthquakes",
+  cron: "0 * * * *",
+  fn: async () => {
+    await setLiveSnapshot("earthquakes", { source: "earthquakes", fetchedAt: new Date().toISOString(), items, totalCount: items.length }, 3600);
+  },
+};
+
+// Option B — interval + fetch: just return the array, scheduler does the rest
+export default {
+  name: "earthquakes",
+  interval: 60_000,
+  fetch: async () => items, // ✅ no publishing call needed
+};
+```
+</good-example>
