@@ -8,17 +8,14 @@ let manifestFetched = false;
 /**
  * Resolve the base URL of the local data engine.
  *
- * Always checks the port bound by NEXT_PUBLIC_WWV_LOCAL_ENGINE_PORT
- * (default 5000, matching docker-compose.yml for wwv-data-engine).
+ * Reads NEXT_PUBLIC_WWV_DATA_ENGINE_URL (default http://localhost:5000).
  * NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL is intentionally NOT used here:
  * that variable belongs to each plugin's own declared engine URL
  * (production, third-party, etc.) and must not poison local detection.
  * Mixing the two caused the production engine to be reported as "local".
  */
 function getLocalEngineBase() {
-    const port = process.env.NEXT_PUBLIC_WWV_LOCAL_ENGINE_PORT || '5000';
-    if (typeof window === "undefined") return `http://localhost:${port}`;
-    return `${window.location.protocol}//${window.location.hostname}:${port}`;
+    return process.env.NEXT_PUBLIC_WWV_DATA_ENGINE_URL ?? 'http://localhost:5000';
 }
 
 /**

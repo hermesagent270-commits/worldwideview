@@ -20,15 +20,15 @@ function toWsStreamUrl(url: string): string {
 const DEFAULT_ENGINE_URL = toWsStreamUrl(RAW_ENGINE_URL);
 
 function getLocalWsUrl() {
-    const port = process.env.NEXT_PUBLIC_WWV_LOCAL_ENGINE_PORT || '5000';
-    if (typeof window === "undefined") return `ws://localhost:${port}/stream`;
-    return `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:${port}/stream`;
+    const base = process.env.NEXT_PUBLIC_WWV_DATA_ENGINE_URL ?? 'http://localhost:5000';
+    const ws = base.replace(/^https:\/\//, 'wss://').replace(/^http:\/\//, 'ws://');
+    return ws.replace(/\/+$/, '') + '/stream';
 }
 /**
  * Resolves the WebSocket engine URL for a given plugin.
  *
  * Resolution order:
- * 1. Local engine (if running locally on NEXT_PUBLIC_WWV_LOCAL_ENGINE_PORT and has this plugin's seeder)
+ * 1. Local engine (if running at NEXT_PUBLIC_WWV_DATA_ENGINE_URL and has this plugin's seeder)
  * 2. Plugin's ServerPluginConfig.streamUrl (code-based plugins)
  * 3. Plugin's PluginManifest.dataSource.streamUrl (manifest-based plugins)
  * 4. NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL env var
