@@ -104,19 +104,14 @@ export function Header() {
           <>
             <header className="header header--mobile glass-panel">
               <div className="header__brand">
-                <a
-                  href="https://worldwideview.dev/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
- display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "inherit"
+                <div style={{
+ display: "flex", alignItems: "center", gap: "8px", color: "inherit"
 }}
                 >
                   <Image src="/logo/logo-icon.svg" alt="Logo" width={20} height={20} style={{ objectFit: "contain" }} />
-                  <div className="header__logo header__logo--compact">WWV</div>
-                </a>
-                <span className="alpha-badge">ALPHA</span>
-                {isDemoAdmin && <span className="alpha-badge" style={{ background: "var(--accent-orange, #f59e0b)" }}>ADMIN</span>}
+                  <div className="header__logo header__logo--compact">INTEL</div>
+                </div>
+                                {isDemoAdmin && <span className="alpha-badge" style={{ background: "var(--accent-orange, #f59e0b)" }}>ADMIN</span>}
               </div>
 
               <div className="header__search-center">
@@ -206,15 +201,14 @@ export function Header() {
       <>
         <header className="header glass-panel">
           <div className="header__brand">
-            <a href="https://worldwideview.dev/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
+            <div style={{ color: "inherit" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <Image src="/logo/logo-icon.svg" alt="Logo" width={22} height={22} style={{ objectFit: "contain" }} />
-                <div className="header__logo">WORLD WIDE VIEW</div>
-                <span className="alpha-badge">ALPHA</span>
-                {isDemoAdmin && <span className="alpha-badge" style={{ background: "var(--accent-orange, #f59e0b)" }}>ADMIN</span>}
+                <div className="header__logo">INTEL SIGNAL</div>
+                                {isDemoAdmin && <span className="alpha-badge" style={{ background: "var(--accent-orange, #f59e0b)" }}>ADMIN</span>}
               </div>
               <div className="header__subtitle">Geospatial Intelligence</div>
-            </a>
+            </div>
             <div style={{ marginLeft: "var(--space-xl)" }}>
               <SearchBar />
             </div>
