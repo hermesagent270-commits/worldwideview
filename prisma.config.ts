@@ -31,5 +31,6 @@ if (!dbUrl) {
 export default {
     datasource: {
         url: dbUrl,
+        shadowDatabaseUrl: process.env.SHADOW_DATABASE_URL || dbUrl,
     },
 };
