@@ -114,7 +114,7 @@ export function ConnectAgentHelper({ token }: ConnectAgentHelperProps) {
               </div>
               <ul style={{ ...mutedMicro, margin: 0, paddingLeft: "var(--space-md)", lineHeight: 1.6 }}>
                 <li>
-                  You must be <strong>signed in</strong> to WorldWideView. Your API key is tied to your account.
+                  You must be <strong>signed in</strong> to Intel Signal. Your API key is tied to your account.
                 </li>
                 {isCloud && (
                   <li>
@@ -127,7 +127,7 @@ export function ConnectAgentHelper({ token }: ConnectAgentHelperProps) {
                 </li>
                 <li>
                   <strong>Command/control tools</strong> (pan_globe, fly_to, toggle_layer, set_filter, etc.)
-                  require this WorldWideView tab to stay open and signed in. Without an open globe tab the
+                  require this Intel Signal tab to stay open and signed in. Without an open globe tab the
                   command is accepted but has no visible effect.
                 </li>
               </ul>
