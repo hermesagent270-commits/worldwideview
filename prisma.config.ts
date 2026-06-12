@@ -28,9 +28,10 @@ if (!dbUrl) {
     }
 }
 
+const shadowDatabaseUrl = process.env.SHADOW_DATABASE_URL;
 export default {
     datasource: {
         url: dbUrl,
-        shadowDatabaseUrl: process.env.SHADOW_DATABASE_URL || dbUrl,
+        ...(shadowDatabaseUrl ? { shadowDatabaseUrl } : {}),
     },
 };
