@@ -1042,6 +1042,20 @@ body.sidebar-force-transition .sidebar {
   display: none !important;
 }
 
+/* Cesium debug FPS box (Graphics → Show FPS). Cesium defaults it to
+   top:50px right:10px inside the viewer layer, which paints beneath the
+   fixed header and the right DataConfig panel (the viewer wrapper is
+   z-index 0, so no internal z-index can lift it above the UI). Move it
+   below the header, and step it left of the right sidebar while that
+   panel is open. */
+.cesium-performanceDisplay-defaultContainer {
+  top: 84px !important;
+  right: calc(var(--ad-strip-inset, 0px) + var(--space-lg)) !important;
+}
+body:has(.sidebar--right:not(.sidebar--closed)) .cesium-performanceDisplay-defaultContainer {
+  right: calc(var(--ad-strip-inset, 0px) + var(--space-lg) + 296px) !important;
+}
+
 /* ─── Entity Info Card (Hover Tooltip) ────────────────────── */
 .entity-info-card {
   position: fixed;
