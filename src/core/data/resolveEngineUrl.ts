@@ -6,6 +6,29 @@ const CLOUD_ENGINE_URL = "wss://dataenginev2.worldwideview.dev/stream";
 
 const RAW_ENGINE_URL = process.env.NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL || CLOUD_ENGINE_URL;
 
+// Upstream's hosted data engines went hard-502 (2026-06-13). Marketplace
+// plugins hardcode these hosts in getServerConfig().streamUrl, which wins at
+// resolution step #2 — above our NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL at
+// step #4 — so every streaming layer would dial the dead upstream. When a
+// self-hosted engine is configured, rewrite those dead hosts to ours,
+// preserving the /stream path. Any other (live, third-party) streamUrl is
+// left untouched.
+const DEAD_UPSTREAM_HOSTS = [
+  "dataenginev2.worldwideview.dev",
+  "dataengine.worldwideview.dev",
+];
+
+function rewriteDeadUpstream(streamUrl: string): string {
+  if (!process.env.NEXT_PUBLIC_WWV_PLUGIN_DATA_ENGINE_URL) return streamUrl;
+  try {
+    const u = new URL(streamUrl);
+    if (DEAD_UPSTREAM_HOSTS.includes(u.hostname)) return DEFAULT_ENGINE_URL;
+  } catch {
+    // not a parseable absolute URL — leave it alone
+  }
+  return streamUrl;
+}
+
 /** Normalize a base URL into a valid WebSocket stream URL. */
 function toWsStreamUrl(url: string): string {
   let normalized = url
@@ -44,12 +67,12 @@ export function resolveEngineUrl(pluginId: string): string {
   const managed = pluginManager.getPlugin(pluginId);
   if (managed) {
     const serverConfig = managed.plugin.getServerConfig?.();
-    if (serverConfig?.streamUrl) return serverConfig.streamUrl;
+    if (serverConfig?.streamUrl) return rewriteDeadUpstream(serverConfig.streamUrl);
   }
 
   // 3. Manifest-based plugin data source config
   const manifest = pluginManager.getManifest(pluginId);
-  if (manifest?.dataSource?.streamUrl) return manifest.dataSource.streamUrl;
+  if (manifest?.dataSource?.streamUrl) return rewriteDeadUpstream(manifest.dataSource.streamUrl);
 
   // 4+5. Global default (env var or cloud)
   return DEFAULT_ENGINE_URL;
