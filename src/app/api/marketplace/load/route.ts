@@ -66,6 +66,14 @@ export async function GET(request: Request) {
 
         const allRecords = [...records, ...localPlugins];
 
+        // Locally-served plugins (public/plugins-local, WWV_PLUGIN_DEV) are
+        // first-party by definition — they ship on our own disk. Treat them as
+        // verified so they skip the per-load "Unverified Plugins" gate (which
+        // otherwise hides every intel-* layer until the operator clicks
+        // "Install Selected" on each page load). The upstream verified registry
+        // never lists them, so without this they re-stamp unverified forever.
+        const localIds = new Set(localPlugins.map((p) => p.pluginId));
+
         const manifests = allRecords
             .map((r: any): PluginManifest | null => {
                 try {
@@ -118,7 +126,7 @@ export async function GET(request: Request) {
                 // Re-stamp trust against the live registry so revoked plugins
                 // are correctly gated by the unverified dialog on the client.
                 if (m.trust !== "built-in") {
-                    m.trust = verifiedIds.has(m.id) ? "verified" : "unverified";
+                    m.trust = (localIds.has(m.id) || verifiedIds.has(m.id)) ? "verified" : "unverified";
                 }
                 return m;
             });
