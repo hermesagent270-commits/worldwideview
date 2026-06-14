@@ -18,8 +18,13 @@ export async function GET(request: Request) {
     const isValidUserKey = userKey && userKey.length >= 20;
     const apiKey = isValidUserKey ? userKey : process.env.GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
-        console.error("GOOGLE_MAPS_API_KEY is not defined and no user key provided");
-        return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+        // No geocoding key configured — degrade gracefully instead of 500ing on
+        // every keystroke. The search box's primary job is client-side layer
+        // filtering; Google place-suggestions are an optional extra. Returning
+        // empty predictions keeps the box working and silences the console
+        // error. Set GOOGLE_MAPS_API_KEY (or paste a per-browser key via the
+        // header's key dialog → X-User-Google-Key) to enable location search.
+        return NextResponse.json({ predictions: [] });
     }
 
     // Separate cache entries for user-provided keys vs default
