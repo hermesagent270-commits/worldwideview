@@ -6,6 +6,9 @@ import { ny511Adapter } from "./ny511";
 import { wsdotAdapter } from "./wsdot";
 import { ncdotAdapter } from "./ncdot";
 import { osmSurveillanceAdapter } from "./osm-surveillance";
+import { osirisCctvAdapter } from "./osiris-cctv";
+import { osirisAustraliaAdapter } from "./osiris-australia";
+import { osirisAsfinagAdapter } from "./osiris-asfinag";
 
 /**
  * All registered adapters. To add a new source, add an import + push the
@@ -21,6 +24,9 @@ export const ALL_ADAPTERS: CameraAdapter[] = [
     wsdotAdapter,
     ncdotAdapter,
     osmSurveillanceAdapter,
+    osirisCctvAdapter,
+    osirisAustraliaAdapter,
+    osirisAsfinagAdapter,
 ];
 
 const ADAPTERS_BY_ID: Map<string, CameraAdapter> = new Map(

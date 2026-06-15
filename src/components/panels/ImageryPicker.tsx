@@ -37,22 +37,25 @@ export function ImageryPicker() {
               className={`mode-btn ${sceneMode === 3 ? "mode-btn--active" : ""}`}
               onClick={() => { updateMapConfig({ sceneMode: 3 }); trackEvent("view-mode-change", { mode: "3D" }); }}
               title="3D Globe"
+              style={{ display: "flex", alignItems: "center", gap: 6 }}
             >
-              <Globe size={18} />
+              <Globe size={18} /><span style={{ fontSize: 12 }}>3D Globe</span>
             </button>
             <button
               className={`mode-btn ${sceneMode === 1 ? "mode-btn--active" : ""}`}
               onClick={() => { updateMapConfig({ sceneMode: 1 }); trackEvent("view-mode-change", { mode: "columbus" }); }}
               title="Columbus View (2.5D)"
+              style={{ display: "flex", alignItems: "center", gap: 6 }}
             >
-              <Grid2X2 size={18} />
+              <Grid2X2 size={18} /><span style={{ fontSize: 12 }}>2.5D</span>
             </button>
             <button
               className={`mode-btn ${sceneMode === 2 ? "mode-btn--active" : ""}`}
               onClick={() => { updateMapConfig({ sceneMode: 2 }); trackEvent("view-mode-change", { mode: "2D" }); }}
-              title="2D Map"
+              title="2D Map (flat map view)"
+              style={{ display: "flex", alignItems: "center", gap: 6 }}
             >
-              <Layout size={18} />
+              <Layout size={18} /><span style={{ fontSize: 12 }}>2D Map</span>
             </button>
           </div>
         </div>
