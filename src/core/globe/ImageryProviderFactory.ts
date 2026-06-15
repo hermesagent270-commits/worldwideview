@@ -22,6 +22,18 @@ export const IMAGERY_LAYERS: ImageryLayerEntry[] = [
         type: "google-3d",
     },
     {
+        id: "carto-dark",
+        name: "Dark Map (labels + borders)",
+        description: "OSIRIS-style dark map — country borders, labels, place names",
+        type: "imagery",
+    },
+    {
+        id: "carto-light",
+        name: "Light Map (labels + borders)",
+        description: "Clean light map — country borders, labels, place names",
+        type: "imagery",
+    },
+    {
         id: "bing-aerial",
         name: "Bing Maps Aerial",
         description: "High-resolution satellite imagery",
@@ -63,6 +75,17 @@ export function createOsmProvider() {
     return new UrlTemplateImageryProvider({
         url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         subdomains: ["a", "b", "c"]
+    });
+}
+
+// Carto basemaps: free, keyless, labeled vector-raster tiles (borders, country
+// + city labels, roads). "dark_all" is the OSIRIS-like dark style; "light_all"
+// is the clean light style. Attribution: © OpenStreetMap, © CARTO.
+function createCartoProvider(style: "dark_all" | "light_all") {
+    return new UrlTemplateImageryProvider({
+        url: `https://{s}.basemaps.cartocdn.com/${style}/{z}/{x}/{y}.png`,
+        subdomains: ["a", "b", "c", "d"],
+        credit: "© OpenStreetMap contributors © CARTO",
     });
 }
 
@@ -122,6 +145,12 @@ export async function createImageryProvider(layerId: string) {
                 });
             }
             return await tieredFallback(4, "m");
+
+        case "carto-dark":
+            return createCartoProvider("dark_all");
+
+        case "carto-light":
+            return createCartoProvider("light_all");
 
         case "osm":
             return createOsmProvider();
