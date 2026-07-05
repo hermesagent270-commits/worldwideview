@@ -282,6 +282,7 @@ enableLighting,
         timeline={false}
         vrButton={false}
         baseLayer={false}
+        useBrowserRecommendedResolution={false}
         contextOptions={CONTEXT_OPTIONS}
         style={VIEWER_STYLE}
       >
