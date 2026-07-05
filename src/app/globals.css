@@ -50,7 +50,7 @@ html, body {
   box-shadow: var(--glass-border-inner), var(--glass-shadow);
   border-radius: var(--radius-lg);
   transition: all var(--duration-fast) var(--ease-smooth);
-  backdrop-filter: blur(4px) !important;
+  backdrop-filter: none !important;
 }
 
 /* ─── Page Root (flex row: app + optional ad strip) ───────── */
