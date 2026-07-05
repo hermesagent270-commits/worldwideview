@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import type { Viewer as CesiumViewer } from "cesium";
 import {
- Cartesian3, CameraEventType, KeyboardEventModifier, createGooglePhotorealistic3DTileset, GoogleMaps
+ Cartesian3, CameraEventType, KeyboardEventModifier, createGooglePhotorealistic3DTileset, GoogleMaps, SkyBox
 } from "cesium";
 import { dataBus } from "@/core/data/DataBus";
 import { getUserApiKey } from "@/lib/userApiKeys";
@@ -17,6 +17,14 @@ export function useViewerInitialization(sceneSettings: any) {
 
         // 1. Core Viewer Settings (Sync)
         viewer.imageryLayers.removeAll();
+        // High-res star skybox (ESO Milky Way panorama) — stock Tycho faces are low-res and blurry
+        viewer.scene.skyBox = new SkyBox({
+            sources: {
+                positiveX: "/skybox/px.jpg", negativeX: "/skybox/mx.jpg",
+                positiveY: "/skybox/py.jpg", negativeY: "/skybox/my.jpg",
+                positiveZ: "/skybox/pz.jpg", negativeZ: "/skybox/mz.jpg",
+            },
+        });
         viewer.scene.requestRenderMode = true;
         viewer.scene.maximumRenderTimeChange = 0.5;
         viewer.scene.debugShowFramesPerSecond = sceneSettings.showFps;
