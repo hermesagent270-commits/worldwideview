@@ -1,5 +1,21 @@
-<svg width="86" height="85" viewBox="0 0 86 85" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.97156 77.5549L78.6823 6.84416C40.9784 46.8334 26.0874 61.7579 37.4667 76.1661C25.2931 68.0038 20.0318 69.4808 7.97156 77.5549Z" fill="#EAEAEA"/>
-<path d="M78.6822 6.84407L7.97156 77.5548C45.6754 37.5656 60.5664 22.641 49.1871 8.23281C61.3607 16.3951 66.622 14.9182 78.6822 6.84407Z" fill="#EAEAEA"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M50.1323 11.5483C38.4059 8.73493 25.5678 12.6745 17.5153 22.7152C10.0066 32.078 8.57993 44.3506 12.7129 54.7508C21.7798 55.5894 32.9597 50.1119 41.1528 39.8959C48.5438 30.68 51.6428 19.9287 50.1323 11.5483ZM37.5649 74.5831C48.569 76.2972 60.1659 72.2339 67.6401 62.9143C75.6526 52.9234 76.7396 39.6191 71.5358 28.8122C63.0544 29.2016 53.2886 34.5544 45.9313 43.7282C37.7798 53.8924 34.849 65.9241 37.5649 74.5831Z" fill="#EAEAEA"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<defs>
+<filter id="halo" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="6"/></filter>
+<linearGradient id="chromeCell" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#ffffff"/><stop offset="0.35" stop-color="#cdd3da"/>
+<stop offset="0.55" stop-color="#f6f8fa"/><stop offset="1" stop-color="#a9b1ba"/></linearGradient>
+<linearGradient id="gunmetal" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#8a9098"/><stop offset="0.5" stop-color="#62676e"/><stop offset="1" stop-color="#4c5156"/></linearGradient>
+<linearGradient id="chromeText" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#ffffff"/><stop offset="0.48" stop-color="#e8ecf0"/>
+<stop offset="0.52" stop-color="#b9c1c9"/><stop offset="0.75" stop-color="#f2f5f8"/><stop offset="1" stop-color="#c4ccd4"/></linearGradient>
+<radialGradient id="nodeGrad" cx="0.35" cy="0.3" r="0.9">
+<stop offset="0" stop-color="#bfeaff"/><stop offset="0.35" stop-color="#7dd3fc"/>
+<stop offset="0.75" stop-color="#38bdf8"/><stop offset="1" stop-color="#0e94d4"/></radialGradient>
+<linearGradient id="glare" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.42" stop-color="#ffffff" stop-opacity="0.16"/>
+<stop offset="0.5" stop-color="#ffffff" stop-opacity="0.30"/><stop offset="0.58" stop-color="#ffffff" stop-opacity="0.16"/>
+<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+</defs><rect width="512" height="512" rx="112" fill="#111111"/>
+<rect x="1" y="1" width="510" height="510" rx="111" fill="none" stroke="#1f1f1f" stroke-width="2"/>
+<g><rect x="55" y="118" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.50"/><rect x="55" y="189" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.60"/><rect x="55" y="260" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.70"/><rect x="55" y="331" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.50"/><rect x="55" y="402" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.60"/><rect x="136" y="118" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.60"/><rect x="136" y="189" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.70"/><rect x="136" y="260" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.50"/><rect x="136" y="331" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.60"/><rect x="136" y="402" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.70"/><rect x="298" y="118" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.50"/><rect x="298" y="189" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.60"/><rect x="298" y="260" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.70"/><rect x="298" y="331" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.50"/><rect x="298" y="402" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.60"/><rect x="379" y="118" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.60"/><rect x="379" y="189" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.70"/><rect x="379" y="260" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.50"/><rect x="379" y="331" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.60"/><rect x="379" y="402" width="78" height="64" rx="16" fill="url(#gunmetal)" opacity="0.70"/><rect x="217" y="118" width="78" height="64" rx="16" fill="url(#chromeCell)" opacity="1.00"/><rect x="217" y="189" width="78" height="64" rx="16" fill="url(#chromeCell)" opacity="0.89"/><rect x="217" y="260" width="78" height="64" rx="16" fill="url(#chromeCell)" opacity="0.78"/><rect x="217" y="331" width="78" height="64" rx="16" fill="url(#chromeCell)" opacity="0.67"/><rect x="217" y="402" width="78" height="64" rx="16" fill="url(#chromeCell)" opacity="0.56"/><circle cx="256" cy="72" r="30" fill="url(#nodeGrad)"/><circle cx="247" cy="63" r="9" fill="#ffffff" opacity="0.9"/></g></svg>
